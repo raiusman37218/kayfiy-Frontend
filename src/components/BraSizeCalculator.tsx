@@ -88,7 +88,7 @@ export default function BraSizeCalculator() {
           {result ? (
             <div className="rounded-2xl bg-cream p-6 text-center">
               <p className="text-xs tracking-[0.18em] text-muted uppercase">
-                Your Lisset size
+                Your KAYFIY size
               </p>
               <p className="mt-2 font-serif text-5xl text-charcoal">
                 {result.size}

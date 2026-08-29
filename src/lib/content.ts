@@ -24,14 +24,14 @@ export const staticPages: StaticPage[] = [
         heading: "Other ways to reach us",
         list: [
           "WhatsApp: +92 300 0000000, 10am–7pm Monday to Saturday",
-          "Email: hello@lisset.pk",
-          "Instagram and Facebook: @lisset.pk",
+          "Email: hello@kayfiy.pk",
+          "Instagram and Facebook: @kayfiy.pk",
         ],
       },
       {
         heading: "Wholesale and stockists",
         body: [
-          "If you run a boutique or pharmacy and would like to stock Lisset, write to wholesale@lisset.pk with your shop name and city. We send the current line sheet and minimum order details the same week.",
+          "If you run a boutique or store and would like to stock KAYFIY, write to wholesale@kayfiy.pk with your shop name and city. We send the current catalog and wholesale order details promptly.",
         ],
       },
     ],
@@ -51,18 +51,19 @@ export const staticPages: StaticPage[] = [
         ],
       },
       {
-        heading: "Signs the fit is wrong",
+        heading: "Check the signs of a correct fit",
         list: [
-          "The band rides up your back — go one band size down.",
-          "The centre panel does not sit flat on your chest — go one cup up.",
-          "Cups gape at the top edge — go one cup down or try a padded style.",
-          "Straps dig in — the band, not the straps, should carry the weight.",
+          "The centre gore sits flat against your chest bone.",
+          "The underband runs horizontally straight across your back, not riding up.",
+          "No spillage over the cup edges and no empty wrinkling in the cups.",
+          "The underwire rests flat against your ribcage without poking into delicate tissue.",
         ],
       },
       {
-        heading: "Making it last",
+        heading: "When to change size",
         body: [
-          "Hand wash in cool water with a mild detergent, press the water out rather than wringing, and dry flat away from direct sun. Rotate between at least three bras so the elastic has a day to recover between wears.",
+          "If the band rides up your back, your band is too loose — go down a band size and up a cup size.",
+          "If the wires dig in at the sides, the cups are too small — go up one cup size in the same band.",
         ],
       },
     ],
@@ -70,31 +71,33 @@ export const staticPages: StaticPage[] = [
   {
     slug: "shipping-and-return",
     title: "Shipping & Return",
-    blurb: "Nationwide delivery, and a straightforward exchange window.",
+    blurb: "Simple nationwide delivery and a hassle-free 7-day exchange window.",
     blocks: [
       {
-        heading: "Delivery",
+        heading: "Delivery times and charges",
         list: [
-          "Orders are packed Monday to Saturday, excluding public holidays.",
-          "Karachi, Lahore and Islamabad: 2–3 working days.",
+          "Karachi, Lahore & Islamabad: 2–3 working days.",
           "Rest of Pakistan: 3–5 working days.",
-          "Flat delivery charge of Rs. 199, free on orders over Rs. 3,500.",
-          "Cash on delivery is available everywhere our courier reaches.",
+          "Standard delivery is Rs. 199 flat nationwide.",
+          "Free delivery on all orders over Rs. 3,500.",
         ],
       },
       {
-        heading: "Returns and exchanges",
-        list: [
-          "You have 7 days from delivery to request an exchange or return.",
-          "Items must be unworn, unwashed and have their tags and hygiene seal intact.",
-          "For hygiene reasons panties, sanitary pads and nursing pads cannot be returned once opened.",
-          "Sale items can be exchanged for a different size, but are not refundable.",
+        heading: "Discreet Packaging",
+        body: [
+          "We understand privacy is essential. Every KAYFIY parcel is securely packed in an opaque, unbranded outer bag with no product names displayed on the courier slip.",
+        ],
+      },
+      {
+        heading: "7-day exchange policy",
+        body: [
+          "We gladly exchange any unwashed, unworn item with tags intact within 7 days of delivery. For hygiene reasons, briefs and sanitary pads cannot be returned once opened.",
         ],
       },
       {
         heading: "How to start a return",
         body: [
-          "Message us on WhatsApp with your order number and a photo of the item. We arrange a courier pickup where the service is available, or share a drop-off address. Once the item reaches us and passes inspection, the exchange ships within two working days.",
+          "Message us on WhatsApp with your order reference number and photo. We will guide you through the fast exchange process.",
         ],
       },
     ],
@@ -102,7 +105,7 @@ export const staticPages: StaticPage[] = [
   {
     slug: "size-guide",
     title: "Size Guide",
-    blurb: "How Lisset sizing maps to your measurements.",
+    blurb: "How KAYFIY sizing maps to your measurements.",
     widget: "size-table",
     blocks: [
       {
@@ -152,7 +155,7 @@ export const staticPages: StaticPage[] = [
       {
         heading: "Do you offer cash on delivery?",
         body: [
-          "Yes, across Pakistan wherever our courier delivers. You pay the rider when the parcel arrives.",
+          "Yes, across Pakistan wherever courier services deliver. You pay the rider when the parcel arrives.",
         ],
       },
       {
@@ -170,7 +173,7 @@ export const staticPages: StaticPage[] = [
       {
         heading: "Is my parcel discreet?",
         body: [
-          "Every order ships in a plain opaque bag with no product images and only Lisset in small print on the label.",
+          "Every order ships in a plain opaque bag with no product images and only KAYFIY in small print on the label.",
         ],
       },
       {
@@ -180,7 +183,7 @@ export const staticPages: StaticPage[] = [
         ],
       },
       {
-        heading: "How should I wash my Lisset pieces?",
+        heading: "How should I wash my KAYFIY pieces?",
         body: [
           "Hand wash cool with a mild detergent, press out the water, and dry flat in the shade. Machine washing shortens the life of elastic considerably.",
         ],
@@ -190,7 +193,7 @@ export const staticPages: StaticPage[] = [
   {
     slug: "terms-of-service",
     title: "Terms of Service",
-    blurb: "The terms that apply when you shop with Lisset.",
+    blurb: "The terms that apply when you shop with KAYFIY.",
     blocks: [
       {
         heading: "About these terms",
@@ -209,19 +212,7 @@ export const staticPages: StaticPage[] = [
       {
         heading: "Product information",
         body: [
-          "We describe colours, fabrics and measurements as accurately as we can. Screen colours vary, and hand-finished items can differ slightly from the photographs.",
-        ],
-      },
-      {
-        heading: "Your account",
-        body: [
-          "You are responsible for keeping your account details accurate and your password private. Tell us straight away if you think someone else has used your account.",
-        ],
-      },
-      {
-        heading: "Governing law",
-        body: [
-          "These terms are governed by the laws of Pakistan, and any dispute will be handled by the courts of Karachi.",
+          "We make every effort to display fabric colors accurately, but display settings vary. Product measurements are given with a 0.5-inch tolerance.",
         ],
       },
     ],
@@ -229,27 +220,24 @@ export const staticPages: StaticPage[] = [
   {
     slug: "refund-policy",
     title: "Refund Policy",
-    blurb: "When a refund applies and how long it takes.",
+    blurb: "Our policy on returns, exchanges and refunds.",
     blocks: [
       {
-        heading: "When you can request a refund",
-        list: [
-          "The item arrived damaged, faulty or is not what you ordered.",
-          "The item is unworn and unwashed with tags and hygiene seal intact, returned within 7 days of delivery.",
+        heading: "7-day exchange window",
+        body: [
+          "You may request an exchange within 7 days of receiving your order. Items must be unworn, unwashed and in their original packaging with all tags attached.",
         ],
       },
       {
-        heading: "What cannot be refunded",
-        list: [
-          "Panties, sanitary pads and nursing pads once the hygiene seal is opened.",
-          "Sale items — these can be exchanged for a different size instead.",
-          "Items returned after the 7-day window, or without tags.",
+        heading: "Hygiene exceptions",
+        body: [
+          "For hygiene reasons, briefs, adhesive accessories and opened sanitary pad boxes cannot be returned or exchanged unless they arrive defective.",
         ],
       },
       {
         heading: "How refunds are paid",
         body: [
-          "Prepaid orders are refunded to the original payment method. Cash-on-delivery orders are refunded by bank transfer or JazzCash to an account in the name on the order. Refunds are issued within 5 working days of us receiving and inspecting the return, and your bank may take a few days more to show it.",
+          "Prepaid orders are refunded to the original payment method. Cash-on-delivery orders are refunded by bank transfer or JazzCash/EasyPaisa. Refunds are issued within 5 working days of us receiving and inspecting the return.",
         ],
       },
       {
@@ -268,7 +256,7 @@ export const getStaticPage = (slug: string) =>
   staticPages.find((page) => page.slug === slug);
 
 export const SIZE_TABLE = {
-  head: ["Lisset size", "Underbust (in)", "Bust (in)", "Waist (in)", "Hip (in)"],
+  head: ["KAYFIY size", "Underbust (in)", "Bust (in)", "Waist (in)", "Hip (in)"],
   rows: [
     ["S / 32B", "27–29", "33–35", "25–27", "35–37"],
     ["M / 34B–34C", "29–31", "35–37", "27–29", "37–39"],

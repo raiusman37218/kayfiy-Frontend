@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 export type CartLine = {
+  id?: string;
   slug: string;
   name: string;
   price: number;
@@ -11,15 +12,11 @@ export type CartLine = {
   qty: number;
 };
 
-const STORAGE_KEY = "lisset-cart";
+const STORAGE_KEY = "kayfiy-cart";
 const EMPTY: CartLine[] = [];
 
-/**
- * The bag lives in a tiny module-level store rather than component state so it
- * can be read with useSyncExternalStore — that gives us an empty server
- * snapshot and the persisted bag on the client without a hydration mismatch.
- */
 let lines: CartLine[] = EMPTY;
+let isDrawerOpen = false;
 let hydrated = false;
 const listeners = new Set<() => void>();
 
@@ -28,7 +25,6 @@ function readStorage(): CartLine[] {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     return stored ? (JSON.parse(stored) as CartLine[]) : EMPTY;
   } catch {
-    // Corrupt or unavailable storage just starts an empty bag.
     return EMPTY;
   }
 }
@@ -71,6 +67,11 @@ function update(next: CartLine[]) {
   emit();
 }
 
+export function setDrawerOpen(open: boolean) {
+  isDrawerOpen = open;
+  emit();
+}
+
 const getSnapshot = () => lines;
 const getServerSnapshot = () => EMPTY;
 const getReady = () => hydrated;
@@ -84,17 +85,20 @@ export function useCart() {
   );
   const ready = useSyncExternalStore(subscribe, getReady, getServerReady);
 
-  const add = useCallback((line: Omit<CartLine, "qty">, qty = 1) => {
+  const add = useCallback((line: Omit<CartLine, "qty">, qty = 1, openDrawer = true) => {
     const index = lines.findIndex(
       (item) => item.slug === line.slug && item.size === line.size,
     );
     if (index === -1) {
       update([...lines, { ...line, qty }]);
-      return;
+    } else {
+      const next = [...lines];
+      next[index] = { ...next[index], qty: next[index].qty + qty };
+      update(next);
     }
-    const next = [...lines];
-    next[index] = { ...next[index], qty: next[index].qty + qty };
-    update(next);
+    if (openDrawer) {
+      setDrawerOpen(true);
+    }
   }, []);
 
   const setQty = useCallback((slug: string, size: string, qty: number) => {
@@ -112,6 +116,9 @@ export function useCart() {
   }, []);
 
   const clear = useCallback(() => update(EMPTY), []);
+  const openCart = useCallback(() => setDrawerOpen(true), []);
+  const closeCart = useCallback(() => setDrawerOpen(false), []);
+  const toggleCart = useCallback(() => setDrawerOpen(!isDrawerOpen), []);
 
   return useMemo(() => {
     const count = current.reduce((total, item) => total + item.qty, 0);
@@ -124,11 +131,14 @@ export function useCart() {
       count,
       subtotal,
       ready,
+      isOpen: isDrawerOpen,
+      openCart,
+      closeCart,
+      toggleCart,
       add,
       setQty,
       remove,
       clear,
     };
-  }, [current, ready, add, setQty, remove, clear]);
+  }, [current, ready, openCart, closeCart, toggleCart, add, setQty, remove, clear]);
 }
-

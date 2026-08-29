@@ -2,18 +2,41 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCart } from "@/components/useCart";
 import { PageHeader } from "@/components/PageShell";
 import { formatPrice } from "@/lib/data";
-
-const FREE_SHIPPING_OVER = 3500;
-const SHIPPING_FLAT = 199;
+import { fetchDbStoreSettings } from "@/lib/supabase";
 
 export default function CartPage() {
   const { lines, subtotal, count, ready, setQty, remove, clear } = useCart();
+  const [freeThreshold, setFreeThreshold] = useState(3500);
+  const [shippingFee, setShippingFee] = useState(199);
 
-  const shipping =
-    subtotal === 0 || subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const settings = await fetchDbStoreSettings();
+        if (settings) {
+          if (typeof settings.free_delivery_threshold_pkr === "number") {
+            setFreeThreshold(Number(settings.free_delivery_threshold_pkr));
+          }
+          if (typeof settings.cod_delivery_fee_pkr === "number") {
+            setShippingFee(Number(settings.cod_delivery_fee_pkr));
+          }
+        }
+      } catch {
+        // fallback
+      }
+    }
+    loadSettings();
+  }, []);
+
+  const isFreeShipping = subtotal >= freeThreshold;
+  const shipping = subtotal === 0 || isFreeShipping ? 0 : shippingFee;
+  const total = subtotal + shipping;
+  const progressPercent = Math.min(100, Math.round((subtotal / freeThreshold) * 100));
+  const remainingForFree = Math.max(0, freeThreshold - subtotal);
 
   return (
     <main>
@@ -21,155 +44,211 @@ export default function CartPage() {
         title="Your Bag"
         blurb={
           ready && count > 0
-            ? `${count} ${count === 1 ? "item" : "items"} ready to go.`
-            : "Everything you add is saved on this device."
+            ? `${count} ${count === 1 ? "item" : "items"} ready to ship.`
+            : "Comfortable essentials saved to your bag."
         }
         trail={[{ label: "Bag" }]}
       />
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {!ready ? (
           <p className="py-16 text-center text-sm text-muted">Loading your bag…</p>
         ) : lines.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="font-serif text-2xl text-charcoal">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-[#C4526E]">
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <p className="font-serif text-3xl font-bold text-charcoal">
               Your bag is empty
             </p>
             <p className="mt-2 text-sm text-muted">
-              Start with the pieces our customers reorder most.
+              Explore our best selling comfort wear and find your true fit.
             </p>
             <Link
               href="/collections/top-selling"
-              className="mt-6 inline-block rounded-full bg-charcoal px-8 py-3.5 text-xs tracking-[0.16em] text-cream uppercase transition hover:bg-rose"
+              className="mt-6 inline-block rounded-full bg-charcoal px-8 py-3.5 text-xs font-semibold tracking-[0.16em] text-cream uppercase transition hover:bg-[#C4526E]"
             >
               Shop Best Sellers
             </Link>
           </div>
         ) : (
-          <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-            <ul className="divide-y divide-line border-y border-line">
-              {lines.map((line) => (
-                <li
-                  key={`${line.slug}-${line.size}`}
-                  className="flex gap-4 py-6"
-                >
-                  <Link
-                    href={`/products/${line.slug}`}
-                    className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl bg-blush sm:h-32 sm:w-28"
+          <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+            <div>
+              {/* Free Shipping Progress Meter */}
+              <div className="mb-6 rounded-2xl border border-[#F2D4DA] bg-[#FFF5F7] p-4 sm:p-5">
+                <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-charcoal">
+                  {remainingForFree > 0 ? (
+                    <p>
+                      Add <strong className="text-[#C4526E]">{formatPrice(remainingForFree)}</strong> more for <strong>FREE Nationwide Delivery</strong> 🚚
+                    </p>
+                  ) : (
+                    <p className="text-emerald-700 font-semibold flex items-center gap-1.5">
+                      <span>🎉</span> You've unlocked <strong>FREE Nationwide Delivery!</strong>
+                    </p>
+                  )}
+                  <span className="text-xs font-bold text-muted">{progressPercent}%</span>
+                </div>
+                <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-[#F5D8DF]">
+                  <div
+                    className={`h-full transition-all duration-500 rounded-full ${
+                      progressPercent >= 100 ? "bg-emerald-500" : "bg-[#C4526E]"
+                    }`}
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Product List */}
+              <ul className="divide-y divide-line border-y border-line">
+                {lines.map((line) => (
+                  <li
+                    key={`${line.slug}-${line.size}`}
+                    className="flex gap-4 py-6"
                   >
-                    <Image
-                      src={line.image}
-                      alt={line.name}
-                      fill
-                      sizes="112px"
-                      className="object-cover"
-                    />
-                  </Link>
+                    <Link
+                      href={`/products/${line.slug}`}
+                      className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl bg-blush sm:h-32 sm:w-28 shadow-2xs"
+                    >
+                      <Image
+                        src={
+                          line.image && (line.image.startsWith("http") || line.image.startsWith("/"))
+                            ? line.image
+                            : "/banners/hero-monsoon.jpg"
+                        }
+                        alt={line.name}
+                        fill
+                        sizes="112px"
+                        className="object-cover"
+                      />
+                    </Link>
 
-                  <div className="flex flex-1 flex-col">
-                    <div className="flex flex-wrap justify-between gap-2">
-                      <Link
-                        href={`/products/${line.slug}`}
-                        className="text-sm text-charcoal transition hover:text-rose"
-                      >
-                        {line.name}
-                      </Link>
-                      <span className="text-sm text-charcoal">
-                        {formatPrice(line.price * line.qty)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted">Size {line.size}</p>
-
-                    <div className="mt-auto flex items-center gap-4 pt-4">
-                      <div className="flex items-center rounded-full border border-line">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQty(line.slug, line.size, line.qty - 1)
-                          }
-                          aria-label={`Decrease quantity of ${line.name}`}
-                          className="px-3 py-1.5 text-charcoal transition hover:text-rose"
-                        >
-                          −
-                        </button>
-                        <span className="w-7 text-center text-sm">
-                          {line.qty}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQty(line.slug, line.size, line.qty + 1)
-                          }
-                          aria-label={`Increase quantity of ${line.name}`}
-                          className="px-3 py-1.5 text-charcoal transition hover:text-rose"
-                        >
-                          +
-                        </button>
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div>
+                        <div className="flex flex-wrap justify-between gap-2">
+                          <Link
+                            href={`/products/${line.slug}`}
+                            className="font-medium text-base text-charcoal transition hover:text-[#C4526E]"
+                          >
+                            {line.name}
+                          </Link>
+                          <span className="font-semibold text-base text-charcoal">
+                            {formatPrice(line.price * line.qty)}
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          <span className="inline-block rounded-md bg-blush px-2.5 py-0.5 text-xs font-medium text-charcoal">
+                            Size: {line.size}
+                          </span>
+                        </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => remove(line.slug, line.size)}
-                        className="text-xs text-muted underline-offset-4 transition hover:text-rose hover:underline"
-                      >
-                        Remove
-                      </button>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center rounded-full border border-line bg-white shadow-2xs">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setQty(line.slug, line.size, line.qty - 1)
+                            }
+                            aria-label={`Decrease quantity of ${line.name}`}
+                            className="px-3.5 py-1 text-charcoal transition hover:text-[#C4526E] cursor-pointer"
+                          >
+                            −
+                          </button>
+                          <span className="w-8 text-center text-xs font-bold">
+                            {line.qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setQty(line.slug, line.size, line.qty + 1)
+                            }
+                            aria-label={`Increase quantity of ${line.name}`}
+                            className="px-3.5 py-1 text-charcoal transition hover:text-[#C4526E] cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => remove(line.slug, line.size)}
+                          className="text-xs text-muted underline-offset-4 transition hover:text-red-600 hover:underline cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <aside className="h-fit rounded-3xl bg-blush/50 p-6 lg:sticky lg:top-28">
-              <h2 className="font-serif text-2xl text-charcoal">Summary</h2>
-
-              <dl className="mt-5 space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-muted">Subtotal</dt>
-                  <dd className="text-charcoal">{formatPrice(subtotal)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted">Delivery</dt>
-                  <dd className="text-charcoal">
-                    {shipping === 0 ? "Free" : formatPrice(shipping)}
-                  </dd>
-                </div>
-                <div className="flex justify-between border-t border-line pt-3 text-base">
-                  <dt className="text-charcoal">Total</dt>
-                  <dd className="font-medium text-charcoal">
-                    {formatPrice(subtotal + shipping)}
-                  </dd>
-                </div>
-              </dl>
-
-              {shipping > 0 && (
-                <p className="mt-3 text-xs text-muted">
-                  Spend {formatPrice(FREE_SHIPPING_OVER - subtotal)} more for
-                  free delivery.
-                </p>
-              )}
-
-              <Link
-                href="/checkout"
-                className="mt-6 block rounded-full bg-charcoal px-8 py-3.5 text-center text-xs tracking-[0.16em] text-cream uppercase transition hover:bg-rose"
-              >
-                Proceed to Checkout
-              </Link>
+                  </li>
+                ))}
+              </ul>
 
               <div className="mt-4 flex justify-between text-xs">
                 <Link
                   href="/collections/all"
-                  className="text-rose underline-offset-4 hover:underline"
+                  className="text-[#C4526E] underline-offset-4 hover:underline"
                 >
-                  Continue shopping
+                  ← Continue shopping
                 </Link>
                 <button
                   type="button"
                   onClick={clear}
-                  className="text-muted underline-offset-4 hover:text-rose hover:underline"
+                  className="text-muted underline-offset-4 hover:text-red-600 hover:underline cursor-pointer"
                 >
-                  Clear bag
+                  Clear entire bag
                 </button>
+              </div>
+            </div>
+
+            {/* Sidebar Summary */}
+            <aside className="h-fit rounded-3xl bg-white border border-gray-200 p-6 sm:p-8 shadow-sm lg:sticky lg:top-28">
+              <h2 className="font-serif text-2xl font-bold text-charcoal">Order Summary</h2>
+
+              <dl className="mt-6 space-y-3.5 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-muted">Subtotal</dt>
+                  <dd className="font-medium text-charcoal">{formatPrice(subtotal)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">Estimated Delivery</dt>
+                  <dd className="font-medium text-charcoal">
+                    {isFreeShipping ? (
+                      <span className="font-bold text-emerald-600">FREE</span>
+                    ) : (
+                      formatPrice(shipping)
+                    )}
+                  </dd>
+                </div>
+                <div className="flex justify-between border-t border-line pt-4 text-base">
+                  <dt className="font-serif font-bold text-charcoal">Estimated Total</dt>
+                  <dd className="font-serif text-2xl font-extrabold text-charcoal">
+                    {formatPrice(total)}
+                  </dd>
+                </div>
+              </dl>
+
+              <Link
+                href="/checkout"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#C4526E] py-4 px-8 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition duration-300 hover:bg-[#A83853] hover:shadow-lg cursor-pointer"
+              >
+                <span>PROCEED TO CHECKOUT</span>
+                <span className="text-sm">→</span>
+              </Link>
+
+              <div className="mt-6 space-y-2 text-[11px] text-muted border-t border-line pt-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>Cash on delivery available nationwide</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>100% Discreet & private packaging</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>7-Day size exchange guarantee</span>
+                </div>
               </div>
             </aside>
           </div>

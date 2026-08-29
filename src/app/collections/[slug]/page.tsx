@@ -2,26 +2,32 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 import { PageHeader, type Crumb } from "@/components/PageShell";
-import { collectionSlugs, getCollection } from "@/lib/catalog";
+import { collectionSlugs, getLiveCollection } from "@/lib/catalog";
+
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return collectionSlugs.map((slug) => ({ slug }));
 }
 
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
 export async function generateMetadata({
   params,
-}: PageProps<"/collections/[slug]">): Promise<Metadata> {
+}: Props): Promise<Metadata> {
   const { slug } = await params;
-  const collection = getCollection(slug);
+  const collection = await getLiveCollection(slug);
   if (!collection) return { title: "Collection not found" };
   return { title: collection.title, description: collection.blurb };
 }
 
 export default async function CollectionPage({
   params,
-}: PageProps<"/collections/[slug]">) {
+}: Props) {
   const { slug } = await params;
-  const collection = getCollection(slug);
+  const collection = await getLiveCollection(slug);
   if (!collection) notFound();
 
   const trail: Crumb[] = collection.parent

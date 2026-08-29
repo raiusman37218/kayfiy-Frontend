@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Jost } from "next/font/google";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -20,11 +21,15 @@ const body = Jost({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lisset — Everyday Comfort in Womens Innerwear",
-    template: "%s | Lisset",
+    default: "KAYFIY — Comfort Wear & Women's Innerwear",
+    template: "%s | KAYFIY",
   },
   description:
-    "Lisset makes bras, panties, nightwear and shapewear designed for Pakistani sizing, weather and everyday comfort.",
+    "KAYFIY makes bras, bra sets, nightwear, panties and shapewear designed for supreme everyday comfort, breathable fabrics and honest Pakistani sizing.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -38,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <div className="flex-1">{children}</div>
         <Footer />
+        <CartDrawer />
       </body>
     </html>
   );

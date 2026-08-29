@@ -5,34 +5,41 @@ import { notFound } from "next/navigation";
 import AddToBag from "@/components/AddToBag";
 import ProductGrid from "@/components/ProductGrid";
 import { Breadcrumbs } from "@/components/PageShell";
-import { allProducts, findProduct, relatedTo } from "@/lib/catalog";
+import { allProducts, findLiveProduct, getLiveProducts, relatedTo } from "@/lib/catalog";
 import { discountPercent, formatPrice, slug as slugify } from "@/lib/data";
+
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return allProducts.map((product) => ({ slug: slugify(product.name) }));
 }
 
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
 export async function generateMetadata({
   params,
-}: PageProps<"/products/[slug]">): Promise<Metadata> {
+}: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = findProduct(slug);
+  const product = await findLiveProduct(slug);
   if (!product) return { title: "Product not found" };
   return {
     title: product.name,
-    description: `${product.name} — ${formatPrice(product.price)} at Lisset.`,
+    description: `${product.name} — ${formatPrice(product.price)} at KAYFIY.`,
   };
 }
 
 export default async function ProductPage({
   params,
-}: PageProps<"/products/[slug]">) {
+}: Props) {
   const { slug } = await params;
-  const product = findProduct(slug);
+  const product = await findLiveProduct(slug);
   if (!product) notFound();
 
+  const allLive = await getLiveProducts();
   const onSale = typeof product.compareAt === "number";
-  const related = relatedTo(product, 4);
+  const related = relatedTo(product, allLive, 4);
 
   return (
     <main>
@@ -61,6 +68,11 @@ export default async function ProductPage({
                 Sale
               </span>
             )}
+            {!product.instock && (
+              <span className="absolute top-4 right-4 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-medium tracking-[0.14em] text-white uppercase">
+                Out of Stock
+              </span>
+            )}
           </div>
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-blush">
             <Image
@@ -87,6 +99,12 @@ export default async function ProductPage({
             {product.name}
           </h1>
 
+          {product.articleNumber && (
+            <p className="mt-1 text-xs tracking-wider text-muted uppercase">
+              SKU: {product.articleNumber}
+            </p>
+          )}
+
           <div className="mt-4 flex flex-wrap items-baseline gap-3">
             {onSale && (
               <span className="text-lg text-muted line-through">
@@ -106,9 +124,8 @@ export default async function ProductPage({
           </div>
 
           <p className="mt-5 text-sm leading-relaxed text-muted">
-            Cut from breathable, skin-friendly fabric and finished with flat
-            seams so nothing digs in. Designed and fit-tested in Pakistan for
-            long, warm days — the kind of piece you forget you put on.
+            {product.description ||
+              "Cut from breathable, skin-friendly fabric and finished with flat seams so nothing digs in. Designed and fit-tested in Pakistan for long, warm days — the kind of piece you forget you put on."}
           </p>
 
           <AddToBag product={product} />

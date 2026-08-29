@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Color Test</title></head>
+<body>
+<canvas id="c"></canvas>
+<div id="output" style="font-size:24px;font-family:sans-serif;"></div>
+<script>
+const img = new Image();
+img.src = '/logo.png';
+img.onload = () => {
+  const c = document.getElementById('c');
+  c.width = img.width;
+  c.height = img.height;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const p1 = ctx.getImageData(10, 10, 1, 1).data;
+  const p2 = ctx.getImageData(50, 50, 1, 1).data;
+  const hex1 = '#' + [p1[0], p1[1], p1[2]].map(x => x.toString(16).padStart(2, '0')).join('');
+  const hex2 = '#' + [p2[0], p2[1], p2[2]].map(x => x.toString(16).padStart(2, '0')).join('');
+  document.getElementById('output').innerText = 'BG_HEX_1: ' + hex1 + ' | BG_HEX_2: ' + hex2 + ' | Dimensions: ' + img.width + 'x' + img.height;
+};
+</script>
+</body>
+</html>

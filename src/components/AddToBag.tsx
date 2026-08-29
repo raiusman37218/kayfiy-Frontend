@@ -10,6 +10,9 @@ const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"];
 const ONE_SIZE = ["One size"];
 
 export function sizesFor(product: Product) {
+  if (product.sizes && product.sizes.length > 0 && product.sizes[0] !== "Standard") {
+    return product.sizes;
+  }
   // Word boundaries matter here — "Padded Bra" must not read as a pack of pads.
   if (/\bpads?\b|\bliners\b|\bbox\b/i.test(product.name)) return ONE_SIZE;
   if (/belt/i.test(product.name)) return APPAREL_SIZES;
@@ -19,14 +22,18 @@ export function sizesFor(product: Product) {
 
 export default function AddToBag({ product }: { product: Product }) {
   const sizes = sizesFor(product);
-  const [size, setSize] = useState(sizes[0]);
+  const [size, setSize] = useState(sizes[0] || "Standard");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { add } = useCart();
 
+  const isAvailable = product.instock !== false && (product.stockQuantity ?? 1) > 0;
+
   const handleAdd = () => {
+    if (!isAvailable) return;
     add(
       {
+        id: product.id,
         slug: slug(product.name),
         name: product.name,
         price: product.price,
@@ -77,7 +84,8 @@ export default function AddToBag({ product }: { product: Product }) {
             type="button"
             onClick={() => setQty((value) => Math.max(1, value - 1))}
             aria-label="Decrease quantity"
-            className="px-4 py-2.5 text-charcoal transition hover:text-rose"
+            disabled={!isAvailable}
+            className="px-4 py-2.5 text-charcoal transition hover:text-rose disabled:opacity-40"
           >
             −
           </button>
@@ -88,7 +96,8 @@ export default function AddToBag({ product }: { product: Product }) {
             type="button"
             onClick={() => setQty((value) => Math.min(10, value + 1))}
             aria-label="Increase quantity"
-            className="px-4 py-2.5 text-charcoal transition hover:text-rose"
+            disabled={!isAvailable}
+            className="px-4 py-2.5 text-charcoal transition hover:text-rose disabled:opacity-40"
           >
             +
           </button>
@@ -97,9 +106,10 @@ export default function AddToBag({ product }: { product: Product }) {
         <button
           type="button"
           onClick={handleAdd}
-          className="flex-1 rounded-full bg-charcoal px-8 py-3.5 text-xs tracking-[0.16em] text-cream uppercase transition hover:bg-rose sm:flex-none"
+          disabled={!isAvailable}
+          className="flex-1 rounded-full bg-charcoal px-8 py-3.5 text-xs tracking-[0.16em] text-cream uppercase transition hover:bg-rose disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 sm:flex-none"
         >
-          Add to Bag
+          {isAvailable ? "Add to Bag" : "Out of Stock"}
         </button>
       </div>
 

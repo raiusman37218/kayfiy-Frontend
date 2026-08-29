@@ -34,57 +34,78 @@ export default function ProductCarousel({
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14">
-      {/* Section banner — tells you at a glance what you are looking at */}
-      <div className="relative h-36 overflow-hidden rounded-3xl sm:h-44 lg:h-52">
-        <Image
-          src={banner}
-          alt=""
-          aria-hidden
-          fill
-          sizes="(min-width: 1280px) 1280px, 100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-charcoal/35 to-transparent" />
-        <div className="relative flex h-full flex-col justify-center px-6 text-cream sm:px-10">
-          <h2 className="font-serif text-3xl tracking-wide sm:text-4xl">
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+      {/* Pure Graphic Banner (No hardcoded text overlays or dark gradients) */}
+      {viewAllHref ? (
+        <Link
+          href={viewAllHref}
+          aria-label={`Shop ${title}`}
+          className="group relative block h-64 sm:h-80 lg:h-96 w-full overflow-hidden rounded-3xl shadow-sm transition-all duration-500 hover:shadow-xl"
+        >
+          <Image
+            src={banner}
+            alt={title}
+            fill
+            sizes="(min-width: 1280px) 1280px, 100vw"
+            className="object-cover transition duration-700 group-hover:scale-102"
+          />
+        </Link>
+      ) : (
+        <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden rounded-3xl shadow-sm">
+          <Image
+            src={banner}
+            alt={title}
+            fill
+            sizes="(min-width: 1280px) 1280px, 100vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+
+      {/* Clean Section Navigation Bar */}
+      <div className="mt-6 mb-5 flex items-center justify-between">
+        <div>
+          <h2 className="font-serif text-2xl sm:text-3xl text-charcoal font-semibold">
             {title}
           </h2>
-          <p className="mt-1 max-w-sm text-xs tracking-[0.08em] uppercase opacity-90 sm:text-sm sm:normal-case sm:tracking-normal">
-            {blurb}
-          </p>
+          {blurb && (
+            <p className="mt-1 text-xs sm:text-sm text-muted">
+              {blurb}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          {viewAllHref && (
+            <Link
+              href={viewAllHref}
+              className="border-b border-rose/40 pb-0.5 text-xs tracking-[0.14em] text-[#C4526E] font-medium uppercase transition hover:border-[#C4526E]"
+            >
+              View All
+            </Link>
+          )}
+          <div className="hidden gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => scrollBy(-1)}
+              aria-label={`Scroll ${title} left`}
+              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#C4526E] hover:text-[#C4526E] cursor-pointer"
+            >
+              <ChevronIcon className="h-4 w-4 rotate-90" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollBy(1)}
+              aria-label={`Scroll ${title} right`}
+              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#C4526E] hover:text-[#C4526E] cursor-pointer"
+            >
+              <ChevronIcon className="h-4 w-4 -rotate-90" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="mt-5 mb-5 flex items-center justify-end gap-3">
-        {viewAllHref && (
-          <Link
-            href={viewAllHref}
-            className="mr-auto border-b border-rose/40 pb-0.5 text-xs tracking-[0.14em] text-rose uppercase transition hover:border-rose sm:mr-0"
-          >
-            View All
-          </Link>
-        )}
-        <div className="hidden gap-2 sm:flex">
-          <button
-            type="button"
-            onClick={() => scrollBy(-1)}
-            aria-label={`Scroll ${title} left`}
-            className="rounded-full border border-line p-2 text-charcoal transition hover:border-rose hover:text-rose"
-          >
-            <ChevronIcon className="h-4 w-4 rotate-90" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollBy(1)}
-            aria-label={`Scroll ${title} right`}
-            className="rounded-full border border-line p-2 text-charcoal transition hover:border-rose hover:text-rose"
-          >
-            <ChevronIcon className="h-4 w-4 -rotate-90" />
-          </button>
-        </div>
-      </div>
-
+      {/* Products Track */}
       <ul
         ref={trackRef}
         className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:mx-0 sm:px-0"

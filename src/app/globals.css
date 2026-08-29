@@ -11,6 +11,10 @@
   --color-rose-dark: #9a5560;
   --color-gold: #c2a15f;
 
+  /* Exact sampled logo pink background for header */
+  --color-header-pink: #fcd7de;
+  --color-header-pink-border: #f2bac5;
+
   --font-serif: var(--font-display), "Times New Roman", serif;
   --font-sans: var(--font-body), system-ui, sans-serif;
 }
@@ -36,7 +40,7 @@
   }
 }
 
-@keyframes lisset-fade-up {
+@keyframes kayfiy-fade-up {
   from {
     opacity: 0;
     transform: translateY(0.6rem);
@@ -48,7 +52,7 @@
 }
 
 .animate-fade-up {
-  animation: lisset-fade-up 0.45s ease both;
+  animation: kayfiy-fade-up 0.45s ease both;
 }
 
 @media (prefers-reduced-motion: reduce) {

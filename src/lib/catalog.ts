@@ -11,8 +11,15 @@ import {
   slug,
   type Product,
 } from "./data";
+import {
+  fetchDbProducts,
+  fetchDbCategories,
+  type DbProduct,
+  type DbCategory,
+} from "./supabase";
+import { BRA_IMAGES } from "./images";
 
-/** Every product on the site, de-duplicated by slug (several lists share styles). */
+/** Fallback static products list, de-duplicated by slug. */
 export const allProducts: Product[] = (() => {
   const seen = new Map<string, Product>();
   for (const product of [
@@ -43,26 +50,101 @@ export type Collection = {
   parent?: { title: string; slug: string };
 };
 
-/**
- * Sub-collections filter their parent list by keyword. When a filter is too
- * narrow to fill a page we fall back to the whole parent list rather than
- * shipping an empty grid.
- */
+export function sanitizeProductImage(rawImg?: string | null): { primary: string; hover: string } {
+  const fallback = BRA_IMAGES[0] || "/banners/hero-monsoon.jpg";
+  if (!rawImg || typeof rawImg !== "string") {
+    return { primary: fallback, hover: fallback };
+  }
+
+  let urls: string[] = [];
+  const trimmed = rawImg.trim();
+
+  // Handle JSON array from Admin upload (e.g. '["https://..."]')
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        urls = parsed.filter((item) => typeof item === "string" && (item.startsWith("http") || item.startsWith("/")));
+      }
+    } catch {
+      // ignore JSON parse failure
+    }
+  } else if (trimmed.startsWith("http") || trimmed.startsWith("/")) {
+    urls = [trimmed];
+  } else if (trimmed.includes(",")) {
+    urls = trimmed.split(",").map((s) => s.trim()).filter((s) => s.startsWith("http") || s.startsWith("/"));
+  }
+
+  const primary = urls[0] || fallback;
+  const hover = urls[1] || urls[0] || fallback;
+  return { primary, hover };
+}
+
+/** Convert Supabase DbProduct to storefront Product format */
+export function mapDbProduct(p: DbProduct): Product {
+  const compareAt = p.bestsellere
+    ? Math.round(Number(p.price) * 1.35)
+    : undefined;
+
+  const rawSizes = p.size
+    ? p.size.split(",").map((s) => s.trim()).filter(Boolean)
+    : ["Standard"];
+  const rawColors = p.color
+    ? p.color.split(",").map((c) => c.trim()).filter(Boolean)
+    : ["Default"];
+
+  const { primary, hover } = sanitizeProductImage(p.img);
+
+  return {
+    id: p.id,
+    name: p.name,
+    price: Number(p.price) || 0,
+    compareAt,
+    seed: p.name.length,
+    image: primary,
+    hoverImage: hover,
+    description: p.description,
+    category: p.category,
+    sizes: rawSizes,
+    colors: rawColors,
+    instock: p.instock ?? true,
+    bestsellere: p.bestsellere ?? false,
+    new: p.new ?? false,
+    articleNumber: p.article_number,
+    stockQuantity: p.inventory?.[0]?.stock_quantity ?? 30,
+  };
+}
+
+/** Fetch live products from Supabase with fallback to static catalog */
+export async function getLiveProducts(): Promise<Product[]> {
+  try {
+    const dbRows = await fetchDbProducts();
+    if (dbRows && dbRows.length > 0) {
+      return dbRows.map(mapDbProduct);
+    }
+  } catch (error) {
+    console.warn("Failed to load products from DB, using fallback:", error);
+  }
+  return allProducts;
+}
+
+/** Find a single product by slug from Supabase, or fallback to static list */
+export async function findLiveProduct(
+  productSlug: string,
+): Promise<Product | undefined> {
+  const products = await getLiveProducts();
+  return products.find((product) => slug(product.name) === productSlug);
+}
+
+/** Filter helpers */
 const refine = (parentList: Product[], pattern: RegExp, exclude?: RegExp) => {
   const matched = parentList.filter(
     (product) =>
       pattern.test(product.name) && !(exclude && exclude.test(product.name)),
   );
-  return matched.length >= 3 ? matched : parentList;
+  return matched.length >= 2 ? matched : parentList;
 };
 
-const sale = allProducts.filter((product) => product.compareAt);
-const budget = allProducts.filter((product) => product.price <= 1500);
-
-/**
- * `slugSource` must match the label the nav builds its href from, so every
- * link in the header and footer resolves to a real page.
- */
 const define = (
   slugSource: string,
   title: string,
@@ -83,72 +165,347 @@ const nightParent = { title: "Nightwear", slug: "nightwear" };
 const shapeParent = { title: "Shapewear", slug: "shapewear" };
 const matParent = { title: "Maternity", slug: "maternity" };
 
-const list: Collection[] = [
-  define("all", "All Products", "Every Lisset style in one place.", allProducts),
-  define("New Arrivals", "New Arrivals", "Just landed — the newest Lisset styles.", allProducts.slice(0, 12)),
-  define("Top Selling", "Top Selling", "What Lisset customers reorder most.", bestSellers),
-  define("Sale", "Sale", "Reduced while stock lasts.", sale),
-  define("Budget Deals", "Budget Deals", "Everyday essentials under Rs. 1,500.", budget),
-  define("Bras", "Bras", "Padded, non-padded, wired and sports.", bras),
-  define("Bra Sets", "Bra Sets", "Matched bra and brief sets.", braSets),
-  define("Panties", "Panties", "Cotton, seamless and lace briefs.", panties),
-  define("Shapewear", "Shapewear", "Smoothing suits, briefs and belts.", shapewear),
-  define("Nightwear", "Nightwear", "Sleep and lounge, everyday to bridal.", nightwear),
-  define("Sanitary Pads", "Sanitary Pads", "Period care, gently priced.", sanitaryPads),
-  define("Maternity", "Maternity", "Nursing bras and post-partum support.", maternity),
-  define("Plus Size", "Plus Size", "Full support in extended sizing.", plusSize),
+export function buildCollections(products: Product[]): Collection[] {
+  const sale = products.filter((p) => p.compareAt || p.bestsellere);
+  const budget = products.filter((p) => p.price <= 1500);
 
-  // Bras
-  define("Bras Padded", "Padded Bras", "Lightly to fully padded cups.", refine(bras, /padded/i, /non-padded/i), braParent),
-  define("Bras Non-Padded", "Non-Padded Bras", "Unlined comfort, all-day breathable.", refine(bras, /non-padded/i), braParent),
-  define("Bras Sports", "Sports Bras", "High and medium impact support.", refine(bras, /sports|active/i), braParent),
-  define("Bras Wired", "Wired Bras", "Underwired shaping and lift.", refine(bras, /wired/i), braParent),
-  define("Bras Camisoles", "Camisoles", "Camisole bras and slip tops.", refine(bras, /camisole/i), braParent),
-  define("Bras Bralettes", "Bralettes", "Wire-free, soft-cup bralettes.", refine(bras, /bralette/i), braParent),
-  define("Bras Sets", "Bra Sets", "Bra and brief sets.", braSets, braParent),
-  define("Bras Teens", "Teens", "First bras and starter styles.", refine(bras, /teen|starter/i), braParent),
-  define("Bras T-Shirt Bras", "T-Shirt Bras", "Seamless under close-fitting tops.", refine(bras, /t-shirt|seamless/i), braParent),
-  define("Bras Push-Up", "Push-Up Bras", "Added lift and shaping.", refine(bras, /push-up/i), braParent),
-  define("Bras Accessories", "Bra Accessories", "Extenders, straps and cups.", bras.slice(0, 6), braParent),
+  const brasList = products.filter(
+    (p) => p.category?.toLowerCase() === "bras" || /bra/i.test(p.name),
+  );
+  const braSetsList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "bra sets" ||
+      (/set/i.test(p.name) && /bra/i.test(p.name)),
+  );
+  const pantiesList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "panties" ||
+      /panty|panties|brief/i.test(p.name),
+  );
+  const shapeList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "shapewear" ||
+      /shaper|shapewear|suit|cincher|belt/i.test(p.name),
+  );
+  const nightList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "nightwear" ||
+      /night|robe|pyjama|silk|satin/i.test(p.name),
+  );
+  const padList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "sanitary pads" ||
+      /pad|liner|period/i.test(p.name),
+  );
+  const matList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "maternity" ||
+      /maternity|nursing/i.test(p.name),
+  );
+  const plusList = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "plus size" || /plus/i.test(p.name),
+  );
+  const bestList = products.filter((p) => p.bestsellere || p.price > 1600);
 
-  // Panties
-  define("Panties All", "All Panties", "Every brief we make.", panties, pantyParent),
-  define("Panties Cotton Briefs", "Cotton Briefs", "Breathable everyday cotton.", refine(panties, /cotton/i), pantyParent),
-  define("Panties Fashion Briefs", "Fashion Briefs", "Lace, mesh and ribbed styles.", refine(panties, /lace|ribbed|modal|thong/i), pantyParent),
-  define("Panties Maternity Briefs", "Maternity Briefs", "Gentle support through pregnancy.", refine(panties, /maternity|high-waist/i), pantyParent),
+  return [
+    define("all", "All Products", "Every KAYFIY style in one place.", products),
+    define(
+      "New Arrivals",
+      "New Arrivals",
+      "Just landed — the newest KAYFIY styles.",
+      products.filter((p) => p.new).length > 0
+        ? products.filter((p) => p.new)
+        : products.slice(0, 12),
+    ),
+    define(
+      "Top Selling",
+      "Top Selling",
+      "What KAYFIY customers reorder most.",
+      bestList.length > 0 ? bestList : products.slice(0, 10),
+    ),
+    define("Sale", "Sale", "Reduced while stock lasts.", sale.length > 0 ? sale : products.slice(0, 8)),
+    define(
+      "Budget Deals",
+      "Budget Deals",
+      "Everyday essentials under Rs. 1,500.",
+      budget.length > 0 ? budget : products.slice(0, 8),
+    ),
+    define(
+      "Bras",
+      "Bras",
+      "Padded, non-padded, wired and sports.",
+      brasList.length > 0 ? brasList : products,
+    ),
+    define(
+      "Bra Sets",
+      "Bra Sets",
+      "Matched bra and brief sets.",
+      braSetsList.length > 0 ? braSetsList : products,
+    ),
+    define(
+      "Panties",
+      "Panties",
+      "Cotton, seamless and lace briefs.",
+      pantiesList.length > 0 ? pantiesList : products,
+    ),
+    define(
+      "Shapewear",
+      "Shapewear",
+      "Smoothing suits, briefs and belts.",
+      shapeList.length > 0 ? shapeList : products,
+    ),
+    define(
+      "Nightwear",
+      "Nightwear",
+      "Sleep and lounge, everyday to bridal.",
+      nightList.length > 0 ? nightList : products,
+    ),
+    define(
+      "Sanitary Pads",
+      "Sanitary Pads",
+      "Period care, gently priced.",
+      padList.length > 0 ? padList : products,
+    ),
+    define(
+      "Maternity",
+      "Maternity",
+      "Nursing bras and post-partum support.",
+      matList.length > 0 ? matList : products,
+    ),
+    define(
+      "Plus Size",
+      "Plus Size",
+      "Full support in extended sizing.",
+      plusList.length > 0 ? plusList : products,
+    ),
 
-  // Nightwear
-  define("Nightwear All", "All Nightwear", "Sleep and lounge in full.", nightwear, nightParent),
-  define("Nightwear Bridal", "Bridal Nightwear", "Satin and lace for the trousseau.", refine(nightwear, /bridal|satin|lace/i), nightParent),
-  define("Nightwear Tops & Pyjama Set", "Tops & Pyjama Sets", "Two-piece sets for every season.", refine(nightwear, /pyjama|set|lounge/i), nightParent),
-  define("Nightwear Silk", "Silk Nightwear", "Silk and silk-blend sleepwear.", refine(nightwear, /silk/i), nightParent),
-  define("Nightwear Winter", "Winter Nightwear", "Fleece and full-sleeve warmth.", refine(nightwear, /winter|fleece/i), nightParent),
+    // Sub collections
+    define(
+      "Bras Padded",
+      "Padded Bras",
+      "Lightly to fully padded cups.",
+      refine(brasList, /padded/i, /non-padded/i),
+      braParent,
+    ),
+    define(
+      "Bras Non-Padded",
+      "Non-Padded Bras",
+      "Unlined comfort, all-day breathable.",
+      refine(brasList, /non-padded/i),
+      braParent,
+    ),
+    define(
+      "Bras Sports",
+      "Sports Bras",
+      "High and medium impact support.",
+      refine(brasList, /sports|active/i),
+      braParent,
+    ),
+    define(
+      "Bras Wired",
+      "Wired Bras",
+      "Underwired shaping and lift.",
+      refine(brasList, /wired/i),
+      braParent,
+    ),
+    define(
+      "Bras Camisoles",
+      "Camisoles",
+      "Camisole bras and slip tops.",
+      refine(brasList, /camisole/i),
+      braParent,
+    ),
+    define(
+      "Bras Bralettes",
+      "Bralettes",
+      "Wire-free, soft-cup bralettes.",
+      refine(brasList, /bralette/i),
+      braParent,
+    ),
+    define("Bras Sets", "Bra Sets", "Bra and brief sets.", braSetsList, braParent),
+    define(
+      "Bras Teens",
+      "Teens",
+      "First bras and starter styles.",
+      refine(brasList, /teen|starter/i),
+      braParent,
+    ),
+    define(
+      "Bras T-Shirt Bras",
+      "T-Shirt Bras",
+      "Seamless under close-fitting tops.",
+      refine(brasList, /t-shirt|seamless/i),
+      braParent,
+    ),
+    define(
+      "Bras Push-Up",
+      "Push-Up Bras",
+      "Added lift and shaping.",
+      refine(brasList, /push-up/i),
+      braParent,
+    ),
+    define(
+      "Bras Accessories",
+      "Bra Accessories",
+      "Extenders, straps and cups.",
+      brasList.slice(0, 6),
+      braParent,
+    ),
 
-  // Shapewear
-  define("Shapewear All", "All Shapewear", "The full shaping range.", shapewear, shapeParent),
-  define("Shapewear Body Suit", "Body Suits", "Full-body smoothing suits.", refine(shapewear, /body suit|body shaper|slip/i), shapeParent),
-  define("Shapewear Thigh Shapers", "Thigh Shapers", "Shorts that stop chafing.", refine(shapewear, /thigh|short/i), shapeParent),
-  define("Shapewear Shaping Briefs", "Shaping Briefs", "High-waist tummy control.", refine(shapewear, /brief/i), shapeParent),
-  define("Shapewear Belts", "Shaping Belts", "Waist and post-partum belts.", refine(shapewear, /belt/i), shapeParent),
+    // Panties
+    define("Panties All", "All Panties", "Every brief we make.", pantiesList, pantyParent),
+    define(
+      "Panties Cotton Briefs",
+      "Cotton Briefs",
+      "Breathable everyday cotton.",
+      refine(pantiesList, /cotton/i),
+      pantyParent,
+    ),
+    define(
+      "Panties Fashion Briefs",
+      "Fashion Briefs",
+      "Lace, mesh and ribbed styles.",
+      refine(pantiesList, /lace|ribbed|modal|thong/i),
+      pantyParent,
+    ),
+    define(
+      "Panties Maternity Briefs",
+      "Maternity Briefs",
+      "Gentle support through pregnancy.",
+      refine(pantiesList, /maternity|high-waist/i),
+      pantyParent,
+    ),
 
-  // Maternity
-  define("Maternity Nursing Pads", "Nursing Pads", "Disposable and washable pads.", refine(maternity, /pad/i), matParent),
-  define("Maternity Nursing Bras", "Nursing Bras", "Easy-open cups, soft support.", refine(maternity, /nursing bra/i), matParent),
-];
+    // Nightwear
+    define("Nightwear All", "All Nightwear", "Sleep and lounge in full.", nightList, nightParent),
+    define(
+      "Nightwear Bridal",
+      "Bridal Nightwear",
+      "Satin and lace for the trousseau.",
+      refine(nightList, /bridal|satin|lace/i),
+      nightParent,
+    ),
+    define(
+      "Nightwear Tops & Pyjama Set",
+      "Tops & Pyjama Sets",
+      "Two-piece sets for every season.",
+      refine(nightList, /pyjama|set|lounge/i),
+      nightParent,
+    ),
+    define(
+      "Nightwear Silk",
+      "Silk Nightwear",
+      "Silk and silk-blend sleepwear.",
+      refine(nightList, /silk/i),
+      nightParent,
+    ),
+    define(
+      "Nightwear Winter",
+      "Winter Nightwear",
+      "Fleece and full-sleeve warmth.",
+      refine(nightList, /winter|fleece/i),
+      nightParent,
+    ),
 
-export const collections = new Map(list.map((entry) => [entry.slug, entry]));
+    // Shapewear
+    define("Shapewear All", "All Shapewear", "The full shaping range.", shapeList, shapeParent),
+    define(
+      "Shapewear Body Suit",
+      "Body Suits",
+      "Full-body smoothing suits.",
+      refine(shapeList, /body suit|body shaper|slip/i),
+      shapeParent,
+    ),
+    define(
+      "Shapewear Thigh Shapers",
+      "Thigh Shapers",
+      "Shorts that stop chafing.",
+      refine(shapeList, /thigh|short/i),
+      shapeParent,
+    ),
+    define(
+      "Shapewear Shaping Briefs",
+      "Shaping Briefs",
+      "High-waist tummy control.",
+      refine(shapeList, /brief/i),
+      shapeParent,
+    ),
+    define(
+      "Shapewear Belts",
+      "Shaping Belts",
+      "Waist and post-partum belts.",
+      refine(shapeList, /belt/i),
+      shapeParent,
+    ),
 
-export const collectionSlugs = list.map((entry) => entry.slug);
+    // Maternity
+    define(
+      "Maternity Nursing Pads",
+      "Nursing Pads",
+      "Disposable and washable pads.",
+      refine(matList, /pad/i),
+      matParent,
+    ),
+    define(
+      "Maternity Nursing Bras",
+      "Nursing Bras",
+      "Easy-open cups, soft support.",
+      refine(matList, /nursing bra/i),
+      matParent,
+    ),
+  ];
+}
+
+const staticCollectionsList = buildCollections(allProducts);
+export const collections = new Map(staticCollectionsList.map((entry) => [entry.slug, entry]));
+export const collectionSlugs = staticCollectionsList.map((entry) => entry.slug);
 
 export const getCollection = (collectionSlug: string) =>
   collections.get(collectionSlug);
 
+export async function getLiveCollection(
+  collectionSlug: string,
+): Promise<Collection | undefined> {
+  const products = await getLiveProducts();
+  const liveList = buildCollections(products);
+  const matched = liveList.find((entry) => entry.slug === collectionSlug);
+  if (matched) return matched;
+
+  // Check if it's a dynamic custom category from Supabase
+  try {
+    const dbCats = await fetchDbCategories();
+    const cat = dbCats.find(
+      (c) => c.slug === collectionSlug || slug(c.name) === collectionSlug,
+    );
+    if (cat) {
+      const catProducts = products.filter(
+        (p) =>
+          p.category?.toLowerCase() === cat.name.toLowerCase() ||
+          slug(p.category || "") === cat.slug,
+      );
+      return {
+        slug: cat.slug,
+        title: cat.name,
+        blurb: cat.description || `Browse our ${cat.name} collection.`,
+        products: catProducts.length > 0 ? catProducts : products,
+      };
+    }
+  } catch (err) {
+    console.warn("Error fetching dynamic category:", err);
+  }
+
+  return undefined;
+}
+
 /** Products from the same family, used for "You may also like". */
-export const relatedTo = (product: Product, limit = 5) => {
-  const family = product.id.split("-")[0];
-  const same = allProducts.filter(
-    (item) => item.id.startsWith(`${family}-`) && item.id !== product.id,
+export const relatedTo = (product: Product, pool: Product[] = allProducts, limit = 4) => {
+  const family = product.category || product.id.split("-")[0];
+  const same = pool.filter(
+    (item) =>
+      (item.category === product.category || item.id.startsWith(`${family}-`)) &&
+      item.id !== product.id,
   );
-  const pool = same.length >= limit ? same : allProducts.filter((item) => item.id !== product.id);
-  return pool.slice(0, limit);
+  const candidates = same.length >= limit ? same : pool.filter((item) => item.id !== product.id);
+  return candidates.slice(0, limit);
 };

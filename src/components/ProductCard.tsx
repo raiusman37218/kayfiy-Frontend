@@ -8,19 +8,31 @@ const SIZES =
 export default function ProductCard({ product }: { product: Product }) {
   const onSale = typeof product.compareAt === "number";
 
+  const imgSrc =
+    product.image &&
+    (product.image.startsWith("http") || product.image.startsWith("/"))
+      ? product.image
+      : "/banners/hero-monsoon.jpg";
+
+  const hoverSrc =
+    product.hoverImage &&
+    (product.hoverImage.startsWith("http") || product.hoverImage.startsWith("/"))
+      ? product.hoverImage
+      : imgSrc;
+
   return (
     <article className="group">
       <Link href={`/products/${slug(product.name)}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-blush shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_36px_-20px_rgba(43,39,36,0.45)]">
           <Image
-            src={product.image}
+            src={imgSrc}
             alt={product.name}
             fill
             sizes={SIZES}
             className="object-cover transition-opacity duration-500 group-hover:opacity-0"
           />
           <Image
-            src={product.hoverImage}
+            src={hoverSrc}
             alt=""
             aria-hidden
             fill

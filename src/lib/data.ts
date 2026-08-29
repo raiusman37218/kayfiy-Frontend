@@ -15,6 +15,15 @@ export type Product = {
   seed: number;
   image: string;
   hoverImage: string;
+  description?: string;
+  category?: string;
+  sizes?: string[];
+  colors?: string[];
+  instock?: boolean;
+  bestsellere?: boolean;
+  new?: boolean;
+  articleNumber?: string;
+  stockQuantity?: number;
 };
 
 export type NavLink = { label: string; href: string };
@@ -52,74 +61,37 @@ const braSubCategories = [
 export const navigation: NavItem[] = [
   { label: "New Arrivals", href: collection("New Arrivals") },
   { label: "Sale", href: collection("Sale") },
-  {
-    label: "Bras",
-    href: collection("Bras"),
-    mega: true,
-    children: braSubCategories.map((label) => ({
-      label,
-      href: collection(`Bras ${label}`),
-    })),
-  },
+  { label: "Bras", href: collection("Bras") },
+  { label: "Bra Sets", href: collection("Bra Sets") },
   { label: "Budget Deals", href: collection("Budget Deals") },
-  {
-    label: "Panties",
-    href: collection("Panties"),
-    children: ["All", "Cotton Briefs", "Fashion Briefs", "Maternity Briefs"].map(
-      (label) => ({ label, href: collection(`Panties ${label}`) }),
-    ),
-  },
+  { label: "Panties", href: collection("Panties") },
   { label: "Sanitary Pads", href: collection("Sanitary Pads") },
-  {
-    label: "Nightwear",
-    href: collection("Nightwear"),
-    children: ["All", "Bridal", "Tops & Pyjama Set", "Silk", "Winter"].map(
-      (label) => ({ label, href: collection(`Nightwear ${label}`) }),
-    ),
-  },
-  {
-    label: "Shapewear",
-    href: collection("Shapewear"),
-    children: [
-      "All",
-      "Body Suit",
-      "Thigh Shapers",
-      "Shaping Briefs",
-      "Belts",
-    ].map((label) => ({ label, href: collection(`Shapewear ${label}`) })),
-  },
-  {
-    label: "Maternity",
-    href: collection("Maternity"),
-    children: ["Nursing Pads", "Nursing Bras"].map((label) => ({
-      label,
-      href: collection(`Maternity ${label}`),
-    })),
-  },
+  { label: "Nightwear", href: collection("Nightwear") },
+  { label: "Shapewear", href: collection("Shapewear") },
   { label: "Plus Size", href: collection("Plus Size") },
 ];
 
 export const announcements = [
-  "New Arrivals — the Monsoon Edit is live",
-  "Eid Comfort Sale on now",
-  "Up to 50% off + free delivery over Rs. 3,500",
+  "Welcome to KAYFIY — Comfort Wear Redefined",
+  "Up to 50% off + free delivery nationwide over Rs. 3,500",
+  "Wire-free & lightly padded comfort — sizes 30A to 44DD",
 ];
 
 export const heroSlides = [
   {
-    id: "monsoon",
-    eyebrow: "New Season",
-    title: "The Monsoon Edit",
-    caption: "Breathable cotton cuts made for humid days.",
-    cta: "Shop New Arrivals",
+    id: "comfort",
+    eyebrow: "Pure Comfort",
+    title: "KAYFIY Comfort Wear",
+    caption: "Breathable fabrics and soft support designed for everyday ease.",
+    cta: "Shop The Collection",
     href: collection("New Arrivals"),
     image: "/banners/hero-monsoon.jpg",
   },
   {
     id: "sale",
     eyebrow: "Limited Time",
-    title: "Eid Comfort Sale",
-    caption: "Up to 50% off bras, sets and nightwear.",
+    title: "Comfort Season Sale",
+    caption: "Up to 50% off bras, matching sets and nightwear.",
     cta: "Shop the Sale",
     href: collection("Sale"),
     image: "/banners/hero-sale.jpg",
@@ -289,10 +261,9 @@ export const plusSize = make("plus", SET_IMAGES, [
   ["Rimsha Plus Size Shaping Brief", 2090, 2690],
 ]);
 
-export const footerCategories: NavLink[] = [
-  ...navigation.map(({ label, href }) => ({ label, href })),
-  { label: "Bra Sets", href: collection("Bra Sets") },
-];
+export const footerCategories: NavLink[] = navigation.map(
+  ({ label, href }) => ({ label, href }),
+);
 
 export const usefulLinks: NavLink[] = [
   { label: "Contact", href: "/pages/contact" },

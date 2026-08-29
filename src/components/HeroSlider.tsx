@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronIcon } from "./Icons";
 import { heroSlides } from "@/lib/data";
 
 const AUTOPLAY_MS = 5000;
@@ -82,23 +81,7 @@ export default function HeroSlider() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => goTo(index - 1)}
-        aria-label="Previous slide"
-        className="absolute top-1/2 left-5 -translate-y-1/2 rounded-full bg-cream/85 p-2.5 text-charcoal opacity-0 transition hover:bg-cream focus-visible:opacity-100 group-hover:opacity-100 max-lg:opacity-100"
-      >
-        <ChevronIcon className="h-5 w-5 rotate-90" />
-      </button>
-      <button
-        type="button"
-        onClick={() => goTo(index + 1)}
-        aria-label="Next slide"
-        className="absolute top-1/2 right-5 -translate-y-1/2 rounded-full bg-cream/85 p-2.5 text-charcoal opacity-0 transition hover:bg-cream focus-visible:opacity-100 group-hover:opacity-100 max-lg:opacity-100"
-      >
-        <ChevronIcon className="h-5 w-5 -rotate-90" />
-      </button>
-
+      {/* Bottom Slider Dots */}
       <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2">
         {heroSlides.map((slide, dotIndex) => (
           <button
@@ -107,7 +90,7 @@ export default function HeroSlider() {
             onClick={() => goTo(dotIndex)}
             aria-label={`Go to slide ${dotIndex + 1}`}
             aria-current={dotIndex === index}
-            className={`h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all cursor-pointer ${
               dotIndex === index ? "w-7 bg-cream" : "w-2 bg-cream/60"
             }`}
           />

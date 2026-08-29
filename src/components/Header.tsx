@@ -1,24 +1,80 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { navigation } from "@/lib/data";
+import KayfiyLogo from "./KayfiyLogo";
+import { navigation as defaultNav, slug, type NavItem } from "@/lib/data";
+import { fetchDbCategories, supabase, type DbCategory } from "@/lib/supabase";
 import { useCart } from "./useCart";
+import HeaderSearch from "./HeaderSearch";
 import {
   AccountIcon,
   CartIcon,
   ChevronIcon,
   CloseIcon,
   MenuIcon,
-  SearchIcon,
 } from "./Icons";
 
+function buildNavigation(categories: DbCategory[]): NavItem[] {
+  if (!categories || categories.length === 0) return defaultNav;
+
+  // Filter top-level categories (categories without a parent)
+  const topLevel = categories.filter((c) => !c.parent_slug);
+
+  return topLevel.map((parent) => {
+    // Find any real subcategories that have parent_slug matching this parent
+    const childCats = categories.filter((c) => c.parent_slug === parent.slug);
+
+    const children =
+      childCats.length > 0
+        ? childCats.map((child) => ({
+            label: child.name,
+            href: `/collections/${child.slug}`,
+          }))
+        : undefined;
+
+    return {
+      label: parent.name,
+      href: `/collections/${parent.slug}`,
+      mega: Boolean(children && children.length > 4),
+      children,
+    };
+  });
+}
+
 export default function Header() {
+  const [navItems, setNavItems] = useState<NavItem[]>(defaultNav);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const { count } = useCart();
+  const { count, openCart } = useCart();
+
+  useEffect(() => {
+    async function loadCategories() {
+      const cats = await fetchDbCategories();
+      if (cats && cats.length > 0) {
+        setNavItems(buildNavigation(cats));
+      }
+    }
+    loadCategories();
+
+    // Subscribe to realtime category updates from Supabase
+    const channel = supabase
+      .channel("realtime-categories")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "catalog_categories" },
+        () => {
+          loadCategories();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -28,9 +84,9 @@ export default function Header() {
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-cream/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20">
-        <div className="flex flex-1 items-center gap-1">
+    <header className="sticky top-0 z-50 border-b border-line bg-white/98 backdrop-blur-md shadow-xs">
+      <div className="mx-auto flex h-16 sm:h-18 lg:h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div className="flex flex-1 items-center gap-2 sm:gap-3">
           <button
             type="button"
             className="-ml-2 rounded-full p-2 text-charcoal transition hover:bg-blush lg:hidden"
@@ -39,30 +95,25 @@ export default function Header() {
             onClick={() => setMobileOpen((open) => !open)}
           >
             {mobileOpen ? (
-              <CloseIcon className="h-5 w-5" />
+              <CloseIcon className="h-6 w-6" />
             ) : (
-              <MenuIcon className="h-5 w-5" />
+              <MenuIcon className="h-6 w-6" />
             )}
           </button>
-          <button
-            type="button"
-            className="rounded-full p-2 text-charcoal transition hover:bg-blush"
-            aria-label="Search"
-            aria-expanded={searchOpen}
-            onClick={() => setSearchOpen((open) => !open)}
-          >
-            <SearchIcon className="h-5 w-5" />
-          </button>
+          
+          {/* Pill Search Bar matching reference image with placeholder "I'm looking for..." */}
+          <HeaderSearch />
         </div>
 
         <Link
           href="/"
-          className="font-serif text-3xl leading-none font-semibold tracking-[0.22em] text-charcoal uppercase lg:text-4xl"
+          className="relative flex items-center justify-center py-1 transition duration-200 group shrink-0"
+          aria-label="KAYFIY"
         >
-          Lisset
+          <KayfiyLogo size="lg" />
         </Link>
 
-        <div className="flex flex-1 items-center justify-end gap-1">
+        <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
           <Link
             href="/account"
             className="rounded-full p-2 text-charcoal transition hover:bg-blush"
@@ -70,54 +121,30 @@ export default function Header() {
           >
             <AccountIcon className="h-5 w-5" />
           </Link>
-          <Link
-            href="/cart"
-            className="relative rounded-full p-2 text-charcoal transition hover:bg-blush"
+          <button
+            type="button"
+            onClick={openCart}
+            className="relative rounded-full p-2 text-charcoal transition hover:bg-blush cursor-pointer"
             aria-label={`Cart, ${count} ${count === 1 ? "item" : "items"}`}
           >
             <CartIcon className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose px-1 text-[10px] font-medium text-white">
+              <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#C4526E] px-1 text-[10px] font-bold text-white">
                 {count}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </div>
 
-      {searchOpen && (
-        <div className="border-t border-line bg-blush/40">
-          <form
-            className="mx-auto flex max-w-3xl gap-2 px-4 py-3"
-            onSubmit={(event) => event.preventDefault()}
-          >
-            <label htmlFor="site-search" className="sr-only">
-              Search Lisset
-            </label>
-            <input
-              id="site-search"
-              type="search"
-              placeholder="Search bras, panties, nightwear"
-              className="w-full rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-rose"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-charcoal px-5 py-2 text-xs tracking-[0.14em] text-cream uppercase transition hover:bg-rose"
-            >
-              Search
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* Desktop mega-menu bar */}
+      {/* Desktop mega-menu bar — no dividing line above */}
       <nav
         aria-label="Primary"
-        className="hidden border-t border-line lg:block"
+        className="hidden bg-white/95 lg:block -mt-1 pb-1"
         onMouseLeave={() => setOpenMenu(null)}
       >
         <ul className="relative mx-auto flex max-w-7xl items-center justify-center px-6">
-          {navigation.map((item) => {
+          {navItems.map((item) => {
             const isOpen = openMenu === item.label;
             return (
               <li
@@ -196,7 +223,7 @@ export default function Header() {
           className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-line bg-cream px-4 pb-8 lg:hidden"
         >
           <ul className="divide-y divide-line">
-            {navigation.map((item) => {
+            {navItems.map((item) => {
               const expanded = mobileSection === item.label;
               return (
                 <li key={item.label}>
