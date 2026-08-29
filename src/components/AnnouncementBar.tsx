@@ -42,11 +42,11 @@ export default function AnnouncementBar() {
   }, [messages]);
 
   return (
-    <div className="bg-charcoal text-cream">
+    <div className="bg-[#C4526E] text-white font-medium">
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-center px-4">
         <p
           key={index}
-          className="animate-fade-up text-center text-[11px] tracking-[0.18em] uppercase sm:text-xs"
+          className="animate-fade-up text-center text-[11px] tracking-[0.18em] uppercase sm:text-xs font-semibold"
           aria-live="polite"
         >
           {messages[index % messages.length]}
