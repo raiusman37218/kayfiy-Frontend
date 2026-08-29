@@ -85,9 +85,9 @@ export default function HeaderSearch() {
     <div ref={containerRef} className="relative">
       <form
         onSubmit={handleFormSubmit}
-        className="flex items-center rounded-full border border-[#D5CBCB] bg-white px-3.5 py-1.5 sm:py-2 transition-all duration-200 focus-within:border-[#C4526E] focus-within:ring-2 focus-within:ring-[#C4526E]/15 w-40 sm:w-60 md:w-72 lg:w-80 shadow-2xs"
+        className="flex items-center rounded-full border border-[#E0D7D7] bg-white px-3 py-1.5 transition-all duration-200 focus-within:border-[#C4526E] focus-within:ring-2 focus-within:ring-[#C4526E]/15 w-36 sm:w-44 md:w-52 lg:w-56 shadow-2xs hover:border-[#D0C5C5]"
       >
-        <SearchIcon className="h-4 w-4 text-gray-500 shrink-0" />
+        <SearchIcon className="h-3.5 w-3.5 text-gray-500 shrink-0" />
         <input
           type="search"
           value={query}
