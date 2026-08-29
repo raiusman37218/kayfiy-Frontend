@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdfbf7;
+  --color-blush: #f9edef;
+  --color-blush-deep: #f0d8dd;
+  --color-charcoal: #2b2724;
+  --color-muted: #6f645e;
+  --color-line: #e7ddd6;
+  --color-rose: #b76e79;
+  --color-rose-dark: #9a5560;
+  --color-gold: #c2a15f;
+
+  --font-serif: var(--font-display), "Times New Roman", serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes lisset-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: lisset-fade-up 0.45s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up {
+    animation: none;
+  }
+}
