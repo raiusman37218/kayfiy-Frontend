@@ -37,29 +37,29 @@ export default async function CategoryTiles() {
         Start where you need us most.
       </p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {banners.map((banner) => (
           <Link
             key={banner.label}
             href={banner.href}
-            className="group relative block aspect-[4/5] overflow-hidden rounded-3xl bg-blush shadow-sm transition-all duration-500 hover:shadow-lg hover:scale-[1.02] sm:aspect-[3/4] lg:aspect-[3/3.8]"
+            className="group relative block aspect-[4/5] overflow-hidden rounded-2xl sm:rounded-3xl bg-blush shadow-sm transition-all duration-500 hover:shadow-lg hover:scale-[1.02] sm:aspect-[3/4] lg:aspect-[3/3.8]"
           >
             <Image
               src={banner.image}
               alt={banner.label}
               fill
-              sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 95vw"
+              sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 50vw"
               className="object-cover transition duration-700 group-hover:scale-106"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-5 text-cream">
-              <h3 className="font-serif text-xl lg:text-2xl leading-tight">
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/25 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 text-cream">
+              <h3 className="font-serif text-base sm:text-xl lg:text-2xl font-semibold leading-tight">
                 {banner.label}
               </h3>
-              <p className="mt-1 text-xs tracking-[0.12em] uppercase opacity-90">
+              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs tracking-[0.1em] uppercase opacity-90 truncate">
                 {banner.caption}
               </p>
-              <span className="mt-2.5 inline-block border-b border-cream/70 pb-0.5 text-[11px] tracking-[0.16em] uppercase">
+              <span className="mt-1.5 sm:mt-2.5 inline-block border-b border-cream/70 pb-0.5 text-[10px] sm:text-[11px] tracking-[0.14em] uppercase font-medium">
                 Shop Now
               </span>
             </div>
