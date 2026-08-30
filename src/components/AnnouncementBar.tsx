@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { announcements as defaultAnnouncements } from "@/lib/data";
 import { fetchDbStoreSettings } from "@/lib/supabase";
 
 export default function AnnouncementBar() {
+  const pathname = usePathname();
   const [messages, setMessages] = useState<string[]>(defaultAnnouncements);
   const [index, setIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -44,6 +46,8 @@ export default function AnnouncementBar() {
     }, 4000);
     return () => window.clearInterval(timer);
   }, [messages]);
+
+  if (pathname === "/checkout") return null;
 
   return (
     <div className="bg-[#C4526E] text-white font-medium relative overflow-hidden">

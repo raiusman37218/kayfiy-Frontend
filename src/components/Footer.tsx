@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import KayfiyLogo from "./KayfiyLogo";
 import { footerCategories as defaultFooterCategories, usefulLinks, type NavLink } from "@/lib/data";
@@ -30,6 +31,7 @@ function TikTokIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 }
 
 export default function Footer() {
+  const pathname = usePathname();
   const [categories, setCategories] = useState<NavLink[]>(defaultFooterCategories);
   const [signedUp, setSignedUp] = useState(false);
 
@@ -55,6 +57,8 @@ export default function Footer() {
     }
     loadCategories();
   }, []);
+
+  if (pathname === "/checkout") return null;
 
   const topCategories = categories.slice(0, 6);
   const helpLinks = usefulLinks.slice(0, 6);

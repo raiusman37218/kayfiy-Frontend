@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import KayfiyLogo from "./KayfiyLogo";
 import { navigation as defaultNav, slug, type NavItem } from "@/lib/data";
@@ -46,6 +47,7 @@ function buildNavigation(categories: DbCategory[]): NavItem[] {
 }
 
 export default function Header() {
+  const pathname = usePathname();
   const [navItems, setNavItems] = useState<NavItem[]>(defaultNav);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -85,6 +87,8 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+
+  if (pathname === "/checkout") return null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-white/98 backdrop-blur-md shadow-xs">
