@@ -8,12 +8,14 @@ import { navigation as defaultNav, slug, type NavItem } from "@/lib/data";
 import { fetchDbCategories, supabase, type DbCategory } from "@/lib/supabase";
 import { useCart } from "./useCart";
 import HeaderSearch from "./HeaderSearch";
+import SearchDrawer from "./SearchDrawer";
 import {
   AccountIcon,
   CartIcon,
   ChevronIcon,
   CloseIcon,
   MenuIcon,
+  SearchIcon,
 } from "./Icons";
 
 function buildNavigation(categories: DbCategory[]): NavItem[] {
@@ -47,6 +49,7 @@ export default function Header() {
   const [navItems, setNavItems] = useState<NavItem[]>(defaultNav);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const { count, openCart } = useCart();
 
@@ -85,11 +88,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-white/98 backdrop-blur-md shadow-xs">
-      <div className="mx-auto flex h-16 sm:h-18 lg:h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <div className="flex flex-1 items-center gap-2 sm:gap-3">
+      <div className="mx-auto flex h-16 sm:h-18 lg:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 relative">
+        {/* Left Side: 3-Lines Hamburger Menu (Mobile) | Desktop Search Input */}
+        <div className="flex flex-1 items-center justify-start gap-2">
           <button
             type="button"
-            className="-ml-2 rounded-full p-2 text-charcoal transition hover:bg-blush lg:hidden"
+            className="-ml-2 rounded-full p-2 text-charcoal transition hover:bg-blush lg:hidden cursor-pointer"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
@@ -101,19 +105,35 @@ export default function Header() {
             )}
           </button>
           
-          {/* Pill Search Bar matching reference image with placeholder "I'm looking for..." */}
-          <HeaderSearch />
+          {/* Desktop Search Bar (Hidden on Mobile) */}
+          <div className="hidden lg:block">
+            <HeaderSearch />
+          </div>
         </div>
 
-        <Link
-          href="/"
-          className="relative flex items-center justify-center py-1 transition duration-200 group shrink-0"
-          aria-label="KAYFIY"
-        >
-          <KayfiyLogo size="lg" />
-        </Link>
+        {/* Center: KAYFIY Logo (Dead Center on Mobile and Desktop) */}
+        <div className="flex items-center justify-center shrink-0">
+          <Link
+            href="/"
+            className="relative flex items-center justify-center py-1 transition duration-200 group"
+            aria-label="KAYFIY"
+          >
+            <KayfiyLogo size="lg" />
+          </Link>
+        </div>
 
-        <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
+        {/* Right Side: Search Icon (Mobile Only), Account Icon, Cart */}
+        <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
+          {/* Mobile Search Icon Button -> Opens SearchDrawer */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="rounded-full p-2 text-charcoal transition hover:bg-blush lg:hidden cursor-pointer"
+            aria-label="Search products"
+          >
+            <SearchIcon className="h-5 w-5" />
+          </button>
+
           <Link
             href="/account"
             className="rounded-full p-2 text-charcoal transition hover:bg-blush"
@@ -273,6 +293,12 @@ export default function Header() {
           </ul>
         </nav>
       )}
+
+      {/* Slide-over Live Search Modal Interface */}
+      <SearchDrawer
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
     </header>
   );
 }

@@ -95,10 +95,10 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
       />
 
       {/* Slide-Over Search Drawer Panel */}
-      <div className="absolute inset-y-0 right-0 flex max-w-full pl-6">
+      <div className="absolute inset-y-0 right-0 flex w-full max-w-full sm:max-w-lg pl-0 sm:pl-6">
         <aside
           aria-label="Search KAYFIY Store"
-          className="relative flex w-screen max-w-lg flex-col bg-white shadow-2xl transition-transform duration-300 ease-out"
+          className="relative flex w-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-out"
         >
           {/* Header & Search Input Box */}
           <div className="border-b border-line bg-cream/40 p-5 sm:p-6">

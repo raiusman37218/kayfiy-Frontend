@@ -56,10 +56,41 @@ export const MIXED_IMAGES = [
   "/images/bra-black-satin.jpg",
 ];
 
-export const SECTION_BANNERS = {
-  bestSellers: "/banners/sec-best-sellers.jpg",
-  bras: "/banners/sec-bras.jpg",
-  braSets: "/banners/sec-bra-sets.jpg",
-  shapewear: "/banners/sec-shapewear.jpg",
-  panties: "/banners/sec-panties.jpg",
+export interface BannerConfig {
+  desktop: string;
+  mobile?: string;
+  alt?: string;
+  aspectRatio?: string;
+}
+
+export type BannerProp = string | BannerConfig;
+
+export const SECTION_BANNERS: Record<string, BannerConfig> = {
+  bestSellers: {
+    desktop: "/banners/sec-best-sellers.jpg",
+    alt: "Best Sellers collection",
+    aspectRatio: "aspect-[8/3]",
+  },
+  bras: {
+    desktop: "/banners/sec-bras.jpg",
+    alt: "Bras collection",
+    aspectRatio: "aspect-[8/3]",
+  },
+  braSets: {
+    desktop: "/banners/sec-bra-sets.jpg",
+    alt: "Bra Sets collection",
+    aspectRatio: "aspect-[8/3]",
+  },
+  shapewear: {
+    desktop: "/banners/sec-shapewear.jpg",
+    alt: "Shapewear collection",
+    aspectRatio: "aspect-[8/3]",
+  },
+  panties: {
+    desktop: "/banners/sec-panties.jpg",
+    alt: "Panties collection",
+    aspectRatio: "aspect-[8/3]",
+  },
 };
+
+

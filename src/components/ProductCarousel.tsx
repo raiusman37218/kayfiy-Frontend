@@ -7,10 +7,12 @@ import ProductCard from "./ProductCard";
 import { ChevronIcon } from "./Icons";
 import type { Product } from "@/lib/data";
 
+import type { BannerProp } from "@/lib/images";
+
 type Props = {
   title: string;
   products: Product[];
-  banner: string;
+  banner: BannerProp;
   blurb: string;
   viewAllHref?: string;
 };
@@ -24,6 +26,18 @@ export default function ProductCarousel({
 }: Props) {
   const trackRef = useRef<HTMLUListElement>(null);
 
+  const desktopSrc = typeof banner === "string" ? banner : banner.desktop;
+  const mobileSrc = typeof banner === "string" ? undefined : banner.mobile;
+  const altText =
+    typeof banner !== "string" && banner.alt ? banner.alt : `${title} banner`;
+
+  const aspectClasses =
+    typeof banner !== "string" && banner.aspectRatio
+      ? banner.aspectRatio
+      : mobileSrc
+        ? "aspect-[4/3] sm:aspect-[16/7] md:aspect-[8/3]"
+        : "aspect-[8/3]";
+
   const scrollBy = (direction: 1 | -1) => {
     const track = trackRef.current;
     if (!track) return;
@@ -35,30 +49,74 @@ export default function ProductCarousel({
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
-      {/* Pure Graphic Banner (No hardcoded text overlays or dark gradients) */}
+      {/* Pure Graphic Banner (Full width, natural aspect ratio, no cropping on mobile) */}
       {viewAllHref ? (
         <Link
           href={viewAllHref}
           aria-label={`Shop ${title}`}
-          className="group relative block h-64 sm:h-80 lg:h-96 w-full overflow-hidden rounded-3xl shadow-sm transition-all duration-500 hover:shadow-xl"
+          className={`group relative block w-full ${aspectClasses} overflow-hidden rounded-3xl shadow-sm transition-all duration-500 hover:shadow-xl`}
         >
-          <Image
-            src={banner}
-            alt={title}
-            fill
-            sizes="(min-width: 1280px) 1280px, 100vw"
-            className="object-cover transition duration-700 group-hover:scale-102"
-          />
+          {mobileSrc ? (
+            <>
+              {/* Mobile crop (< 768px) */}
+              <Image
+                src={mobileSrc}
+                alt={altText}
+                fill
+                sizes="(min-width: 768px) 1px, 100vw"
+                className="object-cover transition duration-700 group-hover:scale-102 md:hidden"
+              />
+              {/* Desktop crop (>= 768px) */}
+              <Image
+                src={desktopSrc}
+                alt={altText}
+                fill
+                sizes="(min-width: 1280px) 1280px, 100vw"
+                className="hidden object-cover transition duration-700 group-hover:scale-102 md:block"
+              />
+            </>
+          ) : (
+            <Image
+              src={desktopSrc}
+              alt={altText}
+              fill
+              sizes="(min-width: 1280px) 1280px, 100vw"
+              className="object-cover transition duration-700 group-hover:scale-102"
+            />
+          )}
         </Link>
       ) : (
-        <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden rounded-3xl shadow-sm">
-          <Image
-            src={banner}
-            alt={title}
-            fill
-            sizes="(min-width: 1280px) 1280px, 100vw"
-            className="object-cover"
-          />
+        <div
+          className={`relative w-full ${aspectClasses} overflow-hidden rounded-3xl shadow-sm`}
+        >
+          {mobileSrc ? (
+            <>
+              {/* Mobile crop (< 768px) */}
+              <Image
+                src={mobileSrc}
+                alt={altText}
+                fill
+                sizes="(min-width: 768px) 1px, 100vw"
+                className="object-cover md:hidden"
+              />
+              {/* Desktop crop (>= 768px) */}
+              <Image
+                src={desktopSrc}
+                alt={altText}
+                fill
+                sizes="(min-width: 1280px) 1280px, 100vw"
+                className="hidden object-cover md:block"
+              />
+            </>
+          ) : (
+            <Image
+              src={desktopSrc}
+              alt={altText}
+              fill
+              sizes="(min-width: 1280px) 1280px, 100vw"
+              className="object-cover"
+            />
+          )}
         </div>
       )}
 

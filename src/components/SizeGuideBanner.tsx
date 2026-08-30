@@ -52,7 +52,7 @@ export default function SizeGuideBanner() {
           </div>
 
           {/* Right Column: Custom 2D Vector Illustration Art */}
-          <div className="relative h-[280px] w-full sm:h-[380px] md:col-span-6 md:h-[460px] lg:col-span-7 overflow-hidden">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-auto md:h-full md:min-h-[460px] md:col-span-6 lg:col-span-7 overflow-hidden">
             <Image
               src="/banners/custom-bra-calculator-art.jpg"
               alt="Woman measuring bra size illustration"
