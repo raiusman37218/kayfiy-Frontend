@@ -6,6 +6,12 @@ import KayfiyLogo from "./KayfiyLogo";
 import { footerCategories as defaultFooterCategories, usefulLinks, type NavLink } from "@/lib/data";
 import { fetchDbCategories } from "@/lib/supabase";
 import { FacebookIcon, InstagramIcon } from "./Icons";
+import {
+  FastTruckIcon,
+  DiscreetPackageIcon,
+  ExchangeBoxIcon,
+  SecureCoinsIcon,
+} from "./ProductTrustBadges";
 
 export default function Footer() {
   const [categories, setCategories] = useState<NavLink[]>(defaultFooterCategories);
@@ -39,24 +45,24 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-line bg-cream font-sans">
-      {/* 1. Compact Trust Strip */}
-      <div className="border-b border-line/60 bg-[#FDF0F3]/60 py-3 px-4">
-        <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-2.5 text-center text-[11px] sm:text-xs text-charcoal font-medium">
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-sm">🚚</span>
-            <span>Free Delivery Over Rs. 3,500</span>
+      {/* 1. Compact Illustrated Trust Strip */}
+      <div className="border-b border-line/60 bg-[#FDF0F3]/60 py-3.5 px-4">
+        <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[11px] sm:text-xs text-charcoal font-semibold">
+          <div className="flex items-center justify-center gap-2">
+            <FastTruckIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+            <span className="text-black">Free Delivery Over Rs. 3,500</span>
           </div>
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-sm">🔒</span>
-            <span>100% Discreet Packaging</span>
+          <div className="flex items-center justify-center gap-2">
+            <DiscreetPackageIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+            <span className="text-black">100% Discreet Packaging</span>
           </div>
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-sm">🔄</span>
-            <span>7-Day Size Exchange</span>
+          <div className="flex items-center justify-center gap-2">
+            <ExchangeBoxIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+            <span className="text-black">7-Day Size Exchange</span>
           </div>
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-sm">💵</span>
-            <span>Cash on Delivery</span>
+          <div className="flex items-center justify-center gap-2">
+            <SecureCoinsIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+            <span className="text-black">Cash on Delivery</span>
           </div>
         </div>
       </div>

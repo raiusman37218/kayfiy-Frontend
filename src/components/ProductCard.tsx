@@ -52,19 +52,19 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <h3 className="mt-3 line-clamp-2 text-sm text-charcoal transition group-hover:text-rose">
+        <h3 className="mt-3 line-clamp-2 text-sm font-medium text-black transition group-hover:text-[#C4526E]">
           {product.name}
         </h3>
 
         <p className="mt-1 flex items-baseline gap-2 text-sm">
+          <span className={`font-bold ${onSale ? "text-[#C4526E]" : "text-black"}`}>
+            {formatPrice(product.price)}
+          </span>
           {onSale && (
-            <span className="text-muted line-through">
+            <span className="text-xs text-gray-400 line-through">
               {formatPrice(product.compareAt!)}
             </span>
           )}
-          <span className={onSale ? "font-medium text-rose" : "text-charcoal"}>
-            {formatPrice(product.price)}
-          </span>
         </p>
       </Link>
     </article>

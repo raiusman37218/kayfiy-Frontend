@@ -47,14 +47,14 @@ export default function AddToBag({ product }: { product: Product }) {
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-7 font-sans">
       <div className="flex items-baseline justify-between">
-        <p className="text-xs tracking-[0.16em] text-charcoal uppercase">
+        <p className="text-xs font-bold tracking-wider text-black uppercase">
           Size
         </p>
         <Link
           href="/pages/bra-size-calculator"
-          className="text-xs text-rose underline-offset-4 hover:underline"
+          className="text-xs font-semibold text-[#C4526E] underline-offset-4 hover:underline"
         >
           Find my size
         </Link>
@@ -67,10 +67,10 @@ export default function AddToBag({ product }: { product: Product }) {
             type="button"
             onClick={() => setSize(option)}
             aria-pressed={size === option}
-            className={`min-w-14 rounded-full border px-4 py-2 text-sm transition ${
+            className={`min-w-14 rounded-full border px-4 py-2 text-sm font-medium transition cursor-pointer ${
               size === option
-                ? "border-charcoal bg-charcoal text-cream"
-                : "border-line text-charcoal hover:border-rose hover:text-rose"
+                ? "border-black bg-black text-white shadow-xs"
+                : "border-gray-300 bg-white text-black hover:border-black hover:bg-gray-50"
             }`}
           >
             {option}
@@ -79,17 +79,17 @@ export default function AddToBag({ product }: { product: Product }) {
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <div className="flex items-center rounded-full border border-line">
+        <div className="flex items-center rounded-full border border-gray-300 bg-white">
           <button
             type="button"
             onClick={() => setQty((value) => Math.max(1, value - 1))}
             aria-label="Decrease quantity"
             disabled={!isAvailable}
-            className="px-4 py-2.5 text-charcoal transition hover:text-rose disabled:opacity-40"
+            className="px-4 py-2.5 font-bold text-black transition hover:text-[#C4526E] disabled:opacity-40 cursor-pointer"
           >
             −
           </button>
-          <span aria-live="polite" className="w-8 text-center text-sm">
+          <span aria-live="polite" className="w-8 text-center text-sm font-bold text-black">
             {qty}
           </span>
           <button
@@ -97,7 +97,7 @@ export default function AddToBag({ product }: { product: Product }) {
             onClick={() => setQty((value) => Math.min(10, value + 1))}
             aria-label="Increase quantity"
             disabled={!isAvailable}
-            className="px-4 py-2.5 text-charcoal transition hover:text-rose disabled:opacity-40"
+            className="px-4 py-2.5 font-bold text-black transition hover:text-[#C4526E] disabled:opacity-40 cursor-pointer"
           >
             +
           </button>
@@ -107,25 +107,26 @@ export default function AddToBag({ product }: { product: Product }) {
           type="button"
           onClick={handleAdd}
           disabled={!isAvailable}
-          className="flex-1 rounded-full bg-charcoal px-8 py-3.5 text-xs tracking-[0.16em] text-cream uppercase transition hover:bg-rose disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 sm:flex-none"
+          className="flex-1 rounded-full bg-black px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition hover:bg-[#C4526E] hover:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 sm:flex-none cursor-pointer"
         >
           {isAvailable ? "Add to Bag" : "Out of Stock"}
         </button>
       </div>
 
       {added && (
-        <p className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-blush px-4 py-3 text-sm text-charcoal">
-          Added to your bag.
-          <Link href="/cart" className="text-rose underline underline-offset-4">
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-[#FFF0F3] border border-[#F2D4DA] px-4 py-3 text-xs font-medium text-black">
+          <span>✓ Added to your bag.</span>
+          <Link href="/cart" className="font-bold text-[#C4526E] underline underline-offset-4">
             View bag
           </Link>
+          <span>•</span>
           <Link
             href="/checkout"
-            className="text-rose underline underline-offset-4"
+            className="font-bold text-[#C4526E] underline underline-offset-4"
           >
             Checkout
           </Link>
-        </p>
+        </div>
       )}
     </div>
   );

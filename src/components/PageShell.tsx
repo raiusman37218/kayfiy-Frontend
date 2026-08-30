@@ -4,22 +4,22 @@ export type Crumb = { label: string; href?: string };
 
 export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-xs text-muted">
+    <nav aria-label="Breadcrumb" className="text-xs font-medium text-gray-500">
       <ol className="flex flex-wrap items-center gap-1.5">
         <li>
-          <Link href="/" className="transition hover:text-rose">
+          <Link href="/" className="transition hover:text-black">
             Home
           </Link>
         </li>
         {trail.map((crumb) => (
           <li key={crumb.label} className="flex items-center gap-1.5">
-            <span aria-hidden>/</span>
+            <span aria-hidden className="text-gray-300">/</span>
             {crumb.href ? (
-              <Link href={crumb.href} className="transition hover:text-rose">
+              <Link href={crumb.href} className="transition hover:text-black">
                 {crumb.label}
               </Link>
             ) : (
-              <span className="text-charcoal">{crumb.label}</span>
+              <span className="font-semibold text-black">{crumb.label}</span>
             )}
           </li>
         ))}

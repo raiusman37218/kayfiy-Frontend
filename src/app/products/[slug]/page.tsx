@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import AddToBag from "@/components/AddToBag";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGallery from "@/components/ProductGallery";
+import ProductTrustBadges from "@/components/ProductTrustBadges";
 import { Breadcrumbs } from "@/components/PageShell";
 import { allProducts, findLiveProduct, getLiveProducts, relatedTo } from "@/lib/catalog";
 import { discountPercent, formatPrice, slug as slugify } from "@/lib/data";
@@ -65,43 +66,52 @@ export default async function ProductPage({
           isAvailable={product.instock !== false && (product.stockQuantity ?? 1) > 0}
         />
 
-        <div className="lg:pt-4">
-          <h1 className="font-serif text-3xl text-charcoal sm:text-4xl">
+        <div className="lg:pt-2">
+          {/* Product Title - Crisp Bold Modern Sans-serif in Solid Black */}
+          <h1 className="font-sans text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl leading-tight">
             {product.name}
           </h1>
 
           {product.articleNumber && (
-            <p className="mt-1 text-xs tracking-wider text-muted uppercase">
+            <p className="mt-1.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
               SKU: {product.articleNumber}
             </p>
           )}
 
+          {/* Pricing Section */}
           <div className="mt-4 flex flex-wrap items-baseline gap-3">
-            {onSale && (
-              <span className="text-lg text-muted line-through">
-                {formatPrice(product.compareAt!)}
-              </span>
-            )}
             <span
-              className={`text-2xl ${onSale ? "text-rose" : "text-charcoal"}`}
+              className={`font-sans text-2xl sm:text-3xl font-extrabold ${
+                onSale ? "text-[#C4526E]" : "text-black"
+              }`}
             >
               {formatPrice(product.price)}
             </span>
             {onSale && (
-              <span className="rounded-full bg-blush px-3 py-1 text-xs text-charcoal">
+              <span className="font-sans text-base sm:text-lg text-gray-400 line-through font-medium">
+                {formatPrice(product.compareAt!)}
+              </span>
+            )}
+            {onSale && (
+              <span className="rounded-full bg-[#FFF0F3] border border-[#F2D4DA] px-3 py-1 text-xs font-bold text-[#C4526E]">
                 Save {discountPercent(product.price, product.compareAt!)}%
               </span>
             )}
           </div>
 
-          <p className="mt-5 text-sm leading-relaxed text-muted">
+          {/* Description */}
+          <p className="mt-5 text-sm sm:text-base leading-relaxed text-black/90 font-normal">
             {product.description ||
               "Cut from breathable, skin-friendly fabric and finished with flat seams so nothing digs in. Designed and fit-tested in Pakistan for long, warm days — the kind of piece you forget you put on."}
           </p>
 
           <AddToBag product={product} />
 
-          <dl className="mt-10 divide-y divide-line border-t border-line text-sm">
+          {/* Dedicated Illustrated Trust & Feature Badges */}
+          <ProductTrustBadges />
+
+          {/* Specifications / Accordions */}
+          <dl className="mt-8 divide-y divide-gray-200 border-t border-gray-200 text-sm">
             {[
               ["Fabric", "Cotton-modal blend with elastane for stretch"],
               ["Care", "Hand wash cold, dry flat, do not bleach"],
@@ -109,23 +119,23 @@ export default async function ProductPage({
               ["Returns", "7-day exchange on unworn items with tags"],
             ].map(([term, detail]) => (
               <div key={term} className="flex gap-6 py-3.5">
-                <dt className="w-28 shrink-0 text-charcoal">{term}</dt>
-                <dd className="text-muted">{detail}</dd>
+                <dt className="w-28 shrink-0 font-semibold text-black">{term}</dt>
+                <dd className="text-black/80">{detail}</dd>
               </div>
             ))}
           </dl>
         </div>
       </div>
 
-      <section className="border-t border-line">
+      <section className="border-t border-gray-200">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
           <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-serif text-2xl text-charcoal sm:text-3xl">
+            <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-black">
               You May Also Like
             </h2>
             <Link
               href="/collections/all"
-              className="border-b border-rose/40 pb-0.5 text-xs tracking-[0.14em] text-rose uppercase transition hover:border-rose"
+              className="border-b border-black pb-0.5 text-xs font-bold tracking-[0.14em] text-black uppercase transition hover:text-[#C4526E] hover:border-[#C4526E]"
             >
               View All
             </Link>
