@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddToBag from "@/components/AddToBag";
 import ProductGrid from "@/components/ProductGrid";
+import ProductGallery from "@/components/ProductGallery";
 import { Breadcrumbs } from "@/components/PageShell";
 import { allProducts, findLiveProduct, getLiveProducts, relatedTo } from "@/lib/catalog";
 import { discountPercent, formatPrice, slug as slugify } from "@/lib/data";
@@ -41,6 +42,10 @@ export default async function ProductPage({
   const onSale = typeof product.compareAt === "number";
   const related = relatedTo(product, allLive, 4);
 
+  const productImages = product.images && product.images.length > 0
+    ? product.images
+    : Array.from(new Set([product.image, product.hoverImage].filter(Boolean)));
+
   return (
     <main>
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
@@ -53,46 +58,12 @@ export default async function ProductPage({
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:py-12">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="relative col-span-2 aspect-[4/5] overflow-hidden rounded-3xl bg-blush">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              sizes="(min-width: 1024px) 46vw, 92vw"
-              className="object-cover"
-            />
-            {onSale && (
-              <span className="absolute top-4 left-4 rounded-full bg-rose px-3 py-1 text-[10px] font-medium tracking-[0.14em] text-white uppercase">
-                Sale
-              </span>
-            )}
-            {!product.instock && (
-              <span className="absolute top-4 right-4 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-medium tracking-[0.14em] text-white uppercase">
-                Out of Stock
-              </span>
-            )}
-          </div>
-          <div className="relative aspect-square overflow-hidden rounded-2xl bg-blush">
-            <Image
-              src={product.hoverImage}
-              alt={`${product.name} — detail`}
-              fill
-              sizes="(min-width: 1024px) 23vw, 46vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="relative aspect-square overflow-hidden rounded-2xl bg-blush">
-            <Image
-              src={product.image}
-              alt={`${product.name} — fabric`}
-              fill
-              sizes="(min-width: 1024px) 23vw, 46vw"
-              className="object-cover object-bottom"
-            />
-          </div>
-        </div>
+        <ProductGallery
+          images={productImages}
+          name={product.name}
+          onSale={onSale}
+          isAvailable={product.instock !== false && (product.stockQuantity ?? 1) > 0}
+        />
 
         <div className="lg:pt-4">
           <h1 className="font-serif text-3xl text-charcoal sm:text-4xl">

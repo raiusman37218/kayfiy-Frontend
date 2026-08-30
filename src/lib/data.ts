@@ -15,6 +15,7 @@ export type Product = {
   seed: number;
   image: string;
   hoverImage: string;
+  images?: string[];
   description?: string;
   category?: string;
   sizes?: string[];

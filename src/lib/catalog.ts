@@ -50,10 +50,10 @@ export type Collection = {
   parent?: { title: string; slug: string };
 };
 
-export function sanitizeProductImage(rawImg?: string | null): { primary: string; hover: string } {
+export function sanitizeProductImage(rawImg?: string | null): { primary: string; hover: string; all: string[] } {
   const fallback = BRA_IMAGES[0] || "/banners/hero-monsoon.jpg";
   if (!rawImg || typeof rawImg !== "string") {
-    return { primary: fallback, hover: fallback };
+    return { primary: fallback, hover: fallback, all: [fallback] };
   }
 
   let urls: string[] = [];
@@ -77,7 +77,8 @@ export function sanitizeProductImage(rawImg?: string | null): { primary: string;
 
   const primary = urls[0] || fallback;
   const hover = urls[1] || urls[0] || fallback;
-  return { primary, hover };
+  const all = urls.length > 0 ? Array.from(new Set(urls)) : [fallback];
+  return { primary, hover, all };
 }
 
 /** Convert Supabase DbProduct to storefront Product format */
@@ -93,7 +94,7 @@ export function mapDbProduct(p: DbProduct): Product {
     ? p.color.split(",").map((c) => c.trim()).filter(Boolean)
     : ["Default"];
 
-  const { primary, hover } = sanitizeProductImage(p.img);
+  const { primary, hover, all } = sanitizeProductImage(p.img);
 
   return {
     id: p.id,
@@ -103,6 +104,7 @@ export function mapDbProduct(p: DbProduct): Product {
     seed: p.name.length,
     image: primary,
     hoverImage: hover,
+    images: all,
     description: p.description,
     category: p.category,
     sizes: rawSizes,
