@@ -59,14 +59,14 @@ export default function CartDrawer() {
       {/* Dark backdrop */}
       <div
         onClick={closeCart}
-        className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300 animate-fadeIn"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
       />
 
       {/* Slide-Over Drawer */}
       <div className="absolute inset-y-0 right-0 flex max-w-full pl-6">
         <aside
           aria-label="Shopping Cart Drawer"
-          className="relative flex w-screen max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-out"
+          className="relative flex w-screen max-w-md flex-col bg-white shadow-2xl animate-slide-in-right"
         >
           {/* 1. Header (Shopify standard) */}
           <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 bg-white">
@@ -117,20 +117,20 @@ export default function CartDrawer() {
           {/* 3. Items List */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
             {lines.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center text-center py-12">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+              <div className="flex h-full flex-col items-center justify-center text-center py-12 animate-fade-in">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blush text-[#C4526E] animate-float">
                   <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                 </div>
-                <h3 className="mt-4 font-serif text-xl font-bold text-gray-900">Your bag is empty</h3>
-                <p className="mt-1 text-xs text-gray-500 max-w-[220px]">
+                <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-bold text-gray-900">Your bag is empty</h3>
+                <p className="mt-1.5 text-xs text-gray-500 max-w-[220px] leading-relaxed">
                   Explore our comfortable everyday innerwear collection.
                 </p>
                 <button
                   type="button"
                   onClick={closeCart}
-                  className="mt-6 rounded-full bg-gray-900 px-7 py-3 text-xs font-semibold tracking-wider text-white uppercase transition hover:bg-[#C4526E] cursor-pointer"
+                  className="mt-6 rounded-full bg-charcoal px-7 py-3.5 text-xs font-bold tracking-wider text-white uppercase transition-all duration-300 hover:bg-[#C4526E] hover:shadow-md cursor-pointer"
                 >
                   Continue Shopping
                 </button>
@@ -260,7 +260,7 @@ export default function CartDrawer() {
                 <Link
                   href="/checkout"
                   onClick={closeCart}
-                  className="flex w-full items-center justify-between rounded-xl bg-gray-900 px-6 py-4 text-xs font-bold tracking-wider text-white uppercase shadow-md transition duration-300 hover:bg-[#C4526E] hover:shadow-lg cursor-pointer"
+                  className="group flex w-full items-center justify-between rounded-2xl bg-charcoal px-6 py-4 text-xs font-bold tracking-wider text-white uppercase shadow-md transition-all duration-300 hover:bg-[#C4526E] hover:shadow-lg hover:scale-[1.01] cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

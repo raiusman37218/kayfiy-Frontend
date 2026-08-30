@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Cormorant_Garamond, Jost, Playfair_Display } from "next/font/google";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -16,6 +16,13 @@ const display = Cormorant_Garamond({
 const body = Jost({
   variable: "--font-body",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const heading = Playfair_Display({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -36,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} h-full antialiased`}
+      className={`${display.variable} ${body.variable} ${heading.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-charcoal">
         <AnnouncementBar />

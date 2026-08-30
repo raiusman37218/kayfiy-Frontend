@@ -123,7 +123,7 @@ export default function ProductCarousel({
       {/* Clean Section Navigation Bar */}
       <div className="mt-6 mb-5 flex items-center justify-between">
         <div>
-          <h2 className="font-serif text-2xl sm:text-3xl text-charcoal font-semibold">
+          <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl text-charcoal font-bold">
             {title}
           </h2>
           {blurb && (

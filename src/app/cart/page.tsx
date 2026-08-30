@@ -203,7 +203,7 @@ export default function CartPage() {
 
             {/* Sidebar Summary */}
             <aside className="h-fit rounded-3xl bg-white border border-gray-200 p-6 sm:p-8 shadow-sm lg:sticky lg:top-28">
-              <h2 className="font-serif text-2xl font-bold text-charcoal">Order Summary</h2>
+              <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-charcoal">Order Summary</h2>
 
               <dl className="mt-6 space-y-3.5 text-sm">
                 <div className="flex justify-between">
@@ -221,16 +221,29 @@ export default function CartPage() {
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-line pt-4 text-base">
-                  <dt className="font-serif font-bold text-charcoal">Estimated Total</dt>
-                  <dd className="font-serif text-2xl font-extrabold text-charcoal">
+                  <dt className="font-[family-name:var(--font-heading)] font-bold text-charcoal">Estimated Total</dt>
+                  <dd className="font-[family-name:var(--font-heading)] text-2xl font-extrabold text-charcoal">
                     {formatPrice(total)}
                   </dd>
                 </div>
               </dl>
 
+              {/* Estimated Delivery */}
+              <div className="mt-5 rounded-2xl bg-[#F0FDF4] border border-emerald-200 p-3.5 flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-emerald-800">Estimated Delivery</p>
+                  <p className="text-[11px] text-emerald-700">2–4 working days nationwide</p>
+                </div>
+              </div>
+
               <Link
                 href="/checkout"
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#C4526E] py-4 px-8 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition duration-300 hover:bg-[#A83853] hover:shadow-lg cursor-pointer"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#C4526E] py-4 px-8 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition-all duration-300 hover:bg-[#A83853] hover:shadow-lg hover:scale-[1.01] cursor-pointer"
               >
                 <span>PROCEED TO CHECKOUT</span>
                 <span className="text-sm">→</span>
