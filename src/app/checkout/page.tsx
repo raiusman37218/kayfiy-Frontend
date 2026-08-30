@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/components/useCart";
 import { formatPrice } from "@/lib/data";
 import { fetchDbStoreSettings } from "@/lib/supabase";
+import KayfiyLogo from "@/components/KayfiyLogo";
 
 const inputClass =
   "w-full rounded-md border border-[#D9D9D9] bg-white px-3.5 py-2.5 text-sm text-[#333333] placeholder:text-[#737373] outline-none transition focus:border-[#1773B0] focus:ring-1 focus:ring-[#1773B0]";
@@ -205,6 +206,23 @@ export default function CheckoutPage() {
           {/* LEFT COLUMN: Exactly matching the Shopify Screenshot       */}
           {/* ========================================================= */}
           <div className="px-4 py-8 sm:px-8 lg:col-span-7 lg:py-10 lg:pr-12">
+            {/* Store Brand Header on Checkout */}
+            <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4">
+              <Link
+                href="/"
+                className="inline-block transition hover:opacity-85"
+                aria-label="Go to KAYFIY Home"
+              >
+                <KayfiyLogo size="md" />
+              </Link>
+              <Link
+                href="/cart"
+                className="flex items-center gap-1 text-xs font-medium text-[#1773B0] hover:underline"
+              >
+                ← Return to bag
+              </Link>
+            </div>
+
             {ready && lines.length === 0 ? (
               <div className="py-16 text-center">
                 <h2 className="text-lg font-medium text-gray-900">Your cart is empty</h2>

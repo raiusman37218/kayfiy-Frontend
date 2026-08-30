@@ -115,7 +115,11 @@ export default function Header() {
         <div className="flex items-center justify-center shrink-0">
           <Link
             href="/"
-            className="relative flex items-center justify-center py-1 transition duration-200 group"
+            onClick={() => {
+              setMobileOpen(false);
+              setSearchOpen(false);
+            }}
+            className="relative flex items-center justify-center py-1 transition duration-200 group cursor-pointer"
             aria-label="KAYFIY"
           >
             <KayfiyLogo size="lg" />

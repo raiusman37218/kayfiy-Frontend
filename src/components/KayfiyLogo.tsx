@@ -28,28 +28,28 @@ export default function KayfiyLogo({ className = "", size = "lg" }: KayfiyLogoPr
   const currentText = textSizes[size] || textSizes.lg;
 
   return (
-    <div className={`flex items-center gap-2.5 sm:gap-3.5 select-none ${className}`}>
+    <div className={`flex items-center gap-2.5 sm:gap-3.5 select-none pointer-events-none ${className}`}>
       {/* Lady silhouette outline in elegant rose pink */}
-      <div className={`relative ${currentLady} shrink-0 transition-transform duration-300 group-hover:scale-105`}>
+      <div className={`relative ${currentLady} shrink-0 transition-transform duration-300 group-hover:scale-105 pointer-events-none`}>
         <Image
           src="/lady-pink.png"
           alt="KAYFIY Silhouette"
           fill
           priority
           sizes="64px"
-          className="object-contain"
+          className="object-contain pointer-events-none"
         />
       </div>
 
       {/* Spotless KAYFIY typography in matching elegant rose pink */}
-      <div className={`relative ${currentText} shrink-0 transition-transform duration-300 group-hover:scale-102`}>
+      <div className={`relative ${currentText} shrink-0 transition-transform duration-300 group-hover:scale-102 pointer-events-none`}>
         <Image
           src="/kayfiy-text-pink.png"
           alt="KAYFIY"
           fill
           priority
           sizes="160px"
-          className="object-contain"
+          className="object-contain pointer-events-none"
         />
       </div>
     </div>

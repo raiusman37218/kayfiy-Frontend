@@ -76,6 +76,8 @@ const getSnapshot = () => lines;
 const getServerSnapshot = () => EMPTY;
 const getReady = () => hydrated;
 const getServerReady = () => false;
+const getDrawerOpenSnapshot = () => isDrawerOpen;
+const getServerDrawerOpenSnapshot = () => false;
 
 export function useCart() {
   const current = useSyncExternalStore(
@@ -84,6 +86,11 @@ export function useCart() {
     getServerSnapshot,
   );
   const ready = useSyncExternalStore(subscribe, getReady, getServerReady);
+  const isOpen = useSyncExternalStore(
+    subscribe,
+    getDrawerOpenSnapshot,
+    getServerDrawerOpenSnapshot,
+  );
 
   const add = useCallback((line: Omit<CartLine, "qty">, qty = 1, openDrawer = true) => {
     const index = lines.findIndex(
@@ -131,7 +138,7 @@ export function useCart() {
       count,
       subtotal,
       ready,
-      isOpen: isDrawerOpen,
+      isOpen,
       openCart,
       closeCart,
       toggleCart,
@@ -140,5 +147,5 @@ export function useCart() {
       remove,
       clear,
     };
-  }, [current, ready, openCart, closeCart, toggleCart, add, setQty, remove, clear]);
+  }, [current, ready, isOpen, openCart, closeCart, toggleCart, add, setQty, remove, clear]);
 }
