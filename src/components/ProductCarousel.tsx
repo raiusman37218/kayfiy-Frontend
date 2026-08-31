@@ -15,6 +15,11 @@ type Props = {
   banner: BannerProp;
   blurb: string;
   viewAllHref?: string;
+  /**
+   * "soft" puts the section on a tinted band. Alternating tones stop five
+   * consecutive carousels from reading as one endless wall.
+   */
+  tone?: "plain" | "soft";
 };
 
 export default function ProductCarousel({
@@ -23,6 +28,7 @@ export default function ProductCarousel({
   banner,
   blurb,
   viewAllHref,
+  tone = "plain",
 }: Props) {
   const trackRef = useRef<HTMLUListElement>(null);
 
@@ -48,7 +54,11 @@ export default function ProductCarousel({
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+    <section
+      aria-label={title}
+      className={tone === "soft" ? "bg-blush/45" : ""}
+    >
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-20">
       {/* Pure Graphic Banner (Full width, natural aspect ratio, no cropping on mobile) */}
       {viewAllHref ? (
         <Link
@@ -137,7 +147,7 @@ export default function ProductCarousel({
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="border-b border-rose/40 pb-0.5 text-xs tracking-[0.14em] text-[#C4526E] font-medium uppercase transition hover:border-[#C4526E]"
+              className="border-b border-rose/40 pb-0.5 text-xs tracking-[0.14em] text-[#7A2A3D] font-medium uppercase transition hover:border-[#7A2A3D]"
             >
               View All
             </Link>
@@ -147,7 +157,7 @@ export default function ProductCarousel({
               type="button"
               onClick={() => scrollBy(-1)}
               aria-label={`Scroll ${title} left`}
-              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#C4526E] hover:text-[#C4526E] cursor-pointer"
+              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#7A2A3D] hover:text-[#7A2A3D] cursor-pointer"
             >
               <ChevronIcon className="h-4 w-4 rotate-90" />
             </button>
@@ -155,7 +165,7 @@ export default function ProductCarousel({
               type="button"
               onClick={() => scrollBy(1)}
               aria-label={`Scroll ${title} right`}
-              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#C4526E] hover:text-[#C4526E] cursor-pointer"
+              className="rounded-full border border-line p-2 text-charcoal transition hover:border-[#7A2A3D] hover:text-[#7A2A3D] cursor-pointer"
             >
               <ChevronIcon className="h-4 w-4 -rotate-90" />
             </button>
@@ -177,6 +187,7 @@ export default function ProductCarousel({
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }

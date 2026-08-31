@@ -103,7 +103,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
           {/* Header & Search Input Box */}
           <div className="border-b border-line bg-cream/40 p-5 sm:p-6">
             <div className="flex items-center justify-between pb-3">
-              <span className="text-xs font-semibold tracking-[0.2em] text-[#C4526E] uppercase">
+              <span className="text-xs font-semibold tracking-[0.2em] text-[#7A2A3D] uppercase">
                 Search Products
               </span>
               <button
@@ -131,7 +131,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search bras, bra sets, sizes, colors..."
-                className="w-full rounded-2xl border border-line bg-white pl-11 pr-10 py-3.5 text-sm text-charcoal outline-none shadow-2xs transition focus:border-[#C4526E] focus:ring-2 focus:ring-[#C4526E]/10"
+                className="w-full rounded-2xl border border-line bg-white pl-11 pr-10 py-3.5 text-sm text-charcoal outline-none shadow-2xs transition focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/10"
               />
               {query && (
                 <button
@@ -162,7 +162,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         key={keyword}
                         type="button"
                         onClick={() => setQuery(keyword)}
-                        className="rounded-full border border-line bg-[#FFF8FA] px-3.5 py-1.5 text-xs text-charcoal transition hover:border-[#C4526E] hover:text-[#C4526E] hover:bg-[#FCE4E8] cursor-pointer"
+                        className="rounded-full border border-line bg-[#FDF4F6] px-3.5 py-1.5 text-xs text-charcoal transition hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-[#F6DBE0] cursor-pointer"
                       >
                         {keyword}
                       </button>
@@ -188,7 +188,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         key={col.name}
                         href={col.href}
                         onClick={onClose}
-                        className="flex items-center justify-between rounded-xl border border-line bg-white p-3 text-xs font-medium text-charcoal transition hover:border-[#C4526E] hover:bg-blush/40"
+                        className="flex items-center justify-between rounded-xl border border-line bg-white p-3 text-xs font-medium text-charcoal transition hover:border-[#7A2A3D] hover:bg-blush/40"
                       >
                         <span>{col.name}</span>
                         <span className="text-[10px] text-muted">{col.tag}</span>
@@ -198,7 +198,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                 </div>
 
                 {/* Bra Size Finder Card */}
-                <div className="mt-8 rounded-2xl bg-gradient-to-r from-[#FCECEF] to-[#FFF5F7] border border-[#F2BAC5]/40 p-4">
+                <div className="mt-8 rounded-2xl bg-gradient-to-r from-[#F9E4E8] to-[#FCF0F2] border border-[#EBB6C0]/40 p-4">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">📐</span>
                     <div>
@@ -209,7 +209,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                   <Link
                     href="/pages/bra-size-calculator"
                     onClick={onClose}
-                    className="mt-3 inline-block rounded-xl bg-charcoal px-4 py-2 text-[11px] font-bold tracking-wider text-white uppercase hover:bg-[#C4526E] transition"
+                    className="mt-3 inline-block rounded-xl bg-[#7A2A3D] px-4 py-2 text-[11px] font-bold tracking-wider text-white uppercase hover:bg-[#5C1C2C] transition"
                   >
                     Calculate My Size →
                   </Link>
@@ -217,7 +217,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
               </div>
             ) : results.length === 0 ? (
               <div className="py-16 text-center">
-                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blush text-[#C4526E]">
+                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blush text-[#7A2A3D]">
                   <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -258,7 +258,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                               className="object-cover transition duration-300 group-hover:scale-105"
                             />
                             {onSale && (
-                              <span className="absolute top-1 left-1 rounded-sm bg-[#C4526E] px-1 py-0.5 text-[8px] font-bold text-white uppercase">
+                              <span className="absolute top-1 left-1 rounded-sm bg-[#7A2A3D] px-1 py-0.5 text-[8px] font-bold text-white uppercase">
                                 Sale
                               </span>
                             )}
@@ -266,7 +266,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
 
                           {/* Product Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-charcoal transition group-hover:text-[#C4526E] truncate">
+                            <p className="text-sm font-medium text-charcoal transition group-hover:text-[#7A2A3D] truncate">
                               {product.name}
                             </p>
                             <p className="text-xs text-muted mt-0.5">
@@ -286,7 +286,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                           </div>
 
                           {/* Arrow Indicator */}
-                          <div className="text-muted group-hover:text-[#C4526E] transition">
+                          <div className="text-muted group-hover:text-[#7A2A3D] transition">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
@@ -306,7 +306,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
               <Link
                 href={`/collections/all?q=${encodeURIComponent(trimmedQuery)}`}
                 onClick={onClose}
-                className="inline-block rounded-full bg-charcoal px-7 py-2.5 text-xs font-semibold tracking-wider text-white uppercase transition hover:bg-[#C4526E]"
+                className="inline-block rounded-full bg-[#7A2A3D] px-7 py-2.5 text-xs font-semibold tracking-wider text-white uppercase transition hover:bg-[#5C1C2C]"
               >
                 View All Results ({results.length})
               </Link>

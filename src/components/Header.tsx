@@ -157,7 +157,7 @@ export default function Header() {
           >
             <CartIcon className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#C4526E] px-1 text-[10px] font-bold text-white">
+              <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7A2A3D] px-1 text-[10px] font-bold text-white">
                 {count}
               </span>
             )}

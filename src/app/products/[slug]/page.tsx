@@ -74,7 +74,7 @@ export default async function ProductPage({
           </h1>
 
           {product.articleNumber && (
-            <p className="mt-1.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+            <p className="mt-1.5 text-xs font-semibold tracking-wider text-muted uppercase">
               SKU: {product.articleNumber}
             </p>
           )}
@@ -83,18 +83,18 @@ export default async function ProductPage({
           <div className="mt-4 flex flex-wrap items-baseline gap-3">
             <span
               className={`font-sans text-2xl sm:text-3xl font-extrabold ${
-                onSale ? "text-[#C4526E]" : "text-black"
+                onSale ? "text-[#7A2A3D]" : "text-black"
               }`}
             >
               {formatPrice(product.price)}
             </span>
             {onSale && (
-              <span className="font-sans text-base sm:text-lg text-gray-400 line-through font-medium">
+              <span className="font-sans text-base sm:text-lg text-muted-soft line-through font-medium">
                 {formatPrice(product.compareAt!)}
               </span>
             )}
             {onSale && (
-              <span className="rounded-full bg-[#FFF0F3] border border-[#F2D4DA] px-3 py-1 text-xs font-bold text-[#C4526E]">
+              <span className="rounded-full bg-[#FAE8EC] border border-[#EDC9D0] px-3 py-1 text-xs font-bold text-[#7A2A3D]">
                 Save {discountPercent(product.price, product.compareAt!)}%
               </span>
             )}
@@ -115,7 +115,7 @@ export default async function ProductPage({
           <ProductTrustBadges />
 
           {/* Specifications / Accordions */}
-          <dl className="mt-8 divide-y divide-gray-200 border-t border-gray-200 text-sm">
+          <dl className="mt-8 divide-y divide-line border-t border-line text-sm">
             {[
               ["Fabric", "Cotton-modal blend with elastane for stretch"],
               ["Care", "Hand wash cold, dry flat, do not bleach"],
@@ -131,7 +131,7 @@ export default async function ProductPage({
         </div>
       </div>
 
-      <section className="border-t border-gray-200">
+      <section className="border-t border-line">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
           <div className="mb-6 flex items-end justify-between">
             <h2 className="font-[family-name:var(--font-heading)] text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-charcoal">
@@ -139,7 +139,7 @@ export default async function ProductPage({
             </h2>
             <Link
               href="/collections/all"
-              className="border-b border-black pb-0.5 text-xs font-bold tracking-[0.14em] text-black uppercase transition hover:text-[#C4526E] hover:border-[#C4526E]"
+              className="border-b border-black pb-0.5 text-xs font-bold tracking-[0.14em] text-black uppercase transition hover:text-[#7A2A3D] hover:border-[#7A2A3D]"
             >
               View All
             </Link>

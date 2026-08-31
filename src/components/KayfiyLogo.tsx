@@ -29,10 +29,10 @@ export default function KayfiyLogo({ className = "", size = "lg" }: KayfiyLogoPr
 
   return (
     <div className={`flex items-center gap-2.5 sm:gap-3.5 select-none pointer-events-none ${className}`}>
-      {/* Lady silhouette outline in elegant rose pink */}
+      {/* Lady silhouette in the logo's own maroon */}
       <div className={`relative ${currentLady} shrink-0 transition-transform duration-300 group-hover:scale-105 pointer-events-none`}>
         <Image
-          src="/lady-pink.png"
+          src="/lady-clean.png"
           alt="KAYFIY Silhouette"
           fill
           priority
@@ -41,10 +41,10 @@ export default function KayfiyLogo({ className = "", size = "lg" }: KayfiyLogoPr
         />
       </div>
 
-      {/* Spotless KAYFIY typography in matching elegant rose pink */}
+      {/* KAYFIY wordmark in matching maroon */}
       <div className={`relative ${currentText} shrink-0 transition-transform duration-300 group-hover:scale-102 pointer-events-none`}>
         <Image
-          src="/kayfiy-text-pink.png"
+          src="/kayfiy-text-clean.png"
           alt="KAYFIY"
           fill
           priority

@@ -50,9 +50,12 @@ export default function AnnouncementBar() {
   if (pathname === "/checkout") return null;
 
   return (
-    <div className="bg-[#C4526E] text-white font-medium relative overflow-hidden">
+    <div className="bg-[#7A2A3D] text-white font-medium relative overflow-hidden">
       {/* Subtle shimmer overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
+
+      {/* Zari-style gold hairline — absolute, so it adds no height */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
       
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-center px-4 relative">
         <p

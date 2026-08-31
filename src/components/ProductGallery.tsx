@@ -91,7 +91,7 @@ export default function ProductGallery({
 
         {/* Sale Badge (Top-Left) */}
         {onSale && (
-          <span className="absolute top-3.5 left-3.5 rounded-full bg-[#C4526E] px-3 py-1 text-[10px] sm:text-[11px] font-bold tracking-[0.14em] text-white uppercase shadow-xs">
+          <span className="absolute top-3.5 left-3.5 rounded-full bg-[#7A2A3D] px-3 py-1 text-[10px] sm:text-[11px] font-bold tracking-[0.14em] text-white uppercase shadow-xs">
             Sale
           </span>
         )}
@@ -112,7 +112,7 @@ export default function ProductGallery({
         >
           <svg
             className={`h-4.5 w-4.5 transition ${
-              isWishlisted ? "fill-[#C4526E] text-[#C4526E]" : "fill-none text-gray-600"
+              isWishlisted ? "fill-[#7A2A3D] text-[#7A2A3D]" : "fill-none text-muted"
             }`}
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -169,8 +169,8 @@ export default function ProductGallery({
                 aria-label={`View image ${idx + 1}`}
                 className={`relative aspect-[4/5] w-16 sm:w-20 shrink-0 overflow-hidden rounded-2xl bg-blush transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "ring-2 ring-[#C4526E] ring-offset-2 scale-102 opacity-100 shadow-sm"
-                    : "opacity-60 hover:opacity-100 border border-gray-200"
+                    ? "ring-2 ring-[#7A2A3D] ring-offset-2 scale-102 opacity-100 shadow-sm"
+                    : "opacity-60 hover:opacity-100 border border-line"
                 }`}
               >
                 <Image

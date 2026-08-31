@@ -372,7 +372,7 @@ export default function ProductTrustBadges() {
   ];
 
   return (
-    <div className="mt-8 rounded-2xl border border-gray-200 bg-[#FCFAF7] p-4 sm:p-5">
+    <div className="mt-8 rounded-2xl border border-line bg-[#FCF9F3] p-4 sm:p-5">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 gap-y-5">
         {badges.map((badge) => (
           <div key={badge.title} className="flex items-start gap-3">
@@ -381,7 +381,7 @@ export default function ProductTrustBadges() {
               <h3 className="font-sans text-xs sm:text-sm font-bold text-black tracking-tight leading-snug">
                 {badge.title}
               </h3>
-              <p className="mt-0.5 text-[11px] sm:text-xs text-gray-600 leading-relaxed">
+              <p className="mt-0.5 text-[11px] sm:text-xs text-muted leading-relaxed">
                 {badge.description}
               </p>
             </div>

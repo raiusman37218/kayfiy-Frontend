@@ -8,6 +8,11 @@ import { PageHeader } from "@/components/PageShell";
 import { formatPrice } from "@/lib/data";
 import { fetchDbStoreSettings } from "@/lib/supabase";
 
+const FALLBACK_IMAGE = "/banners/hero-monsoon.jpg";
+
+const safeImage = (src?: string) =>
+  src && (src.startsWith("http") || src.startsWith("/")) ? src : FALLBACK_IMAGE;
+
 export default function CartPage() {
   const { lines, subtotal, count, ready, setQty, remove, clear } = useCart();
   const [freeThreshold, setFreeThreshold] = useState(3500);
@@ -26,7 +31,7 @@ export default function CartPage() {
           }
         }
       } catch {
-        // fallback
+        // Keep the defaults if settings can't be read.
       }
     }
     loadSettings();
@@ -35,7 +40,10 @@ export default function CartPage() {
   const isFreeShipping = subtotal >= freeThreshold;
   const shipping = subtotal === 0 || isFreeShipping ? 0 : shippingFee;
   const total = subtotal + shipping;
-  const progressPercent = Math.min(100, Math.round((subtotal / freeThreshold) * 100));
+  const progressPercent = Math.min(
+    100,
+    Math.round((subtotal / freeThreshold) * 100),
+  );
   const remainingForFree = Math.max(0, freeThreshold - subtotal);
 
   return (
@@ -52,217 +60,303 @@ export default function CartPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {!ready ? (
-          <p className="py-16 text-center text-sm text-muted">Loading your bag…</p>
+          <p className="py-16 text-center text-sm text-muted">
+            Loading your bag…
+          </p>
         ) : lines.length === 0 ? (
-          <div className="py-16 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-[#C4526E]">
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          <div className="mx-auto max-w-md rounded-3xl border border-line bg-white px-6 py-14 text-center shadow-sm">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-maroon">
+              <svg
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
               </svg>
             </div>
-            <p className="font-serif text-3xl font-bold text-charcoal">
+            <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-charcoal">
               Your bag is empty
             </p>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mx-auto mt-2 max-w-xs text-sm text-muted">
               Explore our best selling comfort wear and find your true fit.
             </p>
             <Link
               href="/collections/top-selling"
-              className="mt-6 inline-block rounded-full bg-charcoal px-8 py-3.5 text-xs font-semibold tracking-[0.16em] text-cream uppercase transition hover:bg-[#C4526E]"
+              className="mt-7 inline-block rounded-full bg-maroon px-8 py-3.5 text-xs font-semibold tracking-[0.16em] text-cream uppercase transition hover:bg-maroon-dark"
             >
               Shop Best Sellers
             </Link>
           </div>
         ) : (
-          <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
             <div>
-              {/* Free Shipping Progress Meter */}
-              <div className="mb-6 rounded-2xl border border-[#F2D4DA] bg-[#FFF5F7] p-4 sm:p-5">
-                <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-charcoal">
-                  {remainingForFree > 0 ? (
-                    <p>
-                      Add <strong className="text-[#C4526E]">{formatPrice(remainingForFree)}</strong> more for <strong>FREE Nationwide Delivery</strong> 🚚
+              {/* Free delivery progress */}
+              <div
+                className={`mb-5 rounded-2xl border p-4 sm:px-5 ${
+                  isFreeShipping
+                    ? "border-[#CFE0D2] bg-[#EEF4EE]"
+                    : "border-[#EDC9D0] bg-[#FCF0F2]"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  {isFreeShipping ? (
+                    <p className="flex items-center gap-2 text-xs font-semibold text-[#33573C] sm:text-sm">
+                      <svg
+                        className="h-4 w-4 shrink-0"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Free nationwide delivery unlocked
                     </p>
                   ) : (
-                    <p className="text-emerald-700 font-semibold flex items-center gap-1.5">
-                      <span>🎉</span> You've unlocked <strong>FREE Nationwide Delivery!</strong>
-                    </p>
+                    <>
+                      <p className="text-xs text-charcoal sm:text-sm">
+                        Add{" "}
+                        <strong className="font-semibold text-maroon">
+                          {formatPrice(remainingForFree)}
+                        </strong>{" "}
+                        more for free nationwide delivery
+                      </p>
+                      <span className="shrink-0 text-xs font-bold text-muted">
+                        {progressPercent}%
+                      </span>
+                    </>
                   )}
-                  <span className="text-xs font-bold text-muted">{progressPercent}%</span>
                 </div>
-                <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-[#F5D8DF]">
+                <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/70">
                   <div
-                    className={`h-full transition-all duration-500 rounded-full ${
-                      progressPercent >= 100 ? "bg-emerald-500" : "bg-[#C4526E]"
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isFreeShipping ? "bg-[#3F6B4A]" : "bg-maroon"
                     }`}
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
               </div>
 
-              {/* Product List */}
-              <ul className="divide-y divide-line border-y border-line">
+              {/* Line items */}
+              <ul className="space-y-3">
                 {lines.map((line) => (
                   <li
                     key={`${line.slug}-${line.size}`}
-                    className="flex gap-4 py-6"
+                    className="rounded-2xl border border-line bg-white p-3 shadow-2xs transition hover:shadow-sm sm:p-4"
                   >
-                    <Link
-                      href={`/products/${line.slug}`}
-                      className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl bg-blush sm:h-32 sm:w-28 shadow-2xs"
-                    >
-                      <Image
-                        src={
-                          line.image && (line.image.startsWith("http") || line.image.startsWith("/"))
-                            ? line.image
-                            : "/banners/hero-monsoon.jpg"
-                        }
-                        alt={line.name}
-                        fill
-                        sizes="112px"
-                        className="object-cover"
-                      />
-                    </Link>
+                    <div className="flex gap-3.5 sm:gap-4">
+                      <Link
+                        href={`/products/${line.slug}`}
+                        className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-blush sm:h-28 sm:w-24"
+                      >
+                        <Image
+                          src={safeImage(line.image)}
+                          alt={line.name}
+                          fill
+                          sizes="96px"
+                          className="object-cover"
+                        />
+                      </Link>
 
-                    <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <div className="flex flex-wrap justify-between gap-2">
-                          <Link
-                            href={`/products/${line.slug}`}
-                            className="font-medium text-base text-charcoal transition hover:text-[#C4526E]"
-                          >
-                            {line.name}
-                          </Link>
-                          <span className="font-semibold text-base text-charcoal">
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <Link
+                              href={`/products/${line.slug}`}
+                              className="line-clamp-2 text-sm font-medium text-charcoal transition hover:text-maroon sm:text-base"
+                            >
+                              {line.name}
+                            </Link>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                              <span className="rounded-md bg-blush px-2 py-0.5 text-[11px] font-medium text-charcoal">
+                                Size {line.size}
+                              </span>
+                              <span className="text-[11px] text-muted">
+                                {formatPrice(line.price)} each
+                              </span>
+                            </div>
+                          </div>
+
+                          <span className="shrink-0 text-sm font-semibold text-charcoal sm:text-base">
                             {formatPrice(line.price * line.qty)}
                           </span>
                         </div>
-                        <div className="mt-1">
-                          <span className="inline-block rounded-md bg-blush px-2.5 py-0.5 text-xs font-medium text-charcoal">
-                            Size: {line.size}
-                          </span>
-                        </div>
-                      </div>
 
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center rounded-full border border-line bg-white shadow-2xs">
+                        <div className="mt-auto flex items-center justify-between pt-3">
+                          <div className="flex items-center rounded-full border border-line">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setQty(line.slug, line.size, line.qty - 1)
+                              }
+                              aria-label={`Decrease quantity of ${line.name}`}
+                              className="cursor-pointer px-3 py-1 text-charcoal transition hover:text-maroon"
+                            >
+                              −
+                            </button>
+                            <span className="w-7 text-center text-xs font-bold">
+                              {line.qty}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setQty(line.slug, line.size, line.qty + 1)
+                              }
+                              aria-label={`Increase quantity of ${line.name}`}
+                              className="cursor-pointer px-3 py-1 text-charcoal transition hover:text-maroon"
+                            >
+                              +
+                            </button>
+                          </div>
+
                           <button
                             type="button"
-                            onClick={() =>
-                              setQty(line.slug, line.size, line.qty - 1)
-                            }
-                            aria-label={`Decrease quantity of ${line.name}`}
-                            className="px-3.5 py-1 text-charcoal transition hover:text-[#C4526E] cursor-pointer"
+                            onClick={() => remove(line.slug, line.size)}
+                            title={`Remove ${line.name}`}
+                            aria-label={`Remove ${line.name} from your bag`}
+                            className="flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-blush hover:text-maroon"
                           >
-                            −
-                          </button>
-                          <span className="w-8 text-center text-xs font-bold">
-                            {line.qty}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setQty(line.slug, line.size, line.qty + 1)
-                            }
-                            aria-label={`Increase quantity of ${line.name}`}
-                            className="px-3.5 py-1 text-charcoal transition hover:text-[#C4526E] cursor-pointer"
-                          >
-                            +
+                            <svg
+                              className="h-3.5 w-3.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M14.74 9l-.35 9m-4.78 0L9.26 9M18.5 6.5l-.84 12.02A2.25 2.25 0 0115.42 20.6H8.58a2.25 2.25 0 01-2.24-2.08L5.5 6.5M9.75 6.5V4.75A1.25 1.25 0 0111 3.5h2a1.25 1.25 0 011.25 1.25V6.5M4 6.5h16"
+                              />
+                            </svg>
+                            <span className="hidden sm:inline">Remove</span>
                           </button>
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={() => remove(line.slug, line.size)}
-                          className="text-xs text-muted underline-offset-4 transition hover:text-red-600 hover:underline cursor-pointer"
-                        >
-                          Remove
-                        </button>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-4 flex justify-between text-xs">
+              <div className="mt-5 flex items-center justify-between text-xs">
                 <Link
                   href="/collections/all"
-                  className="text-[#C4526E] underline-offset-4 hover:underline"
+                  className="font-medium text-maroon underline-offset-4 hover:underline"
                 >
                   ← Continue shopping
                 </Link>
                 <button
                   type="button"
                   onClick={clear}
-                  className="text-muted underline-offset-4 hover:text-red-600 hover:underline cursor-pointer"
+                  className="cursor-pointer text-muted underline-offset-4 transition hover:text-maroon hover:underline"
                 >
                   Clear entire bag
                 </button>
               </div>
             </div>
 
-            {/* Sidebar Summary */}
-            <aside className="h-fit rounded-3xl bg-white border border-gray-200 p-6 sm:p-8 shadow-sm lg:sticky lg:top-28">
-              <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-charcoal">Order Summary</h2>
+            {/* Summary */}
+            <aside className="h-fit rounded-3xl border border-line bg-white p-6 shadow-sm sm:p-7 lg:sticky lg:top-28">
+              <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-charcoal">
+                Order Summary
+              </h2>
 
-              <dl className="mt-6 space-y-3.5 text-sm">
+              <dl className="mt-5 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted">Subtotal</dt>
-                  <dd className="font-medium text-charcoal">{formatPrice(subtotal)}</dd>
+                  <dt className="text-muted">
+                    Subtotal
+                    <span className="ml-1 text-xs">
+                      ({count} {count === 1 ? "item" : "items"})
+                    </span>
+                  </dt>
+                  <dd className="font-medium text-charcoal">
+                    {formatPrice(subtotal)}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">Estimated Delivery</dt>
+                  <dt className="text-muted">Delivery</dt>
                   <dd className="font-medium text-charcoal">
                     {isFreeShipping ? (
-                      <span className="font-bold text-emerald-600">FREE</span>
+                      <span className="font-bold text-[#3F6B4A]">Free</span>
                     ) : (
                       formatPrice(shipping)
                     )}
                   </dd>
                 </div>
-                <div className="flex justify-between border-t border-line pt-4 text-base">
-                  <dt className="font-[family-name:var(--font-heading)] font-bold text-charcoal">Estimated Total</dt>
+                <div className="flex items-baseline justify-between border-t border-line pt-4">
+                  <dt className="font-[family-name:var(--font-heading)] text-base font-bold text-charcoal">
+                    Total
+                  </dt>
                   <dd className="font-[family-name:var(--font-heading)] text-2xl font-extrabold text-charcoal">
                     {formatPrice(total)}
                   </dd>
                 </div>
               </dl>
 
-              {/* Estimated Delivery */}
-              <div className="mt-5 rounded-2xl bg-[#F0FDF4] border border-emerald-200 p-3.5 flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-emerald-800">Estimated Delivery</p>
-                  <p className="text-[11px] text-emerald-700">2–4 working days nationwide</p>
-                </div>
-              </div>
-
               <Link
                 href="/checkout"
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#C4526E] py-4 px-8 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition-all duration-300 hover:bg-[#A83853] hover:shadow-lg hover:scale-[1.01] cursor-pointer"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-maroon px-8 py-4 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition-all duration-300 hover:bg-maroon-dark hover:shadow-lg"
               >
-                <span>PROCEED TO CHECKOUT</span>
+                <span>Proceed to Checkout</span>
                 <span className="text-sm">→</span>
               </Link>
 
-              <div className="mt-6 space-y-2 text-[11px] text-muted border-t border-line pt-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-emerald-600 font-bold">✓</span>
-                  <span>Cash on delivery available nationwide</span>
+              <div className="mt-5 flex items-center gap-3 rounded-2xl border border-[#CFE0D2] bg-[#EEF4EE] p-3.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DDE9DE] text-[#3F6B4A]">
+                  <svg
+                    className="h-4.5 w-4.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                    />
+                  </svg>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-emerald-600 font-bold">✓</span>
-                  <span>100% Discreet & private packaging</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-emerald-600 font-bold">✓</span>
-                  <span>7-Day size exchange guarantee</span>
+                <div>
+                  <p className="text-xs font-semibold text-[#2C4A33]">
+                    Arrives in 2–4 working days
+                  </p>
+                  <p className="text-[11px] text-[#33573C]">
+                    Nationwide, tracked delivery
+                  </p>
                 </div>
               </div>
+
+              <ul className="mt-5 space-y-2 border-t border-line pt-4 text-[11px] text-muted">
+                {[
+                  "Cash on delivery available nationwide",
+                  "100% discreet & private packaging",
+                  "7-day size exchange guarantee",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <svg
+                      className="h-3.5 w-3.5 shrink-0 text-[#3F6B4A]"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </aside>
           </div>
         )}

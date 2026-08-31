@@ -9,6 +9,11 @@ const AUTOPLAY_MS = 5000;
 
 export default function HeroSlider() {
   const [index, setIndex] = useState(0);
+  const viewportRef = useRef<HTMLElement>(null);
+  // Slides are moved by measured pixels, not percentages: the section can be a
+  // fractional width (1264.67px here), and percentage transforms land off-grid
+  // so a sliver of the neighbouring slide stays visible at the edge.
+  const [slideWidth, setSlideWidth] = useState(0);
   const [progress, setProgress] = useState(0);
   const paused = useRef(false);
   const progressRef = useRef<number | null>(null);
@@ -18,6 +23,16 @@ export default function HeroSlider() {
     setIndex((next + heroSlides.length) % heroSlides.length);
     setProgress(0);
     lastTickRef.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const measure = () => setSlideWidth(el.clientWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   // Autoplay + progress bar
@@ -50,6 +65,7 @@ export default function HeroSlider() {
 
   return (
     <section
+      ref={viewportRef}
       aria-label="Featured promotions"
       aria-roledescription="carousel"
       className="group relative w-full overflow-hidden"
@@ -60,7 +76,7 @@ export default function HeroSlider() {
     >
       <div
         className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-        style={{ transform: `translateX(-${index * 100}%)` }}
+        style={{ transform: `translate3d(-${index * slideWidth}px, 0, 0)` }}
       >
         {heroSlides.map((slide, slideIndex) => (
           <div
@@ -79,9 +95,16 @@ export default function HeroSlider() {
               sizes="100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-charcoal/35 to-transparent" />
+            {/*
+              Scrim shaped around the copy instead of washing the whole frame:
+              it falls away by ~two-thirds across, so the garment on the right
+              stays clear. Mobile stacks the copy over more of the image, so it
+              gets a gentler vertical wash instead.
+            */}
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 via-55% to-charcoal/15 sm:hidden" />
+            <div className="absolute inset-0 hidden bg-gradient-to-r from-charcoal/75 via-charcoal/28 via-42% to-transparent to-68% sm:block" />
 
-            <div className="relative mx-auto flex h-full max-w-7xl flex-col items-start justify-center px-6 text-cream sm:px-10">
+            <div className="relative mx-auto flex h-full max-w-7xl flex-col items-start justify-center px-6 text-cream drop-shadow-[0_2px_10px_rgba(20,18,16,0.45)] sm:px-10">
               <p className="text-[11px] tracking-[0.24em] uppercase animate-fade-in">
                 {slide.eyebrow}
               </p>
@@ -94,7 +117,7 @@ export default function HeroSlider() {
               <Link
                 href={slide.href}
                 tabIndex={slideIndex === index ? undefined : -1}
-                className="mt-7 inline-block rounded-full bg-cream px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-charcoal uppercase transition-all duration-300 hover:bg-[#C4526E] hover:text-white hover:shadow-lg hover:scale-105"
+                className="mt-7 inline-block rounded-full bg-cream px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-charcoal uppercase transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:shadow-lg hover:scale-105"
               >
                 {slide.cta}
               </Link>

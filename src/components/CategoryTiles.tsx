@@ -28,7 +28,7 @@ export default async function CategoryTiles() {
   return (
     <section
       aria-label="Shop by category"
-      className="mx-auto max-w-7xl px-4 pt-12 pb-2 sm:px-6"
+      className="mx-auto max-w-7xl px-4 pt-14 pb-4 sm:px-6 lg:pt-20"
     >
       <h2 className="text-center font-[family-name:var(--font-heading)] text-2xl tracking-wide text-charcoal sm:text-3xl font-bold">
         Shop by Category

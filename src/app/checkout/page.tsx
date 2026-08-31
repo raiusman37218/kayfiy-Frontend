@@ -9,10 +9,10 @@ import { fetchDbStoreSettings } from "@/lib/supabase";
 import KayfiyLogo from "@/components/KayfiyLogo";
 
 const inputClass =
-  "w-full rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-[#C4526E] focus:ring-2 focus:ring-[#C4526E]/15 hover:border-[#D0C5C5]";
+  "w-full rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-muted-soft outline-none transition-all duration-200 focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/15 hover:border-[#D0C5C5]";
 
 /* ─── Confetti ─── */
-const CONFETTI_COLORS = ["#C4526E", "#f9edef", "#e8849a", "#c2a15f", "#b76e79", "#f0d8dd", "#fcd7de", "#2b2724"];
+const CONFETTI_COLORS = ["#7A2A3D", "#faedef", "#c07e8c", "#c2a15f", "#b76e79", "#efd3da", "#fbd9de", "#2b2724"];
 
 function ConfettiCelebration() {
   const [particles, setParticles] = useState<
@@ -63,14 +63,14 @@ function AnimatedCheckmark() {
           cy="26"
           r="25"
           fill="none"
-          stroke="#C4526E"
+          stroke="#7A2A3D"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           className="animate-draw-check"
           fill="none"
-          stroke="#C4526E"
+          stroke="#7A2A3D"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -101,8 +101,8 @@ function TimelineStep({
         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500 ${
             isActive
-              ? "bg-[#C4526E] text-white shadow-md scale-110"
-              : "border-2 border-[#E0D7D7] text-gray-400 bg-white"
+              ? "bg-[#7A2A3D] text-white shadow-md scale-110"
+              : "border-2 border-[#E0D7D7] text-muted-soft bg-white"
           }`}
         >
           {isActive ? "✓" : step}
@@ -110,16 +110,16 @@ function TimelineStep({
         {!isLast && (
           <div
             className={`mt-1 w-0.5 flex-1 min-h-6 transition-colors duration-500 ${
-              isActive ? "bg-[#C4526E]" : "bg-[#E0D7D7]"
+              isActive ? "bg-[#7A2A3D]" : "bg-[#E0D7D7]"
             }`}
           />
         )}
       </div>
       <div className="pb-6">
-        <p className={`text-sm font-semibold ${isActive ? "text-charcoal" : "text-gray-400"}`}>
+        <p className={`text-sm font-semibold ${isActive ? "text-charcoal" : "text-muted-soft"}`}>
           {title}
         </p>
-        <p className={`mt-0.5 text-xs ${isActive ? "text-muted" : "text-gray-300"}`}>{desc}</p>
+        <p className={`mt-0.5 text-xs ${isActive ? "text-muted" : "text-muted-soft"}`}>{desc}</p>
       </div>
     </div>
   );
@@ -151,7 +151,7 @@ function ThankYouPage({
   });
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#FFF8FA] via-cream to-cream">
+    <main className="min-h-screen bg-gradient-to-b from-[#FDF4F6] via-cream to-cream">
       {showConfetti && <ConfettiCelebration />}
 
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
@@ -163,12 +163,12 @@ function ThankYouPage({
         </div>
 
         {/* Main Confirmation Card */}
-        <div className="rounded-3xl border border-[#F2D4DA]/60 bg-white p-8 sm:p-10 shadow-lg animate-slide-up">
+        <div className="rounded-3xl border border-[#EDC9D0]/60 bg-white p-8 sm:p-10 shadow-lg animate-slide-up">
           <AnimatedCheckmark />
 
           <div className="text-center">
-            <p className="inline-flex items-center gap-2 rounded-full bg-[#FFF0F3] px-4 py-1.5 text-xs font-bold tracking-wider text-[#C4526E] uppercase border border-[#F2D4DA]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C4526E] animate-pulse-soft" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-[#FAE8EC] px-4 py-1.5 text-xs font-bold tracking-wider text-[#7A2A3D] uppercase border border-[#EDC9D0]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#7A2A3D] animate-pulse-soft" />
               Order Confirmed
             </p>
             <h1 className="mt-4 font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold text-charcoal tracking-tight">
@@ -180,7 +180,7 @@ function ThankYouPage({
           </div>
 
           {/* Order Reference */}
-          <div className="mt-8 rounded-2xl bg-gradient-to-r from-[#FFF5F7] to-[#FCEDF0] border border-[#F2D4DA]/50 p-5 text-center">
+          <div className="mt-8 rounded-2xl bg-gradient-to-r from-[#FCF0F2] to-[#F9E4E8] border border-[#EDC9D0]/50 p-5 text-center">
             <p className="text-[11px] font-semibold tracking-wider text-muted uppercase">Order Reference</p>
             <p className="mt-2 font-mono text-2xl sm:text-3xl font-extrabold text-charcoal tracking-wider">
               {reference}
@@ -193,9 +193,9 @@ function ThankYouPage({
               <h3 className="text-xs font-bold tracking-wider text-charcoal uppercase mb-4">
                 Order Summary
               </h3>
-              <ul className="divide-y divide-[#F2D4DA]/40 rounded-2xl border border-[#E0D7D7]/60 overflow-hidden">
+              <ul className="divide-y divide-[#EDC9D0]/40 rounded-2xl border border-[#E0D7D7]/60 overflow-hidden">
                 {orderItems.map((item, idx) => (
-                  <li key={`${item.name}-${item.size}-${idx}`} className="flex items-center gap-3.5 p-3.5 bg-white hover:bg-[#FFF8FA] transition">
+                  <li key={`${item.name}-${item.size}-${idx}`} className="flex items-center gap-3.5 p-3.5 bg-white hover:bg-[#FDF4F6] transition">
                     <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-xl bg-blush border border-[#E0D7D7]">
                       <Image
                         src={
@@ -231,15 +231,15 @@ function ThankYouPage({
           )}
 
           {/* Estimated Delivery */}
-          <div className="mt-8 rounded-2xl bg-[#F0FDF4] border border-emerald-200 p-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+          <div className="mt-8 rounded-2xl bg-[#F4F8F3] border border-[#CFE0D2] p-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#DDE9DE] text-[#3F6B4A]">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-emerald-800">Estimated Delivery</p>
-              <p className="text-xs text-emerald-700">{formattedDate} (2–4 working days)</p>
+              <p className="text-sm font-semibold text-[#2C4A33]">Estimated Delivery</p>
+              <p className="text-xs text-[#33573C]">{formattedDate} (2–4 working days)</p>
             </div>
           </div>
 
@@ -283,7 +283,7 @@ function ThankYouPage({
         <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-slide-up stagger-3">
           <Link
             href="/collections/all"
-            className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-charcoal px-6 py-4 text-xs font-bold tracking-wider text-white uppercase shadow-md transition-all duration-300 hover:bg-[#C4526E] hover:shadow-lg"
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-[#7A2A3D] px-6 py-4 text-xs font-bold tracking-wider text-white uppercase shadow-md transition-all duration-300 hover:bg-[#5C1C2C] hover:shadow-lg"
           >
             Continue Shopping
           </Link>
@@ -291,7 +291,7 @@ function ThankYouPage({
             href={`https://wa.me/923000000000?text=${encodeURIComponent(`Hi KAYFIY! I just placed order ${reference}. Can you confirm?`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-500 bg-emerald-50 px-6 py-4 text-xs font-bold tracking-wider text-emerald-700 uppercase transition-all duration-300 hover:bg-emerald-500 hover:text-white"
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-500 bg-[#EEF4EE] px-6 py-4 text-xs font-bold tracking-wider text-[#33573C] uppercase transition-all duration-300 hover:bg-[#3F6B4A] hover:text-white"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -303,13 +303,13 @@ function ThankYouPage({
         {/* Trust Badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-muted animate-fade-in stagger-5">
           <span className="flex items-center gap-1.5">
-            <span className="text-emerald-600 font-bold">✓</span> 100% Discreet Packaging
+            <span className="text-[#3F6B4A] font-bold">✓</span> 100% Discreet Packaging
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-emerald-600 font-bold">✓</span> 7-Day Size Exchange
+            <span className="text-[#3F6B4A] font-bold">✓</span> 7-Day Size Exchange
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-emerald-600 font-bold">✓</span> Cash on Delivery
+            <span className="text-[#3F6B4A] font-bold">✓</span> Cash on Delivery
           </span>
         </div>
       </div>
@@ -530,7 +530,7 @@ export default function CheckoutPage() {
               </Link>
               <Link
                 href="/cart"
-                className="flex items-center gap-1 text-xs font-medium text-[#C4526E] hover:underline underline-offset-4 transition"
+                className="flex items-center gap-1 text-xs font-medium text-[#7A2A3D] hover:underline underline-offset-4 transition"
               >
                 ← Return to bag
               </Link>
@@ -538,7 +538,7 @@ export default function CheckoutPage() {
 
             {ready && lines.length === 0 ? (
               <div className="py-16 text-center animate-slide-up">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-[#C4526E]">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-[#7A2A3D]">
                   <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
@@ -546,7 +546,7 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-semibold text-charcoal">Your cart is empty</h2>
                 <Link
                   href="/collections/all"
-                  className="mt-4 inline-block rounded-xl bg-[#C4526E] px-6 py-2.5 text-xs font-semibold text-white uppercase tracking-wider hover:bg-[#A83853] transition shadow-sm"
+                  className="mt-4 inline-block rounded-xl bg-[#7A2A3D] px-6 py-2.5 text-xs font-semibold text-white uppercase tracking-wider hover:bg-[#5C1C2C] transition shadow-sm"
                 >
                   Return to shop
                 </Link>
@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                 <section className="space-y-3 animate-slide-up stagger-1">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-charcoal">Contact</h2>
-                    <Link href="/account" className="text-xs text-[#C4526E] hover:underline underline-offset-4 font-medium">
+                    <Link href="/account" className="text-xs text-[#7A2A3D] hover:underline underline-offset-4 font-medium">
                       Sign in
                     </Link>
                   </div>
@@ -582,8 +582,8 @@ export default function CheckoutPage() {
                       placeholder="Email or mobile phone number"
                       className={inputClass}
                     />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400">
-                      <span className="text-[10px] font-bold border border-gray-300 rounded-full h-4 w-4 flex items-center justify-center">?</span>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted-soft">
+                      <span className="text-[10px] font-bold border border-line rounded-full h-4 w-4 flex items-center justify-center">?</span>
                     </div>
                   </div>
 
@@ -593,7 +593,7 @@ export default function CheckoutPage() {
                       name="emailNews"
                       checked={formData.emailNews}
                       onChange={handleChange}
-                      className="h-4 w-4 rounded border-gray-300 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                      className="h-4 w-4 rounded border-line text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                     />
                     <span className="group-hover:text-charcoal transition">Email me with news and offers</span>
                   </label>
@@ -688,8 +688,8 @@ export default function CheckoutPage() {
                       placeholder="Phone"
                       className={inputClass}
                     />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400">
-                      <span className="text-[10px] font-bold border border-gray-300 rounded-full h-4 w-4 flex items-center justify-center">?</span>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted-soft">
+                      <span className="text-[10px] font-bold border border-line rounded-full h-4 w-4 flex items-center justify-center">?</span>
                     </div>
                   </div>
 
@@ -700,7 +700,7 @@ export default function CheckoutPage() {
                         name="saveInfo"
                         checked={formData.saveInfo}
                         onChange={handleChange}
-                        className="h-4 w-4 rounded border-gray-300 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                        className="h-4 w-4 rounded border-line text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                       />
                       <span className="group-hover:text-charcoal transition">Save this information for next time</span>
                     </label>
@@ -711,7 +711,7 @@ export default function CheckoutPage() {
                         name="textNews"
                         checked={formData.textNews}
                         onChange={handleChange}
-                        className="h-4 w-4 rounded border-gray-300 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                        className="h-4 w-4 rounded border-line text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                       />
                       <span className="group-hover:text-charcoal transition">Text me with news and offers</span>
                     </label>
@@ -722,9 +722,9 @@ export default function CheckoutPage() {
                 <section className="space-y-3 pt-2 animate-slide-up stagger-3">
                   <h2 className="text-lg font-semibold text-charcoal">Shipping method</h2>
 
-                  <div className="rounded-xl border-2 border-[#C4526E] bg-[#FFF5F7] p-4 flex items-center justify-between text-sm">
+                  <div className="rounded-xl border-2 border-[#7A2A3D] bg-[#FCF0F2] p-4 flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#C4526E] text-white">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#7A2A3D] text-white">
                         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
@@ -733,7 +733,7 @@ export default function CheckoutPage() {
                     </div>
                     <span className="font-bold text-charcoal">
                       {isFreeShipping ? (
-                        <span className="text-emerald-600">Free</span>
+                        <span className="text-[#3F6B4A]">Free</span>
                       ) : (
                         `Rs ${shippingFee.toFixed(2)}`
                       )}
@@ -751,8 +751,8 @@ export default function CheckoutPage() {
                   <div className="rounded-xl border border-[#E0D7D7] overflow-hidden divide-y divide-[#E0D7D7]">
                     
                     {/* PAYFAST */}
-                    <div className={payment === "payfast" ? "ring-2 ring-[#C4526E] ring-inset rounded-t-xl" : ""}>
-                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition">
+                    <div className={payment === "payfast" ? "ring-2 ring-[#7A2A3D] ring-inset rounded-t-xl" : ""}>
+                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition">
                         <div className="flex items-center gap-3">
                           <input
                             type="radio"
@@ -760,7 +760,7 @@ export default function CheckoutPage() {
                             value="payfast"
                             checked={payment === "payfast"}
                             onChange={() => setPayment("payfast")}
-                            className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                            className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                           />
                           <span className="text-xs sm:text-sm font-medium text-charcoal">
                             PAYFAST (Debit/Credit/Wallet/Bank)
@@ -773,15 +773,15 @@ export default function CheckoutPage() {
                         </div>
                       </label>
                       {payment === "payfast" && (
-                        <div className="bg-[#FFF5F7] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed text-center">
+                        <div className="bg-[#FCF0F2] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed text-center">
                           You&apos;ll be redirected to PAYFAST to complete your purchase securely.
                         </div>
                       )}
                     </div>
 
                     {/* Cash on Delivery */}
-                    <div className={payment === "cod" ? "ring-2 ring-[#C4526E] ring-inset" : ""}>
-                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition">
+                    <div className={payment === "cod" ? "ring-2 ring-[#7A2A3D] ring-inset" : ""}>
+                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition">
                         <div className="flex items-center gap-3">
                           <input
                             type="radio"
@@ -789,7 +789,7 @@ export default function CheckoutPage() {
                             value="cod"
                             checked={payment === "cod"}
                             onChange={() => setPayment("cod")}
-                            className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                            className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                           />
                           <span className="text-xs sm:text-sm text-charcoal font-medium">
                             Cash on Delivery (COD)
@@ -797,15 +797,15 @@ export default function CheckoutPage() {
                         </div>
                       </label>
                       {payment === "cod" && (
-                        <div className="bg-[#FFF5F7] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
+                        <div className="bg-[#FCF0F2] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
                           Pay with cash upon delivery at your doorstep. Please keep the exact amount ready for the rider.
                         </div>
                       )}
                     </div>
 
                     {/* Bank Deposit */}
-                    <div className={payment === "bank" ? "ring-2 ring-[#C4526E] ring-inset" : ""}>
-                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition">
+                    <div className={payment === "bank" ? "ring-2 ring-[#7A2A3D] ring-inset" : ""}>
+                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition">
                         <div className="flex items-center gap-3">
                           <input
                             type="radio"
@@ -813,7 +813,7 @@ export default function CheckoutPage() {
                             value="bank"
                             checked={payment === "bank"}
                             onChange={() => setPayment("bank")}
-                            className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                            className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                           />
                           <span className="text-xs sm:text-sm text-charcoal font-medium">
                             Bank Deposit
@@ -821,15 +821,15 @@ export default function CheckoutPage() {
                         </div>
                       </label>
                       {payment === "bank" && (
-                        <div className="bg-[#FFF5F7] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
+                        <div className="bg-[#FCF0F2] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
                           Account details will be sent via SMS / WhatsApp immediately for direct bank transfer.
                         </div>
                       )}
                     </div>
 
                     {/* Jazz Cash / Easy paisa */}
-                    <div className={payment === "wallet" ? "ring-2 ring-[#C4526E] ring-inset rounded-b-xl" : ""}>
-                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition">
+                    <div className={payment === "wallet" ? "ring-2 ring-[#7A2A3D] ring-inset rounded-b-xl" : ""}>
+                      <label className="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition">
                         <div className="flex items-center gap-3">
                           <input
                             type="radio"
@@ -837,7 +837,7 @@ export default function CheckoutPage() {
                             value="wallet"
                             checked={payment === "wallet"}
                             onChange={() => setPayment("wallet")}
-                            className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                            className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                           />
                           <span className="text-xs sm:text-sm text-charcoal font-medium">
                             Jazz Cash / Easy paisa
@@ -845,7 +845,7 @@ export default function CheckoutPage() {
                         </div>
                       </label>
                       {payment === "wallet" && (
-                        <div className="bg-[#FFF5F7] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
+                        <div className="bg-[#FCF0F2] px-4 py-3.5 border-t border-[#E0D7D7] text-xs text-muted leading-relaxed">
                           Transfer to our official JazzCash / EasyPaisa account for instant verification and dispatch.
                         </div>
                       )}
@@ -859,26 +859,26 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-charcoal">Billing address</h2>
 
                   <div className="rounded-xl border border-[#E0D7D7] overflow-hidden divide-y divide-[#E0D7D7]">
-                    <label className={`flex items-center gap-3 p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition ${billingSame === "same" ? "ring-2 ring-[#C4526E] ring-inset rounded-t-xl" : ""}`}>
+                    <label className={`flex items-center gap-3 p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition ${billingSame === "same" ? "ring-2 ring-[#7A2A3D] ring-inset rounded-t-xl" : ""}`}>
                       <input
                         type="radio"
                         name="billing_choice"
                         value="same"
                         checked={billingSame === "same"}
                         onChange={() => setBillingSame("same")}
-                        className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                        className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                       />
                       <span className="text-xs sm:text-sm text-charcoal">Same as shipping address</span>
                     </label>
 
-                    <label className={`flex items-center gap-3 p-4 cursor-pointer bg-white hover:bg-[#FFFBFC] transition ${billingSame === "different" ? "ring-2 ring-[#C4526E] ring-inset rounded-b-xl" : ""}`}>
+                    <label className={`flex items-center gap-3 p-4 cursor-pointer bg-white hover:bg-[#FEF8F9] transition ${billingSame === "different" ? "ring-2 ring-[#7A2A3D] ring-inset rounded-b-xl" : ""}`}>
                       <input
                         type="radio"
                         name="billing_choice"
                         value="different"
                         checked={billingSame === "different"}
                         onChange={() => setBillingSame("different")}
-                        className="h-4 w-4 text-[#C4526E] focus:ring-[#C4526E] accent-[#C4526E]"
+                        className="h-4 w-4 text-[#7A2A3D] focus:ring-[#7A2A3D] accent-[#7A2A3D]"
                       />
                       <span className="text-xs sm:text-sm text-charcoal">Use a different billing address</span>
                     </label>
@@ -906,7 +906,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="group w-full rounded-2xl bg-charcoal py-4 px-6 text-sm font-bold text-white uppercase tracking-wider shadow-lg transition-all duration-300 hover:bg-[#C4526E] hover:shadow-xl disabled:opacity-50 cursor-pointer flex items-center justify-center gap-3"
+                    className="group w-full rounded-2xl bg-[#7A2A3D] py-4 px-6 text-sm font-bold text-white uppercase tracking-wider shadow-lg transition-all duration-300 hover:bg-[#5C1C2C] hover:shadow-xl disabled:opacity-50 cursor-pointer flex items-center justify-center gap-3"
                   >
                     {isSubmitting ? (
                       <>
@@ -926,13 +926,13 @@ export default function CheckoutPage() {
                   {/* Trust line below button */}
                   <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted">
                     <span className="flex items-center gap-1">
-                      <span className="text-emerald-600">✓</span> Cash on Delivery
+                      <span className="text-[#3F6B4A]">✓</span> Cash on Delivery
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="text-emerald-600">✓</span> Discreet Packaging
+                      <span className="text-[#3F6B4A]">✓</span> Discreet Packaging
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="text-emerald-600">✓</span> 7-Day Exchange
+                      <span className="text-[#3F6B4A]">✓</span> 7-Day Exchange
                     </span>
                   </div>
                 </div>
@@ -988,18 +988,18 @@ export default function CheckoutPage() {
                   value={discountCode}
                   onChange={(e) => setDiscountCode(e.target.value)}
                   placeholder="Discount code"
-                  className="flex-1 rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-gray-400 outline-none transition focus:border-[#C4526E] focus:ring-2 focus:ring-[#C4526E]/15"
+                  className="flex-1 rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-muted-soft outline-none transition focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/15"
                 />
                 <button
                   type="submit"
-                  className="rounded-xl bg-blush px-5 py-3 text-xs font-bold text-charcoal uppercase tracking-wider transition hover:bg-[#C4526E] hover:text-white cursor-pointer border border-[#E0D7D7] hover:border-[#C4526E]"
+                  className="rounded-xl bg-blush px-5 py-3 text-xs font-bold text-charcoal uppercase tracking-wider transition hover:bg-[#7A2A3D] hover:text-white cursor-pointer border border-[#E0D7D7] hover:border-[#7A2A3D]"
                 >
                   Apply
                 </button>
               </form>
               {appliedDiscount && (
-                <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                  <span className="text-emerald-600">✓</span> Code <strong>{appliedDiscount.code}</strong> applied ({appliedDiscount.percent}% off)
+                <p className="text-xs text-[#3F6B4A] font-semibold flex items-center gap-1">
+                  <span className="text-[#3F6B4A]">✓</span> Code <strong>{appliedDiscount.code}</strong> applied ({appliedDiscount.percent}% off)
                 </p>
               )}
               {discountError && (
@@ -1014,7 +1014,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {appliedDiscount && (
-                  <div className="flex justify-between text-emerald-700">
+                  <div className="flex justify-between text-[#33573C]">
                     <dt>Discount</dt>
                     <dd className="font-semibold">-Rs {discountAmount.toLocaleString("en-PK", { minimumFractionDigits: 2 })}</dd>
                   </div>
@@ -1024,7 +1024,7 @@ export default function CheckoutPage() {
                   <dt className="text-muted">Shipping</dt>
                   <dd className="font-medium">
                     {isFreeShipping ? (
-                      <span className="text-emerald-600 font-bold">Free</span>
+                      <span className="text-[#3F6B4A] font-bold">Free</span>
                     ) : (
                       `Rs ${shippingFee.toLocaleString("en-PK", { minimumFractionDigits: 2 })}`
                     )}

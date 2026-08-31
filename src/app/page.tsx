@@ -47,6 +47,7 @@ export default async function Home() {
         banner={SECTION_BANNERS.bras}
         products={bras.length > 0 ? bras : products.slice(0, 8)}
         viewAllHref="/collections/bras"
+        tone="soft"
       />
       <ProductCarousel
         title="Bra Sets"
@@ -61,6 +62,7 @@ export default async function Home() {
         banner={SECTION_BANNERS.shapewear}
         products={shapewear.length > 0 ? shapewear : products.slice(0, 8)}
         viewAllHref="/collections/shapewear"
+        tone="soft"
       />
       <ProductCarousel
         title="Panties"

@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ShareButtons({ productName }: { productName: string }) {
   const [copied, setCopied] = useState(false);
+  // Read the URL after mount: building it during render made the server and
+  // client markup disagree, which threw a hydration error on every product page.
+  const [shareUrl, setShareUrl] = useState("");
+
+  useEffect(() => setShareUrl(window.location.href), []);
 
   const handleCopyLink = () => {
     if (typeof navigator !== "undefined") {
@@ -13,10 +18,9 @@ export default function ShareButtons({ productName }: { productName: string }) {
     }
   };
 
-  const whatsappUrl =
-    typeof window !== "undefined"
-      ? `https://wa.me/?text=${encodeURIComponent(`Check out ${productName} on KAYFIY! ${window.location.href}`)}`
-      : "#";
+  const whatsappUrl = shareUrl
+    ? `https://wa.me/?text=${encodeURIComponent(`Check out ${productName} on KAYFIY! ${shareUrl}`)}`
+    : "#";
 
   return (
     <div className="mt-4 flex items-center gap-2">
@@ -35,11 +39,11 @@ export default function ShareButtons({ productName }: { productName: string }) {
       <button
         type="button"
         onClick={handleCopyLink}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-charcoal transition-all hover:border-[#C4526E] hover:text-[#C4526E] hover:bg-blush hover:scale-110"
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-charcoal transition-all hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-blush hover:scale-110"
         aria-label="Copy link"
       >
         {copied ? (
-          <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="h-3.5 w-3.5 text-[#3F6B4A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         ) : (

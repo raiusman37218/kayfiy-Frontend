@@ -4,20 +4,20 @@ export type Crumb = { label: string; href?: string };
 
 export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-xs font-medium text-gray-500">
+    <nav aria-label="Breadcrumb" className="text-xs font-medium text-muted">
       <ol className="flex flex-wrap items-center gap-1.5">
         <li>
-          <Link href="/" className="transition hover:text-[#C4526E]">
+          <Link href="/" className="transition hover:text-[#7A2A3D]">
             Home
           </Link>
         </li>
         {trail.map((crumb) => (
           <li key={crumb.label} className="flex items-center gap-1.5">
-            <svg className="h-3 w-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-3 w-3 text-muted-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
             {crumb.href ? (
-              <Link href={crumb.href} className="transition hover:text-[#C4526E]">
+              <Link href={crumb.href} className="transition hover:text-[#7A2A3D]">
                 {crumb.label}
               </Link>
             ) : (
@@ -40,9 +40,9 @@ export function PageHeader({
   trail: Crumb[];
 }) {
   return (
-    <header className="border-b border-line bg-gradient-to-br from-blush/50 via-[#FFF5F7]/40 to-cream relative overflow-hidden">
+    <header className="border-b border-line bg-gradient-to-br from-blush/50 via-[#FCF0F2]/40 to-cream relative overflow-hidden">
       {/* Decorative gradient blob */}
-      <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#C4526E]/5 blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#7A2A3D]/5 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-blush-deep/20 blur-3xl pointer-events-none" />
       
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14 relative">

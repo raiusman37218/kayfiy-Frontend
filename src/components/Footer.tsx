@@ -66,7 +66,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-line bg-cream font-sans">
       {/* 1. Compact Illustrated Trust Strip */}
-      <div className="border-b border-line/60 bg-gradient-to-r from-[#FDF0F3]/80 via-[#FFF5F7]/60 to-[#FDF0F3]/80 py-4 px-4">
+      <div className="border-b border-line/60 bg-gradient-to-r from-[#FAE8EC]/80 via-[#FCF0F2]/60 to-[#FAE8EC]/80 py-4 px-4">
         <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[11px] sm:text-xs text-charcoal font-semibold">
           <div className="flex items-center justify-center gap-2 group">
             <FastTruckIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 transition-transform group-hover:scale-110" />
@@ -102,14 +102,14 @@ export default function Footer() {
               <Link
                 href="https://instagram.com"
                 aria-label="KAYFIY on Instagram"
-                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#C4526E] hover:text-[#C4526E] hover:bg-blush hover:scale-110"
+                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-blush hover:scale-110"
               >
                 <InstagramIcon className="h-3.5 w-3.5" />
               </Link>
               <Link
                 href="https://facebook.com"
                 aria-label="KAYFIY on Facebook"
-                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#C4526E] hover:text-[#C4526E] hover:bg-blush hover:scale-110"
+                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-blush hover:scale-110"
               >
                 <FacebookIcon className="h-3.5 w-3.5" />
               </Link>
@@ -125,7 +125,7 @@ export default function Footer() {
               <Link
                 href="https://tiktok.com"
                 aria-label="KAYFIY on TikTok"
-                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#C4526E] hover:text-[#C4526E] hover:bg-blush hover:scale-110"
+                className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-blush hover:scale-110"
               >
                 <TikTokIcon className="h-3.5 w-3.5" />
               </Link>
@@ -144,7 +144,7 @@ export default function Footer() {
                   <li key={item.href || item.label}>
                     <Link
                       href={item.href}
-                      className="text-xs text-muted transition-all duration-200 hover:text-[#C4526E] hover:translate-x-0.5 inline-block"
+                      className="text-xs text-muted transition-all duration-200 hover:text-[#7A2A3D] hover:translate-x-0.5 inline-block"
                     >
                       {item.label}
                     </Link>
@@ -163,7 +163,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-xs text-muted transition-all duration-200 hover:text-[#C4526E] hover:translate-x-0.5 inline-block"
+                      className="text-xs text-muted transition-all duration-200 hover:text-[#7A2A3D] hover:translate-x-0.5 inline-block"
                     >
                       {item.label}
                     </Link>
@@ -182,7 +182,7 @@ export default function Footer() {
               Fit tips, restock alerts & new launches.
             </p>
             <form
-              className="flex items-center rounded-full border border-line bg-white p-1 transition-all duration-200 focus-within:border-[#C4526E] focus-within:ring-2 focus-within:ring-[#C4526E]/15 focus-within:shadow-sm"
+              className="flex items-center rounded-full border border-line bg-white p-1 transition-all duration-200 focus-within:border-[#7A2A3D] focus-within:ring-2 focus-within:ring-[#7A2A3D]/15 focus-within:shadow-sm"
               onSubmit={(event) => {
                 event.preventDefault();
                 setSignedUp(true);
@@ -192,17 +192,17 @@ export default function Footer() {
                 type="email"
                 required
                 placeholder="Your email address"
-                className="w-full bg-transparent px-3 py-1.5 text-xs text-charcoal outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent px-3 py-1.5 text-xs text-charcoal outline-none placeholder:text-muted-soft"
               />
               <button
                 type="submit"
-                className="rounded-full bg-[#C4526E] px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider transition-all duration-200 hover:bg-[#A83853] hover:shadow-sm shrink-0 cursor-pointer"
+                className="rounded-full bg-[#7A2A3D] px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider transition-all duration-200 hover:bg-[#5C1C2C] hover:shadow-sm shrink-0 cursor-pointer"
               >
                 Join
               </button>
             </form>
             {signedUp && (
-              <p className="text-[11px] text-[#C4526E] font-semibold flex items-center gap-1 animate-fade-in">
+              <p className="text-[11px] text-[#7A2A3D] font-semibold flex items-center gap-1 animate-fade-in">
                 <span>✓</span> Check your inbox to confirm!
               </p>
             )}

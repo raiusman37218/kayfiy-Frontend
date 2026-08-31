@@ -5,7 +5,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageShell";
 
 const field =
-  "w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#C4526E] focus:ring-2 focus:ring-[#C4526E]/15 hover:border-[#D0C5C5]";
+  "w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/15 hover:border-[#D0C5C5]";
 
 export default function AccountPage() {
   const [mode, setMode] = useState<"sign-in" | "register">("sign-in");
@@ -33,8 +33,8 @@ export default function AccountPage() {
               aria-pressed={mode === option}
               className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer ${
                 mode === option
-                  ? "bg-charcoal text-cream shadow-md"
-                  : "text-charcoal hover:text-[#C4526E] hover:bg-white/50"
+                  ? "bg-[#7A2A3D] text-cream shadow-md"
+                  : "text-charcoal hover:text-[#7A2A3D] hover:bg-white/50"
               }`}
             >
               {option === "sign-in" ? "Sign in" : "Create account"}
@@ -43,9 +43,9 @@ export default function AccountPage() {
         </div>
 
         {submitted ? (
-          <div className="mt-8 rounded-2xl bg-[#FFF5F7] border border-[#F2D4DA] px-5 py-5 text-sm text-charcoal animate-scale-in">
+          <div className="mt-8 rounded-2xl bg-[#FCF0F2] border border-[#EDC9D0] px-5 py-5 text-sm text-charcoal animate-scale-in">
             <div className="flex items-center gap-2 mb-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#C4526E] text-white">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#7A2A3D] text-white">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
@@ -105,7 +105,7 @@ export default function AccountPage() {
 
             <button
               type="submit"
-              className="w-full rounded-2xl bg-charcoal px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-cream uppercase transition-all duration-300 hover:bg-[#C4526E] hover:shadow-md cursor-pointer"
+              className="w-full rounded-2xl bg-[#7A2A3D] px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-cream uppercase transition-all duration-300 hover:bg-[#5C1C2C] hover:shadow-md cursor-pointer"
             >
               {mode === "sign-in" ? "Sign in" : "Create account"}
             </button>
@@ -116,7 +116,7 @@ export default function AccountPage() {
           Need help with an order?{" "}
           <Link
             href="/pages/contact"
-            className="text-[#C4526E] font-semibold underline-offset-4 hover:underline"
+            className="text-[#7A2A3D] font-semibold underline-offset-4 hover:underline"
           >
             Contact us
           </Link>

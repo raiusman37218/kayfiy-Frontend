@@ -1,9 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import BraSizeCalculator from "@/components/BraSizeCalculator";
+import BraSizeCalculator, {
+  type SizedProduct,
+} from "@/components/BraSizeCalculator";
 import ContactForm from "@/components/ContactForm";
 import { PageHeader } from "@/components/PageShell";
 import { SIZE_TABLE, getStaticPage, staticPageSlugs } from "@/lib/content";
+import { getLiveProducts } from "@/lib/catalog";
+import { isBraProduct, sizesFor } from "@/lib/sizes";
+import { slug as toSlug } from "@/lib/data";
+
+/** Bras with their size lists, so the calculator can check availability. */
+async function getBrasWithSizes(): Promise<SizedProduct[]> {
+  try {
+    const products = await getLiveProducts();
+    return products.filter(isBraProduct).map((product) => ({
+      slug: toSlug(product.name),
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      sizes: sizesFor(product),
+    }));
+  } catch {
+    // Availability is a bonus — the calculator still works without it.
+    return [];
+  }
+}
 
 export function generateStaticParams() {
   return staticPageSlugs.map((slug) => ({ slug }));
@@ -57,6 +79,8 @@ export default async function ContentPage({
   const page = getStaticPage(slug);
   if (!page) notFound();
 
+  const bras = page.widget === "calculator" ? await getBrasWithSizes() : [];
+
   return (
     <main>
       <PageHeader
@@ -65,8 +89,8 @@ export default async function ContentPage({
         trail={[{ label: page.title }]}
       />
 
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:py-16">
-        {page.widget === "calculator" && <BraSizeCalculator />}
+      <div className={`mx-auto px-4 py-12 sm:px-6 lg:py-16 ${page.widget === "calculator" ? "max-w-4xl" : "max-w-3xl"}`}>
+        {page.widget === "calculator" && <BraSizeCalculator products={bras} />}
         {page.widget === "contact" && <ContactForm />}
         {page.widget === "size-table" && <SizeTable />}
 

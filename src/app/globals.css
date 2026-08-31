@@ -1,19 +1,42 @@
 @import "tailwindcss";
 
+/*
+ * Palette sampled from the KAYFIY logo: deep maroon linework (#722234) on a
+ * soft blush ground (#fddae0). Maroon carries the brand — it reads as
+ * traditional South Asian shaadi/mehndi colour rather than generic pink — and
+ * antique gold stands in for zari work as the secondary accent.
+ */
 @theme {
-  --color-cream: #fdfbf7;
-  --color-blush: #f9edef;
-  --color-blush-deep: #f0d8dd;
+  --color-cream: #fcf9f3;
+  --color-blush: #faedef;
+  --color-blush-deep: #efd3da;
   --color-charcoal: #2b2724;
   --color-muted: #6f645e;
-  --color-line: #e7ddd6;
-  --color-rose: #b76e79;
-  --color-rose-dark: #9a5560;
-  --color-gold: #c2a15f;
+  /* Light warm neutral — replaces cool gray-300/400 for icons and placeholders */
+  --color-muted-soft: #a3968d;
+  --color-line: #e8ddd1;
 
-  /* Exact sampled logo pink background for header */
-  --color-header-pink: #fcd7de;
-  --color-header-pink-border: #f2bac5;
+  /* Brand maroon, straight off the logo */
+  --color-maroon: #7a2a3d;
+  --color-maroon-dark: #5c1c2c;
+  --color-maroon-soft: #a8566a;
+
+  --color-rose: #c07e8c;
+  --color-rose-dark: #9a5560;
+
+  /* Antique gold — zari / gota */
+  --color-gold: #b08d4f;
+  --color-gold-soft: #d9c08a;
+
+  /* Success — a deep leaf green; bright emerald fought the maroon */
+  --color-success: #3f6b4a;
+  --color-success-deep: #2c4a33;
+  --color-success-line: #cfe0d2;
+  --color-success-soft: #eef4ee;
+
+  /* Blush ground from the logo, used behind the header */
+  --color-header-pink: #fbd9de;
+  --color-header-pink-border: #ebb6c0;
 
   --font-serif: var(--font-display), "Times New Roman", serif;
   --font-sans: var(--font-body), system-ui, sans-serif;
@@ -295,7 +318,7 @@
   outline: none;
 }
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-cream), 0 0 0 4px #C4526E;
+  box-shadow: 0 0 0 2px var(--color-cream), 0 0 0 4px #7A2A3D;
   border-radius: inherit;
 }
 
@@ -309,7 +332,7 @@
 
 /* ===== GRADIENT TEXT ===== */
 .gradient-text-rose {
-  background: linear-gradient(135deg, #C4526E 0%, #e8849a 50%, #C4526E 100%);
+  background: linear-gradient(135deg, #7A2A3D 0%, #c07e8c 50%, #7A2A3D 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
