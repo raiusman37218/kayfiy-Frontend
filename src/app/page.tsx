@@ -11,38 +11,57 @@ import InstagramFeed from "@/components/InstagramFeed";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getLiveProducts } from "@/lib/catalog";
 import { getFeaturedReviews } from "@/lib/reviews";
+import { fetchDbCategories, type DbCategory } from "@/lib/supabase";
 import { SECTION_BANNERS } from "@/lib/images";
+import { slug, type Product } from "@/lib/data";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
-  const products = await getLiveProducts();
-  const featuredReviews = await getFeaturedReviews(6);
+  const [products, dbCategories, featuredReviews] = await Promise.all([
+    getLiveProducts(),
+    fetchDbCategories(),
+    getFeaturedReviews(6),
+  ]);
 
   const bestSellers = products.filter((p) => p.bestsellere || p.price > 1600);
-  const bras = products.filter(
-    (p) => p.category?.toLowerCase() === "bras" || /bra/i.test(p.name),
-  );
-  const braSets = products.filter(
-    (p) =>
-      p.category?.toLowerCase() === "bra sets" ||
-      (/set/i.test(p.name) && /bra/i.test(p.name)),
-  );
-  const shapewear = products.filter(
-    (p) =>
-      p.category?.toLowerCase() === "shapewear" ||
-      /shaper|shapewear|suit|cincher|belt/i.test(p.name),
-  );
-  const panties = products.filter(
-    (p) =>
-      p.category?.toLowerCase() === "panties" ||
-      /panty|panties|brief/i.test(p.name),
-  );
-  const nightwear = products.filter(
-    (p) =>
-      p.category?.toLowerCase() === "nightwear" ||
-      /night|robe|pyjama|silk|satin/i.test(p.name),
-  );
+
+  // Filter dynamic main categories from Supabase (excluding meta collections like 'all', 'top-selling')
+  const excludedSlugs = new Set(["all", "top-selling", "best-sellers"]);
+  const mainCategories = dbCategories
+    .filter((c) => !c.parent_slug && c.show_on_homepage !== false && !excludedSlugs.has(c.slug))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  // Helper to match products for a given category & its subcategories
+  function getCategoryProducts(cat: DbCategory, subCats: DbCategory[]): Product[] {
+    const catName = cat.name.toLowerCase();
+    const catSlug = cat.slug.toLowerCase();
+    const subSlugs = new Set(subCats.map((s) => s.slug.toLowerCase()));
+    const subNames = new Set(subCats.map((s) => s.name.toLowerCase()));
+
+    const matched = products.filter((p) => {
+      const pCat = (p.category || "").toLowerCase();
+      const pSub = ((p as any).subcategory || "").toLowerCase();
+
+      // Direct category or slug match
+      if (pCat === catName || pCat === catSlug || slug(pCat) === catSlug || pCat.includes(catSlug)) return true;
+      if (pSub === catSlug || pSub === catName) return true;
+
+      // Match child subcategories
+      if (subSlugs.has(pSub) || subNames.has(pSub) || subSlugs.has(pCat) || subNames.has(pCat)) return true;
+
+      // Fallback regex matching for initial catalog
+      if (catSlug === "bras" && /bra/i.test(p.name)) return true;
+      if (catSlug === "bra-sets" && /set/i.test(p.name) && /bra/i.test(p.name)) return true;
+      if (catSlug === "panties" && /panty|panties|brief/i.test(p.name)) return true;
+      if (catSlug === "shapewear" && /shaper|shapewear|suit|cincher|belt/i.test(p.name)) return true;
+      if ((catSlug === "nightwear" || catSlug === "pj-sets") && /night|robe|pyjama|silk|satin/i.test(p.name)) return true;
+
+      return false;
+    });
+
+    return matched.length > 0 ? matched : products.slice(0, 8);
+  }
 
   return (
     <main className="space-y-1 sm:space-y-2">
@@ -52,10 +71,10 @@ export default async function Home() {
       {/* 2. Store Perks & Live Announcement Marquee */}
       <MarqueeBanner />
 
-      {/* 3. Circular Story Categories (Quick 1-tap mobile & desktop browsing) */}
+      {/* 3. Circular Story Categories (Dynamic from Supabase) */}
       <CategoryStories />
 
-      {/* 4. Best Sellers — Pure Product Carousel */}
+      {/* 4. Best Sellers — Product Carousel */}
       <ProductCarousel
         title="Best Sellers"
         blurb="The pieces our customers love, wear and reorder most."
@@ -63,75 +82,55 @@ export default async function Home() {
         viewAllHref="/collections/top-selling"
       />
 
-      {/* 5. Bras — Category Carousel with Filter Tabs */}
-      <ProductCarousel
-        title="Bras"
-        blurb="Padded, non-padded, wired and sports — crafted for sizes 30A to 44DD."
-        products={bras.length > 0 ? bras : products.slice(0, 8)}
-        tabs={["All", "Padded", "Push-Up", "Non-Padded", "Sports"]}
-        viewAllHref="/collections/bras"
-        tone="soft"
-      />
+      {/* 5. Dynamic Categories from Admin Panel */}
+      {mainCategories.map((cat, index) => {
+        const subCats = dbCategories.filter(
+          (c) => c.parent_slug === cat.slug && c.show_on_homepage !== false,
+        );
+        const catProducts = getCategoryProducts(cat, subCats);
+        const tabs = subCats.length > 0 ? ["All", ...subCats.map((s) => s.name)] : undefined;
+        const tone = index % 2 === 1 ? "soft" : "plain";
 
-      {/* 6. Editorial Promotional Banner Break: Luxury Matched Sets */}
-      <PromoBanner
-        banner={SECTION_BANNERS.braSets}
-        badge="Luxury Collection"
-        title="Lace & Satin Bra Sets"
-        subtitle="Coordinated bra and brief sets tailored for flawless contouring, all-day breathability, and pure confidence."
-        ctaText="Shop Bra Sets"
-        href="/collections/bra-sets"
-      />
+        return (
+          <div key={cat.id || cat.slug}>
+            {/* Interspersed Banner 1: After the first category */}
+            {index === 1 && (
+              <PromoBanner
+                banner={SECTION_BANNERS.braSets}
+                badge="Luxury Collection"
+                title="Lace & Satin Bra Sets"
+                subtitle="Coordinated bra and brief sets tailored for flawless contouring, all-day breathability, and pure confidence."
+                ctaText="Shop Bra Sets"
+                href="/collections/bra-sets"
+              />
+            )}
 
-      {/* 7. Bra Sets — Category Carousel */}
-      <ProductCarousel
-        title="Bra Sets"
-        blurb="Coordinated bra and brief sets, from everyday essentials to bridal trousseau."
-        products={braSets.length > 0 ? braSets : products.slice(0, 8)}
-        viewAllHref="/collections/bra-sets"
-      />
+            {/* Interspersed Banner 2: Mid-way through categories */}
+            {index === 3 && <LookbookBanner />}
 
-      {/* 8. Lifestyle Editorial Break: Lookbook */}
-      <LookbookBanner />
+            {/* Category Product Carousel with Admin Subcategory Tabs */}
+            <ProductCarousel
+              title={cat.name}
+              blurb={cat.description || `Browse our latest ${cat.name.toLowerCase()} collection.`}
+              products={catProducts}
+              tabs={tabs}
+              viewAllHref={`/collections/${cat.slug}`}
+              tone={tone}
+            />
+          </div>
+        );
+      })}
 
-      {/* 9. Nightwear Collection (if items available) */}
-      {nightwear.length > 0 && (
-        <ProductCarousel
-          title="Nightwear"
-          blurb="Sleep and lounge sets in breathable cotton, modal and silk."
-          products={nightwear}
-          viewAllHref="/collections/nightwear"
-          tone="soft"
-        />
-      )}
-
-      {/* 10. Panties Collection */}
-      <ProductCarousel
-        title="Panties"
-        blurb="Cotton, seamless and lace briefs in every size."
-        products={panties.length > 0 ? panties : products.slice(0, 8)}
-        viewAllHref="/collections/panties"
-      />
-
-      {/* 11. Interactive Sizing Tool: Bra Size Calculator */}
+      {/* 6. Interactive Sizing Tool: Bra Size Calculator */}
       <SizeGuideBanner />
 
-      {/* 12. Shapewear Collection */}
-      <ProductCarousel
-        title="Shapewear"
-        blurb="Smoothing body suits, shaping briefs and waist cinchers."
-        products={shapewear.length > 0 ? shapewear : products.slice(0, 8)}
-        viewAllHref="/collections/shapewear"
-        tone="soft"
-      />
-
-      {/* 13. Verified Customer Reviews Carousel */}
+      {/* 7. Verified Customer Reviews Carousel */}
       <TestimonialsCarousel reviews={featuredReviews} />
 
-      {/* 14. Buyer Guarantees & Policy Strip */}
+      {/* 8. Buyer Guarantees & Policy Strip */}
       <USPStrip />
 
-      {/* 15. Social Community & Newsletter */}
+      {/* 9. Social Community & Newsletter */}
       <InstagramFeed />
       <NewsletterSection />
     </main>

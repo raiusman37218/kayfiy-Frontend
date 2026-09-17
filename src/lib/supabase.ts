@@ -144,7 +144,7 @@ export async function fetchDbCategories(): Promise<DbCategory[]> {
     const { data, error } = await supabase
       .from("catalog_categories")
       .select("*")
-      .eq("status", "Active")
+      .neq("status", "Archived")
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true });
 
