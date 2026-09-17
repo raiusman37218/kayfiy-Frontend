@@ -40,8 +40,8 @@ const WRITABLE_USERS_FILE = defaultWritableUsersFile();
 const USER_FILE_FALLBACKS = [WRITABLE_USERS_FILE, tempUsersFile(), homeUsersFile()].filter(
   (filePath, index, files) => filePath && files.indexOf(filePath) === index
 );
-const DEFAULT_OWNER_EMAIL = "owner@bustaniya.local";
-const DEFAULT_ADMIN_PASSWORD = "Bustaniya@1122";
+const DEFAULT_OWNER_EMAIL = "owner@admin.local";
+const DEFAULT_ADMIN_PASSWORD = "Admin2026";
 let activeUsersFile = "";
 let activeUsersStore = "";
 

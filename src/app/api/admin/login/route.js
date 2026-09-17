@@ -5,6 +5,7 @@ import {
   createAdminSessionValue,
 } from "@/lib/admin/adminAuth";
 import { authenticateAdminUser } from "@/lib/admin/adminUsers";
+import { optionalEnv } from "@/lib/admin/env";
 
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
@@ -53,8 +54,8 @@ function clearFailures(key) {
 function envOwnerUser(email = "") {
   return {
     id: "owner",
-    name: process.env.ADMIN_NAME || "Owner",
-    email: email || process.env.ADMIN_EMAIL || "owner@admin.local",
+    name: optionalEnv("ADMIN_NAME") || "Owner",
+    email: email || optionalEnv("ADMIN_EMAIL") || "owner@admin.local",
     role: "Owner",
     permissions: OWNER_PERMISSIONS,
     status: "Active",
@@ -82,13 +83,16 @@ export async function POST(request) {
     const { email, password } = await request.json().catch(() => ({}));
     const submittedEmail = String(email || "").trim().toLowerCase();
     const submittedPassword = String(password || "").trim();
-    if (!process.env.ADMIN_SESSION_SECRET) {
+    const sessionSecret = optionalEnv("ADMIN_SESSION_SECRET");
+    const adminPassword = optionalEnv("ADMIN_PASSWORD");
+
+    if (!sessionSecret) {
       return NextResponse.json(
         { error: "Admin session signing is not configured." },
         { status: 500 }
       );
     }
-    if (!process.env.ADMIN_PASSWORD) {
+    if (!adminPassword) {
       return NextResponse.json(
         { error: "Admin password is not configured." },
         { status: 500 }
@@ -96,7 +100,7 @@ export async function POST(request) {
     }
 
     let user = await authenticateAdminUser({ email: submittedEmail, password: submittedPassword });
-    if (!user && submittedPassword === String(process.env.ADMIN_PASSWORD || "").trim()) {
+    if (!user && submittedPassword === String(adminPassword).trim()) {
       user = envOwnerUser(submittedEmail);
     }
     if (!user) {

@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { authorizeAdminRequest } from "@/lib/admin/adminAuth";
+import { optionalEnv, requiredAnyEnv, requiredEnv } from "@/lib/admin/env";
 
 export const runtime = "nodejs";
 
@@ -37,6 +38,38 @@ function hasValidImageSignature(buffer, type) {
   return false;
 }
 
+const PRODUCT_BUCKET = "product-uploads";
+
+function storageConfig() {
+  try {
+    return {
+      url: (process.env.SUPABASE_URL || requiredEnv("SUPABASE_URL")).replace(/\/$/, ""),
+      key: requiredAnyEnv(["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_SECRET_KEY"]),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function uploadToSupabaseStorage(bucket, objectPath, bytes, contentType, config) {
+  const uploadResponse = await fetch(`${config.url}/storage/v1/object/${bucket}/${objectPath}`, {
+    method: "POST",
+    headers: {
+      apikey: config.key,
+      Authorization: `Bearer ${config.key}`,
+      "Content-Type": contentType,
+      "x-upsert": "true",
+    },
+    body: bytes,
+    cache: "no-store",
+  });
+  if (!uploadResponse.ok) {
+    const res = await uploadResponse.json().catch(() => null);
+    throw new Error(res?.message || res?.error || "Supabase storage upload failed");
+  }
+  return `${config.url}/storage/v1/object/public/${bucket}/${objectPath}`;
+}
+
 export async function POST(request) {
   try {
     await authorizeAdminRequest(request, "products");
@@ -49,8 +82,8 @@ export async function POST(request) {
       return NextResponse.json({ error: "You can upload up to 8 product photos." }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "product-uploads");
-    await mkdir(uploadDir, { recursive: true });
+    const cfg = storageConfig();
+    let uploadDir = null;
 
     const urls = [];
     for (const file of files) {
@@ -68,8 +101,26 @@ export async function POST(request) {
       }
 
       const filename = `${Date.now()}-${randomUUID()}${extension}`;
-      await writeFile(path.join(uploadDir, filename), bytes);
-      urls.push(`/product-uploads/${filename}`);
+
+      let uploadedUrl = null;
+      if (cfg) {
+        try {
+          uploadedUrl = await uploadToSupabaseStorage(PRODUCT_BUCKET, `products/${filename}`, bytes, file.type, cfg);
+        } catch (storageErr) {
+          console.warn("Supabase storage upload failed, attempting local fallback:", storageErr.message);
+        }
+      }
+
+      if (!uploadedUrl) {
+        if (!uploadDir) {
+          uploadDir = path.join(process.cwd(), "public", "product-uploads");
+          await mkdir(uploadDir, { recursive: true });
+        }
+        await writeFile(path.join(uploadDir, filename), bytes);
+        uploadedUrl = `/product-uploads/${filename}`;
+      }
+
+      urls.push(uploadedUrl);
     }
 
     return NextResponse.json({ urls });
@@ -77,3 +128,4 @@ export async function POST(request) {
     return errorResponse(error);
   }
 }
+

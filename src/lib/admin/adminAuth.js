@@ -5,7 +5,7 @@ import { findAdminUser, hasAdminPermission } from "./adminUsers";
 export const ADMIN_COOKIE_NAME = "kayfiy_admin_session";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 12;
 
-const DEFAULT_ADMIN_PASSWORD = "Bustaniya@1122";
+const DEFAULT_ADMIN_PASSWORD = "Admin2026";
 function getSessionSecret() {
   return requiredEnv("ADMIN_SESSION_SECRET");
 }
