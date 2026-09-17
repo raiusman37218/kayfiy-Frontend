@@ -62,12 +62,11 @@ const braSubCategories = [
 export const navigation: NavItem[] = [
   { label: "Bras", href: collection("Bras") },
   { label: "Pj Sets", href: collection("Pj Sets") },
-  { label: "Size Calculator", href: "/pages/bra-size-calculator" },
 ];
 
 export const announcements = [
   "Welcome to KAYFIY — Comfort Wear Redefined",
-  "Free discreet delivery nationwide on orders over Rs. 3,500",
+  "Up to 50% off + free delivery nationwide over Rs. 3,500",
   "Wire-free & lightly padded comfort — sizes 30A to 44DD",
 ];
 
@@ -75,44 +74,65 @@ export const heroSlides = [
   {
     id: "comfort",
     eyebrow: "Pure Comfort",
-    title: "KAYFIY Everyday Comfort Bras",
-    caption: "Breathable cotton, gentle wires & wire-free comfort designed for South Asian women.",
-    cta: "Shop Bras",
-    href: collection("Bras"),
+    title: "KAYFIY Comfort Wear",
+    caption: "Breathable fabrics and soft support designed for everyday ease.",
+    cta: "Shop The Collection",
+    href: collection("New Arrivals"),
     image: "/banners/hero-monsoon.jpg",
   },
   {
-    id: "lounge",
-    eyebrow: "Luxury Sleepwear",
-    title: "Luxury Satin & Cotton Pj Sets",
-    caption: "Soft luxury sleepwear sets designed for restful nights and effortless lounging.",
-    cta: "Shop Pj Sets",
-    href: collection("Pj Sets"),
+    id: "sale",
+    eyebrow: "Limited Time",
+    title: "Comfort Season Sale",
+    caption: "Up to 50% off bras, matching sets and nightwear.",
+    cta: "Shop the Sale",
+    href: collection("Sale"),
     image: "/banners/hero-sale.jpg",
   },
   {
     id: "fit",
     eyebrow: "Fit First",
     title: "Support You Forget You Are Wearing",
-    caption: "Wire-free and wired styles, honest cup sizing from 30A to 44DD.",
-    cta: "Explore Collection",
+    caption: "Wire-free and wired styles, sizes 30A to 44DD.",
+    cta: "Shop Bras",
     href: collection("Bras"),
     image: "/banners/hero-fit.jpg",
+  },
+  {
+    id: "budget",
+    eyebrow: "Everyday Value",
+    title: "Essentials Under Rs. 1,500",
+    caption: "Stock up on the basics you reach for daily.",
+    cta: "Shop Budget Deals",
+    href: collection("Budget Deals"),
+    image: "/banners/hero-budget.jpg",
   },
 ];
 
 export const heroBanners = [
   {
-    label: "Bras",
-    caption: "Wire-free & padded styles (sizes 30A-44DD)",
-    href: collection("Bras"),
+    label: "New Arrivals",
+    caption: "Fresh in this week",
+    href: collection("New Arrivals"),
     image: BRA_IMAGES[0],
   },
   {
-    label: "Pj Sets",
-    caption: "Luxury sleepwear & cotton lounge sets",
-    href: collection("Pj Sets"),
+    label: "Top Selling",
+    caption: "Loved by 40,000+ women",
+    href: collection("Top Selling"),
+    image: SET_IMAGES[0],
+  },
+  {
+    label: "Sale — Up to 50% Off",
+    caption: "Limited stock",
+    href: collection("Sale"),
     image: NIGHTWEAR_IMAGES[0],
+  },
+  {
+    label: "Budget Deals",
+    caption: "Everyday essentials under Rs. 1,500",
+    href: collection("Budget Deals"),
+    image: PANTY_IMAGES[0],
   },
 ];
 

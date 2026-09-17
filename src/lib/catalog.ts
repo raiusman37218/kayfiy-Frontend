@@ -172,10 +172,7 @@ export function buildCollections(products: Product[]): Collection[] {
   const budget = products.filter((p) => p.price <= 1500);
 
   const brasList = products.filter(
-    (p) =>
-      (p.category?.toLowerCase() === "bras" ||
-        /\b(bra|bralette|bralettes|bras)\b/i.test(p.name)) &&
-      !/pad|liner|period|sanitary/i.test(p.name),
+    (p) => p.category?.toLowerCase() === "bras" || /bra/i.test(p.name),
   );
   const braSetsList = products.filter(
     (p) =>
@@ -194,11 +191,8 @@ export function buildCollections(products: Product[]): Collection[] {
   );
   const nightList = products.filter(
     (p) =>
-      (p.category?.toLowerCase() === "nightwear" ||
-        p.category?.toLowerCase() === "pj sets" ||
-        /\b(pj|pjs|robe|pyjama|pyjamas|pajama|pajamas|sleepwear|nighty|nightwear)\b/i.test(p.name) ||
-        (/silk|satin/i.test(p.name) && !/pad|liner|brief|bra/i.test(p.name))) &&
-      !/pad|liner|period|sanitary|brief/i.test(p.name),
+      p.category?.toLowerCase() === "nightwear" ||
+      /night|robe|pyjama|silk|satin/i.test(p.name),
   );
   const padList = products.filter(
     (p) =>
@@ -246,14 +240,26 @@ export function buildCollections(products: Product[]): Collection[] {
       brasList.length > 0 ? brasList : products,
     ),
     define(
-      "Pj Sets",
-      "Pj Sets",
-      "Luxury satin, cotton and silk sleepwear sets.",
-      nightList.length > 0 ? nightList : products,
+      "Bra Sets",
+      "Bra Sets",
+      "Matched bra and brief sets.",
+      braSetsList.length > 0 ? braSetsList : products,
+    ),
+    define(
+      "Panties",
+      "Panties",
+      "Cotton, seamless and lace briefs.",
+      pantiesList.length > 0 ? pantiesList : products,
+    ),
+    define(
+      "Shapewear",
+      "Shapewear",
+      "Smoothing suits, briefs and belts.",
+      shapeList.length > 0 ? shapeList : products,
     ),
     define(
       "Nightwear",
-      "Pj Sets & Nightwear",
+      "Nightwear",
       "Sleep and lounge, everyday to bridal.",
       nightList.length > 0 ? nightList : products,
     ),
