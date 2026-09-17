@@ -39,7 +39,9 @@ export default function Footer() {
     async function loadCategories() {
       const cats = await fetchDbCategories();
       if (cats && cats.length > 0) {
-        const topLevel = cats.filter((c) => !c.parent_slug);
+        const topLevel = cats
+          .filter((c) => !c.parent_slug && c.show_in_footer !== false)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
         const seen = new Set<string>();
         const unique = topLevel.filter((c) => {
           if (seen.has(c.slug)) return false;
@@ -47,12 +49,14 @@ export default function Footer() {
           return true;
         });
 
-        setCategories(
-          unique.map((c) => ({
-            label: c.name,
-            href: `/collections/${c.slug}`,
-          })),
-        );
+        if (unique.length > 0) {
+          setCategories(
+            unique.map((c) => ({
+              label: c.name,
+              href: `/collections/${c.slug}`,
+            })),
+          );
+        }
       }
     }
     loadCategories();

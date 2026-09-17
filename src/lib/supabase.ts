@@ -67,6 +67,10 @@ export type DbCategory = {
   parent_slug?: string | null;
   status: string;
   sort_order: number;
+  show_in_header?: boolean;
+  show_on_homepage?: boolean;
+  show_in_footer?: boolean;
+  show_in_search?: boolean;
 };
 
 export async function fetchDbProducts(): Promise<DbProduct[]> {
@@ -112,15 +116,26 @@ export async function fetchDbCategories(): Promise<DbCategory[]> {
       .from("catalog_categories")
       .select("*")
       .eq("status", "Active")
-      .order("sort_order", { ascending: true });
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
 
     if (error) {
       console.warn("Supabase fetchDbCategories error:", error.message);
       return [];
     }
-    return data || [];
+
+    return (data || []).map((cat: any) => ({
+      ...cat,
+      parent_slug: cat.parent_slug || null,
+      sort_order: Number(cat.sort_order ?? 0),
+      show_in_header: cat.show_in_header ?? true,
+      show_on_homepage: cat.show_on_homepage ?? true,
+      show_in_footer: cat.show_in_footer ?? false,
+      show_in_search: cat.show_in_search ?? true,
+    }));
   } catch (err) {
     console.warn("Supabase fetchDbCategories exception:", err);
     return [];
   }
 }
+

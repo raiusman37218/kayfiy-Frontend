@@ -22,12 +22,16 @@ import {
 function buildNavigation(categories: DbCategory[]): NavItem[] {
   if (!categories || categories.length === 0) return defaultNav;
 
-  // Filter top-level categories (categories without a parent)
-  const topLevel = categories.filter((c) => !c.parent_slug);
+  // Filter top-level categories (categories without a parent and show_in_header !== false)
+  const topLevel = categories
+    .filter((c) => !c.parent_slug && c.show_in_header !== false)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   return topLevel.map((parent) => {
-    // Find any real subcategories that have parent_slug matching this parent
-    const childCats = categories.filter((c) => c.parent_slug === parent.slug);
+    // Find any subcategories that have parent_slug matching this parent and show_in_header !== false
+    const childCats = categories
+      .filter((c) => c.parent_slug === parent.slug && c.show_in_header !== false)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
     const children =
       childCats.length > 0
@@ -206,9 +210,17 @@ export default function Header() {
                   >
                     {item.mega ? (
                       <div className="mx-auto max-w-7xl px-6 py-8">
-                        <p className="font-serif text-lg text-charcoal">
-                          Shop Bras
-                        </p>
+                        <div className="flex items-center justify-between pb-4 border-b border-line/60">
+                          <p className="font-serif text-lg text-charcoal">
+                            Shop {item.label}
+                          </p>
+                          <Link
+                            href={item.href}
+                            className="text-xs font-semibold text-rose hover:underline uppercase tracking-wider"
+                          >
+                            View All {item.label} &rarr;
+                          </Link>
+                        </div>
                         <ul className="mt-4 grid grid-cols-3 gap-x-8 gap-y-1 xl:grid-cols-4">
                           {item.children.map((child) => (
                             <li key={child.label}>
@@ -223,7 +235,15 @@ export default function Header() {
                         </ul>
                       </div>
                     ) : (
-                      <ul>
+                      <ul className="py-1">
+                        <li className="border-b border-line/50 pb-1 mb-1">
+                          <Link
+                            href={item.href}
+                            className="block rounded-xl px-3 py-1.5 text-xs font-semibold text-charcoal transition hover:bg-blush hover:text-rose uppercase tracking-wider"
+                          >
+                            View All {item.label}
+                          </Link>
+                        </li>
                         {item.children.map((child) => (
                           <li key={child.label}>
                             <Link
@@ -259,7 +279,7 @@ export default function Header() {
                     <>
                       <button
                         type="button"
-                        className="flex w-full items-center justify-between py-3.5 text-sm tracking-[0.1em] uppercase"
+                        className="flex w-full items-center justify-between py-3.5 text-sm tracking-[0.1em] uppercase font-medium"
                         aria-expanded={expanded}
                         onClick={() =>
                           setMobileSection(expanded ? null : item.label)
@@ -271,12 +291,21 @@ export default function Header() {
                         />
                       </button>
                       {expanded && (
-                        <ul className="pb-3 pl-3">
+                        <ul className="pb-3 pl-3 space-y-1">
+                          <li>
+                            <Link
+                              href={item.href}
+                              className="block py-1.5 text-xs font-semibold text-rose uppercase tracking-wider"
+                              onClick={() => setMobileOpen(false)}
+                            >
+                              View All {item.label} &rarr;
+                            </Link>
+                          </li>
                           {item.children.map((child) => (
                             <li key={child.label}>
                               <Link
                                 href={child.href}
-                                className="block py-2 text-sm text-muted"
+                                className="block py-2 text-sm text-muted hover:text-charcoal"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 {child.label}

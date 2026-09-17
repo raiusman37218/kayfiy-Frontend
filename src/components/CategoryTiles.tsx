@@ -17,18 +17,24 @@ export default async function CategoryTiles() {
   let banners = defaultBanners;
 
   if (dbCategories && dbCategories.length > 0) {
-    banners = dbCategories.map((cat, idx) => ({
-      label: cat.name,
-      caption: cat.description || "Discover collection",
-      href: `/collections/${cat.slug}`,
-      image:
-        cat.image ||
-        (cat.slug === "pj-sets"
-          ? NIGHTWEAR_IMAGES[0]
-          : cat.slug === "bras"
-          ? BRA_IMAGES[0]
-          : DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length]),
-    }));
+    const mainCategories = dbCategories
+      .filter((cat) => !cat.parent_slug && cat.show_on_homepage !== false)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+    if (mainCategories.length > 0) {
+      banners = mainCategories.map((cat, idx) => ({
+        label: cat.name,
+        caption: cat.description || "Discover collection",
+        href: `/collections/${cat.slug}`,
+        image:
+          cat.image ||
+          (cat.slug === "pj-sets"
+            ? NIGHTWEAR_IMAGES[0]
+            : cat.slug === "bras"
+            ? BRA_IMAGES[0]
+            : DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length]),
+      }));
+    }
   }
 
   const isTwoCategories = banners.length === 2;

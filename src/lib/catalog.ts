@@ -48,6 +48,7 @@ export type Collection = {
   blurb: string;
   products: Product[];
   parent?: { title: string; slug: string };
+  subcategories?: { title: string; slug: string }[];
 };
 
 export function sanitizeProductImage(rawImg?: string | null): { primary: string; hover: string; all: string[] } {
@@ -470,32 +471,78 @@ export async function getLiveCollection(
   collectionSlug: string,
 ): Promise<Collection | undefined> {
   const products = await getLiveProducts();
-  const liveList = buildCollections(products);
-  const matched = liveList.find((entry) => entry.slug === collectionSlug);
-  if (matched) return matched;
 
-  // Check if it's a dynamic custom category from Supabase
+  // 1. Check Supabase active categories first (admin hierarchy authority)
   try {
     const dbCats = await fetchDbCategories();
     const cat = dbCats.find(
       (c) => c.slug === collectionSlug || slug(c.name) === collectionSlug,
     );
     if (cat) {
-      const catProducts = products.filter(
-        (p) =>
-          p.category?.toLowerCase() === cat.name.toLowerCase() ||
-          slug(p.category || "") === cat.slug,
-      );
+      let catProducts: Product[] = [];
+      let parentInfo: { slug: string; title: string } | undefined = undefined;
+      let subcategories: { slug: string; title: string }[] = [];
+
+      if (cat.parent_slug) {
+        // It's a subcategory!
+        const parentCat = dbCats.find((c) => c.slug === cat.parent_slug);
+        if (parentCat) {
+          parentInfo = { slug: parentCat.slug, title: parentCat.name };
+        }
+        // Match products belonging to this subcategory
+        catProducts = products.filter((p) => {
+          const pSub = ((p as any).subcategory || "").toLowerCase();
+          const pCat = (p.category || "").toLowerCase();
+          return (
+            pSub === cat.slug.toLowerCase() ||
+            pSub === cat.name.toLowerCase() ||
+            pCat === cat.name.toLowerCase() ||
+            slug(pCat) === cat.slug ||
+            pCat.includes(cat.slug)
+          );
+        });
+      } else {
+        // It's a top-level / main category!
+        const children = dbCats
+          .filter((c) => c.parent_slug === cat.slug)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        subcategories = children.map((c) => ({ slug: c.slug, title: c.name }));
+
+        const childSlugs = new Set(children.map((c) => c.slug.toLowerCase()));
+        const childNames = new Set(children.map((c) => c.name.toLowerCase()));
+
+        // Match products in this main category OR any of its subcategories
+        catProducts = products.filter((p) => {
+          const pCat = (p.category || "").toLowerCase();
+          const pSub = ((p as any).subcategory || "").toLowerCase();
+          return (
+            pCat === cat.name.toLowerCase() ||
+            slug(pCat) === cat.slug ||
+            childSlugs.has(pSub) ||
+            childNames.has(pSub) ||
+            childSlugs.has(slug(pCat)) ||
+            childNames.has(pCat)
+          );
+        });
+      }
+
       return {
         slug: cat.slug,
         title: cat.name,
         blurb: cat.description || `Browse our ${cat.name} collection.`,
         products: catProducts.length > 0 ? catProducts : products,
+        parent: parentInfo,
+        subcategories: subcategories.length > 0 ? subcategories : undefined,
       };
     }
   } catch (err) {
     console.warn("Error fetching dynamic category:", err);
   }
+
+  // 2. Fallback to special collections (all, new-arrivals, top-selling, etc.)
+  const liveList = buildCollections(products);
+  const matched = liveList.find((entry) => entry.slug === collectionSlug);
+  if (matched) return matched;
 
   return undefined;
 }
