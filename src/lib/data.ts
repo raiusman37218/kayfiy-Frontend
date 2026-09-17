@@ -60,16 +60,8 @@ const braSubCategories = [
 ];
 
 export const navigation: NavItem[] = [
-  { label: "New Arrivals", href: collection("New Arrivals") },
-  { label: "Sale", href: collection("Sale") },
   { label: "Bras", href: collection("Bras") },
-  { label: "Bra Sets", href: collection("Bra Sets") },
-  { label: "Budget Deals", href: collection("Budget Deals") },
-  { label: "Panties", href: collection("Panties") },
-  { label: "Sanitary Pads", href: collection("Sanitary Pads") },
-  { label: "Nightwear", href: collection("Nightwear") },
-  { label: "Shapewear", href: collection("Shapewear") },
-  { label: "Plus Size", href: collection("Plus Size") },
+  { label: "Pj Sets", href: collection("Pj Sets") },
 ];
 
 export const announcements = [

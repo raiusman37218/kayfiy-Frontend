@@ -16,14 +16,22 @@ export default async function CategoryTiles() {
 
   let banners = defaultBanners;
 
-  if (dbCategories && dbCategories.length >= 4) {
-    banners = dbCategories.slice(0, 4).map((cat, idx) => ({
+  if (dbCategories && dbCategories.length > 0) {
+    banners = dbCategories.map((cat, idx) => ({
       label: cat.name,
       caption: cat.description || "Discover collection",
       href: `/collections/${cat.slug}`,
-      image: cat.image || DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length],
+      image:
+        cat.image ||
+        (cat.slug === "pj-sets"
+          ? NIGHTWEAR_IMAGES[0]
+          : cat.slug === "bras"
+          ? BRA_IMAGES[0]
+          : DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length]),
     }));
   }
+
+  const isTwoCategories = banners.length === 2;
 
   return (
     <section
@@ -37,7 +45,13 @@ export default async function CategoryTiles() {
         Start where you need us most.
       </p>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div
+        className={`grid gap-4 sm:gap-6 ${
+          isTwoCategories
+            ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
+            : "grid-cols-2 sm:gap-4 lg:grid-cols-4"
+        }`}
+      >
         {banners.map((banner) => (
           <Link
             key={banner.label}

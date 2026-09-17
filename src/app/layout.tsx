@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost, Playfair_Display } from "next/font/google";
-import AnnouncementBar from "@/components/AnnouncementBar";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import CartDrawer from "@/components/CartDrawer";
+import StoreChrome from "@/components/StoreChrome";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -39,18 +36,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
       className={`${display.variable} ${body.variable} ${heading.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-cream text-charcoal">
-        <AnnouncementBar />
-        <Header />
-        <div className="flex-1">{children}</div>
-        <Footer />
-        <CartDrawer />
+      <body className="min-h-full">
+        <StoreChrome>{children}</StoreChrome>
       </body>
     </html>
   );
