@@ -91,6 +91,11 @@ export const SECTION_BANNERS: Record<string, BannerConfig> = {
     alt: "Panties collection",
     aspectRatio: "aspect-[8/3]",
   },
+  pjSets: {
+    desktop: "/images/pyjama-pink.jpg",
+    alt: "Pj Sets & Luxury Sleepwear collection",
+    aspectRatio: "aspect-[8/3]",
+  },
 };
 
 
