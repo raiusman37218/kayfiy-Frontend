@@ -118,7 +118,7 @@ export default function Footer() {
                 <FacebookIcon className="h-3.5 w-3.5" />
               </Link>
               <a
-                href="https://wa.me/923000000000"
+                href="https://wa.me/923053530008"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="KAYFIY on WhatsApp"

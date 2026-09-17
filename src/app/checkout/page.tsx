@@ -288,7 +288,7 @@ function ThankYouPage({
             Continue Shopping
           </Link>
           <a
-            href={`https://wa.me/923000000000?text=${encodeURIComponent(`Hi KAYFIY! I just placed order ${reference}. Can you confirm?`)}`}
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923053530008"}?text=${encodeURIComponent(`Hi KAYFIY! I just placed order ${reference}. Can you confirm?`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-500 bg-[#EEF4EE] px-6 py-4 text-xs font-bold tracking-wider text-[#33573C] uppercase transition-all duration-300 hover:bg-[#3F6B4A] hover:text-white"

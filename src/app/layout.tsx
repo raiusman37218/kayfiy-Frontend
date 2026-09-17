@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost, Playfair_Display } from "next/font/google";
 import StoreChrome from "@/components/StoreChrome";
+import MetaPixel from "@/components/MetaPixel";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${display.variable} ${body.variable} ${heading.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <MetaPixel />
         <StoreChrome>{children}</StoreChrome>
       </body>
     </html>

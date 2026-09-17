@@ -23,7 +23,7 @@ export const staticPages: StaticPage[] = [
       {
         heading: "Other ways to reach us",
         list: [
-          "WhatsApp: +92 300 0000000, 10am–7pm Monday to Saturday",
+          "WhatsApp: +92 305 3530008, 10am–7pm Monday to Saturday",
           "Email: hello@kayfiy.pk",
           "Instagram and Facebook: @kayfiy.pk",
         ],

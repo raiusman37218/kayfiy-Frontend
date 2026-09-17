@@ -5,8 +5,8 @@ import { useState } from "react";
 export default function FloatingWhatsApp() {
   const [open, setOpen] = useState(false);
 
-  // Pre-filled WhatsApp message for quick sizing and order questions
-  const whatsappUrl = "https://wa.me/923000000000?text=Hi%20KAYFIY!%20I%20need%20help%20with%20bra%20sizing%20and%20orders.";
+  const waPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923053530008";
+  const whatsappUrl = `https://wa.me/${waPhone}?text=Hi%20KAYFIY!%20I%20need%20help%20with%20bra%20sizing%20and%20orders.`;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
