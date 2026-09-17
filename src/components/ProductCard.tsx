@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { discountPercent, formatPrice, slug, type Product } from "@/lib/data";
 import { useCart } from "./useCart";
+import { useWishlist } from "./useWishlist";
+import { HeartIcon } from "./Icons";
 import { sizesFor } from "./AddToBag";
 
 const SIZES =
@@ -12,6 +14,9 @@ const SIZES =
 export default function ProductCard({ product }: { product: Product }) {
   const onSale = typeof product.compareAt === "number";
   const { add } = useCart();
+  const wishlist = useWishlist();
+  const productSlug = slug(product.name);
+  const wishlisted = wishlist.has(productSlug);
 
   const imgSrc =
     product.image &&
@@ -26,6 +31,17 @@ export default function ProductCard({ product }: { product: Product }) {
       : imgSrc;
 
   const isAvailable = product.instock !== false && (product.stockQuantity ?? 1) > 0;
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    wishlist.toggle({
+      slug: productSlug,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+    });
+  };
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -70,11 +86,26 @@ export default function ProductCard({ product }: { product: Product }) {
               Sale
             </span>
           )}
-          {onSale && (
-            <span className="absolute top-3 right-3 rounded-full bg-cream/90 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-charcoal backdrop-blur-sm shadow-sm">
-              -{discountPercent(product.price, product.compareAt!)}%
-            </span>
-          )}
+
+          <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
+            {onSale && (
+              <span className="rounded-full bg-cream/90 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-charcoal backdrop-blur-sm shadow-sm">
+                -{discountPercent(product.price, product.compareAt!)}%
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleWishlistToggle}
+              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-pressed={wishlisted}
+              className="rounded-full bg-white/90 p-2 shadow-sm backdrop-blur-sm transition hover:bg-white cursor-pointer"
+            >
+              <HeartIcon
+                filled={wishlisted}
+                className={`h-4 w-4 ${wishlisted ? "text-[#7A2A3D]" : "text-charcoal"}`}
+              />
+            </button>
+          </div>
 
           {/* Quick Add Button — appears on hover */}
           {isAvailable && (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
+import CollectionControls from "@/components/CollectionControls";
 import { PageHeader, type Crumb } from "@/components/PageShell";
 import { collectionSlugs, getLiveCollection } from "@/lib/catalog";
 import { fetchDbCategories } from "@/lib/supabase";
@@ -88,14 +88,7 @@ export default async function CollectionPage({
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-xs tracking-[0.14em] text-muted uppercase">
-            {collection.products.length}{" "}
-            {collection.products.length === 1 ? "product" : "products"}
-          </p>
-        </div>
-
-        <ProductGrid products={collection.products} />
+        <CollectionControls products={collection.products} />
       </div>
     </main>
   );

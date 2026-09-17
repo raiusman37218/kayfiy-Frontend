@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { ChevronIcon } from "./Icons";
+import { ChevronIcon, HeartIcon } from "./Icons";
+import { useWishlist } from "./useWishlist";
 
 interface ProductGalleryProps {
   images: string[];
   name: string;
+  slug: string;
+  price: number;
   onSale?: boolean;
   isAvailable?: boolean;
 }
@@ -14,6 +17,8 @@ interface ProductGalleryProps {
 export default function ProductGallery({
   images,
   name,
+  slug,
+  price,
   onSale = false,
   isAvailable = true,
 }: ProductGalleryProps) {
@@ -25,7 +30,8 @@ export default function ProductGallery({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const wishlist = useWishlist();
+  const isWishlisted = wishlist.has(slug);
 
   const total = galleryImages.length;
 
@@ -106,24 +112,19 @@ export default function ProductGallery({
         {/* Wishlist Heart Icon (Top-Right, matching reference) */}
         <button
           type="button"
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={() =>
+            wishlist.toggle({ slug, name, image: galleryImages[0], price })
+          }
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={isWishlisted}
           className="absolute top-3.5 right-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-xs transition hover:scale-110 hover:bg-white cursor-pointer"
         >
-          <svg
+          <HeartIcon
+            filled={isWishlisted}
             className={`h-4.5 w-4.5 transition ${
-              isWishlisted ? "fill-[#7A2A3D] text-[#7A2A3D]" : "fill-none text-muted"
+              isWishlisted ? "text-[#7A2A3D]" : "text-muted"
             }`}
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.8}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
+          />
         </button>
 
         {/* Navigation Arrows (Desktop & Tablet Hover) */}

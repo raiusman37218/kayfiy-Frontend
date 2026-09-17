@@ -218,6 +218,68 @@ export const staticPages: StaticPage[] = [
     ],
   },
   {
+    slug: "about",
+    title: "About Us",
+    blurb: "Comfort wear designed and fit-tested for Pakistani women, delivered nationwide.",
+    blocks: [
+      {
+        heading: "Our story",
+        body: [
+          "KAYFIY started with a simple frustration: most everyday bras and comfort wear sold here weren't designed or fit-tested for the women wearing them. We set out to fix that — soft, breathable fabrics, true-to-size cuts from 30A to 44DD, and prices that don't punish you for wanting something that actually fits.",
+        ],
+      },
+      {
+        heading: "What we stand for",
+        list: [
+          "Fit first — every style is tested across real bodies before it goes on sale.",
+          "Honest pricing — no inflated 'compare at' prices, discounts are real.",
+          "Discreet, respectful service — from packaging to how we talk about our products.",
+          "Nationwide reach — cash on delivery so anyone, anywhere in Pakistan, can shop with confidence.",
+        ],
+      },
+      {
+        heading: "Where we're headed",
+        body: [
+          "We're a small, growing team based in Pakistan. Every order and every message helps us stock better sizes and fabrics — write to us any time, we read everything.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "privacy-policy",
+    title: "Privacy Policy",
+    blurb: "How KAYFIY collects, uses and protects your information.",
+    blocks: [
+      {
+        heading: "Information we collect",
+        list: [
+          "Contact and delivery details you give us at checkout or when creating an account — name, phone, email and address.",
+          "Order history and preferences linked to your account, if you create one.",
+          "Basic technical data (device, browser) used only to keep the site working and secure.",
+        ],
+      },
+      {
+        heading: "How we use it",
+        body: [
+          "To process and deliver your orders, respond to your messages, and — only if you opt in — send you occasional offers and new-arrival updates. We never sell your information to third parties.",
+        ],
+      },
+      {
+        heading: "Payment information",
+        body: [
+          "We do not store card details. Cash-on-delivery orders are paid to the courier; bank and wallet transfers are confirmed manually and no payment credentials pass through our servers.",
+        ],
+      },
+      {
+        heading: "Your choices",
+        list: [
+          "You can request a copy of your data or ask us to delete your account at any time by emailing hello@kayfiy.pk.",
+          "You can unsubscribe from marketing messages at any time via the link in any email or by messaging us directly.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "refund-policy",
     title: "Refund Policy",
     blurb: "Our policy on returns, exchanges and refunds.",

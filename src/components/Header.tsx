@@ -8,6 +8,7 @@ import KayfiyLogo from "./KayfiyLogo";
 import { navigation as defaultNav, slug, type NavItem } from "@/lib/data";
 import { fetchDbCategories, supabase, type DbCategory } from "@/lib/supabase";
 import { useCart } from "./useCart";
+import { useWishlist } from "./useWishlist";
 import HeaderSearch from "./HeaderSearch";
 import SearchDrawer from "./SearchDrawer";
 import {
@@ -15,19 +16,27 @@ import {
   CartIcon,
   ChevronIcon,
   CloseIcon,
+  HeartIcon,
   MenuIcon,
   SearchIcon,
 } from "./Icons";
 
+// Static content pages (not catalog categories) that belong in the primary nav.
+const STATIC_NAV_LINKS: NavItem[] = [
+  { label: "About Us", href: "/pages/about" },
+  { label: "Contact", href: "/pages/contact" },
+];
+
 function buildNavigation(categories: DbCategory[]): NavItem[] {
-  if (!categories || categories.length === 0) return defaultNav;
+  if (!categories || categories.length === 0)
+    return [...defaultNav, ...STATIC_NAV_LINKS];
 
   // Filter top-level categories (categories without a parent and show_in_header !== false)
   const topLevel = categories
     .filter((c) => !c.parent_slug && c.show_in_header !== false)
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  return topLevel.map((parent) => {
+  const categoryNav = topLevel.map((parent) => {
     // Find any subcategories that have parent_slug matching this parent and show_in_header !== false
     const childCats = categories
       .filter((c) => c.parent_slug === parent.slug && c.show_in_header !== false)
@@ -48,16 +57,22 @@ function buildNavigation(categories: DbCategory[]): NavItem[] {
       children,
     };
   });
+
+  return [...categoryNav, ...STATIC_NAV_LINKS];
 }
 
 export default function Header() {
   const pathname = usePathname();
-  const [navItems, setNavItems] = useState<NavItem[]>(defaultNav);
+  const [navItems, setNavItems] = useState<NavItem[]>([
+    ...defaultNav,
+    ...STATIC_NAV_LINKS,
+  ]);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const { count, openCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
 
   useEffect(() => {
     async function loadCategories() {
@@ -152,6 +167,18 @@ export default function Header() {
             aria-label="Account"
           >
             <AccountIcon className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/wishlist"
+            className="relative hidden rounded-full p-2 text-charcoal transition hover:bg-blush sm:block"
+            aria-label={`Wishlist, ${wishlistCount} ${wishlistCount === 1 ? "item" : "items"}`}
+          >
+            <HeartIcon className="h-5 w-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7A2A3D] px-1 text-[10px] font-bold text-white">
+                {wishlistCount}
+              </span>
+            )}
           </Link>
           <button
             type="button"

@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddToBag from "@/components/AddToBag";
-import ProductGrid from "@/components/ProductGrid";
 import ProductGallery from "@/components/ProductGallery";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
 import ShareButtons from "@/components/ShareButtons";
+import Accordion from "@/components/Accordion";
+import RelatedProductsCarousel from "@/components/RelatedProductsCarousel";
+import ReviewsSection from "@/components/ReviewsSection";
 import { Breadcrumbs } from "@/components/PageShell";
 import { allProducts, findLiveProduct, getLiveProducts, relatedTo } from "@/lib/catalog";
+import { getReviewsForProduct } from "@/lib/reviews";
 import { discountPercent, formatPrice, slug as slugify } from "@/lib/data";
 
 export const revalidate = 60;
@@ -42,7 +43,8 @@ export default async function ProductPage({
 
   const allLive = await getLiveProducts();
   const onSale = typeof product.compareAt === "number";
-  const related = relatedTo(product, allLive, 4);
+  const related = relatedTo(product, allLive, 8);
+  const reviews = await getReviewsForProduct(slug);
 
   const productImages = product.images && product.images.length > 0
     ? product.images
@@ -63,6 +65,8 @@ export default async function ProductPage({
         <ProductGallery
           images={productImages}
           name={product.name}
+          slug={slug}
+          price={product.price}
           onSale={onSale}
           isAvailable={product.instock !== false && (product.stockQuantity ?? 1) > 0}
         />
@@ -114,37 +118,32 @@ export default async function ProductPage({
           {/* Dedicated Illustrated Trust & Feature Badges */}
           <ProductTrustBadges />
 
-          {/* Specifications / Accordions */}
-          <dl className="mt-8 divide-y divide-line border-t border-line text-sm">
-            {[
-              ["Fabric", "Cotton-modal blend with elastane for stretch"],
-              ["Care", "Hand wash cold, dry flat, do not bleach"],
-              ["Delivery", "2–4 working days nationwide, free over Rs. 3,500"],
-              ["Returns", "7-day exchange on unworn items with tags"],
-            ].map(([term, detail]) => (
-              <div key={term} className="flex gap-6 py-3.5">
-                <dt className="w-28 shrink-0 font-semibold text-black">{term}</dt>
-                <dd className="text-black/80">{detail}</dd>
-              </div>
-            ))}
-          </dl>
+          {/* Fabric & Care / Delivery & Returns */}
+          <Accordion
+            items={[
+              {
+                title: "Fabric & Care",
+                rows: [
+                  ["Fabric", "Cotton-modal blend with elastane for stretch"],
+                  ["Care", "Hand wash cold, dry flat, do not bleach"],
+                ],
+              },
+              {
+                title: "Delivery & Returns",
+                rows: [
+                  ["Delivery", "2–4 working days nationwide, free over Rs. 3,500"],
+                  ["Returns", "7-day exchange on unworn items with tags"],
+                ],
+              },
+            ]}
+          />
         </div>
       </div>
 
       <section className="border-t border-line">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-[family-name:var(--font-heading)] text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-charcoal">
-              You May Also Like
-            </h2>
-            <Link
-              href="/collections/all"
-              className="border-b border-black pb-0.5 text-xs font-bold tracking-[0.14em] text-black uppercase transition hover:text-[#7A2A3D] hover:border-[#7A2A3D]"
-            >
-              View All
-            </Link>
-          </div>
-          <ProductGrid products={related} />
+          <RelatedProductsCarousel title="You May Also Like" products={related} />
+          <ReviewsSection reviews={reviews} />
         </div>
       </section>
     </main>

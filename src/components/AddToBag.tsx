@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "./useCart";
+import SizeGuideModal from "./SizeGuideModal";
 import { slug, type Product } from "@/lib/data";
 import { sizesFor } from "@/lib/sizes";
 
@@ -42,12 +43,16 @@ export default function AddToBag({ product }: { product: Product }) {
         <p className="text-xs font-bold tracking-wider text-black uppercase">
           Size
         </p>
-        <Link
-          href="/pages/bra-size-calculator"
-          className="text-xs font-semibold text-[#7A2A3D] underline-offset-4 hover:underline"
-        >
-          Find my size
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/pages/bra-size-calculator"
+            className="text-xs font-semibold text-[#7A2A3D] underline-offset-4 hover:underline"
+          >
+            Find my size
+          </Link>
+          <span className="text-line">|</span>
+          <SizeGuideModal />
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">

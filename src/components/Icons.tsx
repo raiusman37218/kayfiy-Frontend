@@ -67,3 +67,43 @@ export const InstagramIcon = ({ className }: IconProps) => (
     <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none" />
   </svg>
 );
+
+type HeartIconProps = IconProps & { filled?: boolean };
+
+export const HeartIcon = ({ className, filled }: HeartIconProps) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    aria-hidden
+    {...base}
+    fill={filled ? "currentColor" : "none"}
+  >
+    <path d="M4.318 6.318a4.5 4.5 0 0 0 0 6.364L12 20.364l7.682-7.682a4.5 4.5 0 0 0-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 0 0-6.364 0Z" />
+  </svg>
+);
+
+type StarIconProps = IconProps & { filled?: boolean };
+
+export const StarIcon = ({ className, filled }: StarIconProps) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    aria-hidden
+    {...base}
+    fill={filled ? "currentColor" : "none"}
+  >
+    <path d="m12 3.5 2.6 5.4 5.9.7-4.3 4.1 1.1 5.9L12 16.8l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.7L12 3.5Z" strokeLinejoin="round" />
+  </svg>
+);
+
+export const FilterIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 24 24" className={className} aria-hidden {...base}>
+    <path d="M4 6h16M7 12h10M10.5 18h3" />
+  </svg>
+);
+
+export const SortIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 24 24" className={className} aria-hidden {...base}>
+    <path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3" />
+  </svg>
+);

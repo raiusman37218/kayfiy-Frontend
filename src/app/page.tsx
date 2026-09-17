@@ -2,13 +2,20 @@ import HeroSlider from "@/components/HeroSlider";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductCarousel from "@/components/ProductCarousel";
 import SizeGuideBanner from "@/components/SizeGuideBanner";
+import USPStrip from "@/components/USPStrip";
+import LookbookBanner from "@/components/LookbookBanner";
+import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import InstagramFeed from "@/components/InstagramFeed";
+import NewsletterSection from "@/components/NewsletterSection";
 import { getLiveProducts } from "@/lib/catalog";
+import { getFeaturedReviews } from "@/lib/reviews";
 import { SECTION_BANNERS } from "@/lib/images";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
   const products = await getLiveProducts();
+  const featuredReviews = await getFeaturedReviews(6);
 
   const bestSellers = products.filter((p) => p.bestsellere || p.price > 1600);
   const bras = products.filter(
@@ -34,6 +41,7 @@ export default async function Home() {
     <main>
       <HeroSlider />
       <CategoryTiles />
+      <USPStrip />
 
       <ProductCarousel
         title="Best Sellers"
@@ -72,7 +80,11 @@ export default async function Home() {
         viewAllHref="/collections/panties"
       />
 
+      <LookbookBanner />
       <SizeGuideBanner />
+      <TestimonialsCarousel reviews={featuredReviews} />
+      <InstagramFeed />
+      <NewsletterSection />
     </main>
   );
 }

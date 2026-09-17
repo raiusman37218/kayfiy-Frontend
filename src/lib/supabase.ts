@@ -110,6 +110,35 @@ export async function fetchDbStoreSettings(): Promise<DbStoreSettings | null> {
   }
 }
 
+export type DbReview = {
+  id: string;
+  product_slug: string | null;
+  author_name: string;
+  rating: number;
+  title?: string;
+  body: string;
+  is_featured?: boolean;
+  created_at?: string;
+};
+
+export async function fetchDbReviews(): Promise<DbReview[]> {
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.warn("Supabase fetchDbReviews error:", error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn("Supabase fetchDbReviews exception:", err);
+    return [];
+  }
+}
+
 export async function fetchDbCategories(): Promise<DbCategory[]> {
   try {
     const { data, error } = await supabase

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import KayfiyLogo from "./KayfiyLogo";
+import NewsletterForm from "./NewsletterForm";
 import { footerCategories as defaultFooterCategories, usefulLinks, type NavLink } from "@/lib/data";
 import { fetchDbCategories } from "@/lib/supabase";
 import { FacebookIcon, InstagramIcon } from "./Icons";
@@ -33,7 +34,6 @@ function TikTokIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 export default function Footer() {
   const pathname = usePathname();
   const [categories, setCategories] = useState<NavLink[]>(defaultFooterCategories);
-  const [signedUp, setSignedUp] = useState(false);
 
   useEffect(() => {
     async function loadCategories() {
@@ -185,31 +185,7 @@ export default function Footer() {
             <p className="text-xs text-muted leading-relaxed">
               Fit tips, restock alerts & new launches.
             </p>
-            <form
-              className="flex items-center rounded-full border border-line bg-white p-1 transition-all duration-200 focus-within:border-[#7A2A3D] focus-within:ring-2 focus-within:ring-[#7A2A3D]/15 focus-within:shadow-sm"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setSignedUp(true);
-              }}
-            >
-              <input
-                type="email"
-                required
-                placeholder="Your email address"
-                className="w-full bg-transparent px-3 py-1.5 text-xs text-charcoal outline-none placeholder:text-muted-soft"
-              />
-              <button
-                type="submit"
-                className="rounded-full bg-[#7A2A3D] px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider transition-all duration-200 hover:bg-[#5C1C2C] hover:shadow-sm shrink-0 cursor-pointer"
-              >
-                Join
-              </button>
-            </form>
-            {signedUp && (
-              <p className="text-[11px] text-[#7A2A3D] font-semibold flex items-center gap-1 animate-fade-in">
-                <span>✓</span> Check your inbox to confirm!
-              </p>
-            )}
+            <NewsletterForm />
           </div>
         </div>
       </div>

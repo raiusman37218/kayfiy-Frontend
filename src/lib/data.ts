@@ -25,6 +25,8 @@ export type Product = {
   new?: boolean;
   articleNumber?: string;
   stockQuantity?: number;
+  /** Optional — populated from Supabase when set; the filter sidebar only shows a Fabric filter when present. */
+  fabric?: string;
 };
 
 export type NavLink = { label: string; href: string };
@@ -259,6 +261,7 @@ export const footerCategories: NavLink[] = navigation.map(
 );
 
 export const usefulLinks: NavLink[] = [
+  { label: "About Us", href: "/pages/about" },
   { label: "Contact", href: "/pages/contact" },
   { label: "How to Wear a Bra", href: "/pages/how-to-wear-a-bra" },
   { label: "Shipping & Return", href: "/pages/shipping-and-return" },
@@ -266,6 +269,7 @@ export const usefulLinks: NavLink[] = [
   { label: "FAQ", href: "/pages/faq" },
   { label: "Terms of Service", href: "/pages/terms-of-service" },
   { label: "Refund Policy", href: "/pages/refund-policy" },
+  { label: "Privacy Policy", href: "/pages/privacy-policy" },
 ];
 
 export const formatPrice = (value: number) =>

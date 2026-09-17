@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { createServerSupabase } from "@/lib/customerAuthServer";
 
 type CheckoutItem = {
   id?: string;
@@ -85,10 +86,24 @@ export async function POST(request: Request) {
     const amountAdvance = isCod ? 0 : total;
     const amountCod = isCod ? total : 0;
 
+    // Associate the order with the customer when one is signed in; guest
+    // checkout still works and leaves user_id null.
+    let userId: string | null = null;
+    try {
+      const authClient = await createServerSupabase();
+      const {
+        data: { user },
+      } = await authClient.auth.getUser();
+      userId = user?.id ?? null;
+    } catch {
+      userId = null;
+    }
+
     // 1. Insert into orders table
     const { error: orderError } = await supabase.from("orders").insert({
       id: orderId,
       order_number: orderNumber,
+      user_id: userId,
       guest_name: fullName,
       guest_email: email,
       guest_phone: phone,
