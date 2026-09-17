@@ -1,12 +1,12 @@
 "use client";
 
 const MARQUEE_ITEMS = [
-  { icon: "✨", text: "100% DISCREET PACKAGING — ZERO PRODUCT LABELS OUTSIDE" },
-  { icon: "🚚", text: "FREE DELIVERY NATIONWIDE ON ORDERS OVER RS. 2,999" },
-  { icon: "🔄", text: "30-DAY HASSLE-FREE SIZE EXCHANGE" },
-  { icon: "💵", text: "CASH ON DELIVERY (COD) AVAILABLE ACROSS PAKISTAN" },
-  { icon: "⭐", text: "4.9/5 RATED BY OVER 15,000+ VERIFIED CUSTOMERS" },
-  { icon: "💬", text: "NEED SIZE HELP? EXPERT ASSISTANCE ON WHATSAPP" },
+  { icon: "🔥", text: "LIMITED TIME: FLAT 30% OFF SELECTED STYLES" },
+  { icon: "✨", text: "ULTRA-SOFT BREATHABLE COTTON-MODAL & LACE" },
+  { icon: "📦", text: "DISCREET & CONFIDENTIAL TAMPER-PROOF DISPATCH" },
+  { icon: "🚚", text: "SAME-DAY DISPATCH • FREE SHIPPING OVER RS. 2,999" },
+  { icon: "⭐", text: "RATED 4.9/5 BY OVER 15,000+ PAKISTANI WOMEN" },
+  { icon: "💬", text: "CONFIDENTIAL SIZING CONSULTATION ON WHATSAPP" },
 ];
 
 export default function MarqueeBanner() {
@@ -15,11 +15,10 @@ export default function MarqueeBanner() {
       aria-label="Store highlights"
       className="group relative w-full overflow-hidden bg-charcoal text-cream py-2.5 border-y border-white/10 select-none"
     >
-      {/* Subtle gold accent border line */}
+      {/* Subtle gold accent line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
 
       <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
-        {/* Render twice for seamless continuous loop */}
         {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
           <div
             key={idx}
