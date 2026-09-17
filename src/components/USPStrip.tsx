@@ -8,22 +8,22 @@ import {
 const USPS = [
   {
     title: "100% Discreet Packaging",
-    description: "Tamper-proof unbranded flyer with zero product details on the label.",
+    description: "Tamper-proof unbranded flyer with zero product details on the outer shipping label.",
     icon: <DiscreetPackageIcon className="h-11 w-11" />,
   },
   {
     title: "Free Delivery Nationwide",
-    description: "Free fast shipping across Pakistan on all orders over Rs. 2,999.",
+    description: "Free express shipping across Pakistan on all orders over Rs. 3,500.",
     icon: <FastTruckIcon className="h-11 w-11" />,
   },
   {
-    title: "30-Day Easy Exchange",
+    title: "7-Day Easy Exchange",
     description: "Hassle-free size exchange on all unworn items with tags intact.",
     icon: <ExchangeBoxIcon className="h-11 w-11" />,
   },
   {
     title: "Cash on Delivery (COD)",
-    description: "Inspect & pay the rider at your doorstep anywhere in Pakistan.",
+    description: "Inspect & pay the courier rider at your doorstep anywhere in Pakistan.",
     icon: <SecureCoinsIcon className="h-11 w-11" />,
   },
 ];

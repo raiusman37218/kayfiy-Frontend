@@ -350,24 +350,24 @@ export function QualityMedalIcon({ className = "h-11 w-11" }: { className?: stri
 export default function ProductTrustBadges() {
   const badges = [
     {
-      title: "Easy exchanges",
-      description: "7-day returns with quick replacements or easy exchanges, no hassle.",
+      title: "100% Discreet packaging",
+      description: "Plain, tamper-proof flyer with zero product details on the outside.",
+      icon: <DiscreetPackageIcon className="h-10 w-10 sm:h-11 sm:w-11 shrink-0" />,
+    },
+    {
+      title: "7-Day size exchange",
+      description: "Hassle-free size replacement on unworn items with tags intact.",
       icon: <ExchangeBoxIcon className="h-10 w-10 sm:h-11 sm:w-11 shrink-0" />,
     },
     {
       title: "Fast shipping",
-      description: "2–4 working days nationwide delivery, free on orders over Rs. 3,500.",
+      description: "2–4 working days delivery across Pakistan, free on orders over Rs. 3,500.",
       icon: <FastTruckIcon className="h-10 w-10 sm:h-11 sm:w-11 shrink-0" />,
     },
     {
-      title: "Secure checkout",
-      description: "Cash on delivery & verified payment options for 100% peace of mind.",
+      title: "Cash on delivery (COD)",
+      description: "Pay the courier rider directly in cash when your parcel arrives.",
       icon: <SecureCoinsIcon className="h-10 w-10 sm:h-11 sm:w-11 shrink-0" />,
-    },
-    {
-      title: "Quality guaranteed",
-      description: "Every item is carefully inspected to meet our standards for fit & comfort.",
-      icon: <QualityMedalIcon className="h-10 w-10 sm:h-11 sm:w-11 shrink-0" />,
     },
   ];
 

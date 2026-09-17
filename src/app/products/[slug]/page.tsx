@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import AddToBag from "@/components/AddToBag";
+import StickyMobileBuyBar from "@/components/StickyMobileBuyBar";
 import ProductGallery from "@/components/ProductGallery";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
 import ShareButtons from "@/components/ShareButtons";
@@ -146,6 +147,9 @@ export default async function ProductPage({
           <ReviewsSection reviews={reviews} />
         </div>
       </section>
+
+      {/* Mobile Sticky Add to Bag Bar */}
+      <StickyMobileBuyBar product={product} />
     </main>
   );
 }

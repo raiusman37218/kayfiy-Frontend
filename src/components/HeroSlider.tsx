@@ -63,16 +63,45 @@ export default function HeroSlider() {
     return () => cancelAnimationFrame(animFrameId);
   }, [progress]);
 
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchEndX.current = null;
+    paused.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    paused.current = false;
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 45) {
+      goTo(index + 1);
+    } else if (diff < -45) {
+      goTo(index - 1);
+    }
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   return (
     <section
       ref={viewportRef}
       aria-label="Featured promotions"
       aria-roledescription="carousel"
-      className="group relative w-full overflow-hidden"
+      className="group relative w-full overflow-hidden select-none"
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
       onFocusCapture={() => (paused.current = true)}
       onBlurCapture={() => (paused.current = false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
