@@ -1,85 +1,29 @@
 import {
+  DiscreetPackageIcon,
   ExchangeBoxIcon,
   FastTruckIcon,
   SecureCoinsIcon,
 } from "./ProductTrustBadges";
 
-function PremiumFabricIcon({ className = "h-11 w-11" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      {/* Isometric stack of folded fabric */}
-      <polygon
-        points="32,10 54,20 32,30 10,20"
-        fill="#F4EFEB"
-        stroke="#2B2724"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="10,20 32,30 32,38 10,28"
-        fill="#E8DFD8"
-        stroke="#2B2724"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="32,30 54,20 54,28 32,38"
-        fill="#DDD3CB"
-        stroke="#2B2724"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="10,32 32,42 32,50 10,40"
-        fill="#E8DFD8"
-        stroke="#2B2724"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="32,42 54,32 54,40 32,50"
-        fill="#DDD3CB"
-        stroke="#2B2724"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      {/* Soft-weave accent */}
-      <path
-        d="M18 24.5C22 26.5 26 28 30 29.5"
-        stroke="#2B2724"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeDasharray="2 3"
-      />
-    </svg>
-  );
-}
-
 const USPS = [
   {
-    title: "Premium Fabric",
-    description: "Breathable cotton-modal blends, soft on the skin all day.",
-    icon: <PremiumFabricIcon className="h-11 w-11" />,
+    title: "100% Discreet Packaging",
+    description: "Tamper-proof unbranded flyer with zero product details on the label.",
+    icon: <DiscreetPackageIcon className="h-11 w-11" />,
   },
   {
-    title: "Free Delivery",
-    description: "Free nationwide on every order over Rs. 3,500.",
+    title: "Free Delivery Nationwide",
+    description: "Free fast shipping across Pakistan on all orders over Rs. 2,999.",
     icon: <FastTruckIcon className="h-11 w-11" />,
   },
   {
-    title: "Easy Returns",
-    description: "7-day size exchange on unworn items with tags.",
+    title: "30-Day Easy Exchange",
+    description: "Hassle-free size exchange on all unworn items with tags intact.",
     icon: <ExchangeBoxIcon className="h-11 w-11" />,
   },
   {
-    title: "Cash on Delivery",
-    description: "Pay the rider when your parcel arrives, anywhere in Pakistan.",
+    title: "Cash on Delivery (COD)",
+    description: "Inspect & pay the rider at your doorstep anywhere in Pakistan.",
     icon: <SecureCoinsIcon className="h-11 w-11" />,
   },
 ];
@@ -90,7 +34,7 @@ export default function USPStrip() {
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:py-14">
         {USPS.map((usp) => (
           <div key={usp.title} className="flex items-start gap-3.5">
-            <div className="shrink-0">{usp.icon}</div>
+            <div className="shrink-0 transition-transform duration-300 hover:scale-105">{usp.icon}</div>
             <div>
               <h3 className="text-sm font-bold tracking-tight text-charcoal">
                 {usp.title}

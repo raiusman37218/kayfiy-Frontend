@@ -5,6 +5,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 export default function StoreChrome({
   children,
@@ -19,12 +20,13 @@ export default function StoreChrome({
   }
 
   return (
-    <div className="min-h-full flex flex-col bg-cream text-charcoal">
+    <div className="min-h-full flex flex-col bg-cream text-charcoal relative">
       <AnnouncementBar />
       <Header />
       <div className="flex-1">{children}</div>
       <Footer />
       <CartDrawer />
+      <FloatingWhatsApp />
     </div>
   );
 }

@@ -1,7 +1,10 @@
 import HeroSlider from "@/components/HeroSlider";
+import MarqueeBanner from "@/components/MarqueeBanner";
+import CategoryStories from "@/components/CategoryStories";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductCarousel from "@/components/ProductCarousel";
 import PromoBanner from "@/components/PromoBanner";
+import PromoBannerSplit from "@/components/PromoBannerSplit";
 import SizeGuideBanner from "@/components/SizeGuideBanner";
 import USPStrip from "@/components/USPStrip";
 import LookbookBanner from "@/components/LookbookBanner";
@@ -45,51 +48,53 @@ export default async function Home() {
 
   return (
     <main className="space-y-2 sm:space-y-4">
-      {/* Top Showcase Slider */}
+      {/* 1. Top Showcase Slider */}
       <HeroSlider />
 
-      {/* Shop By Category Tiles */}
+      {/* 2. Continuous Announcement Marquee Ticker */}
+      <MarqueeBanner />
+
+      {/* 3. Instagram Story-Style Circular Categories Strip */}
+      <CategoryStories />
+
+      {/* 4. Editorial Shop By Category Tiles */}
       <CategoryTiles />
 
-      {/* 1. Best Sellers — Clean Product Carousel */}
+      {/* 5. Best Sellers — Product Carousel with Filter Tabs */}
       <ProductCarousel
         title="Best Sellers"
-        blurb="The pieces our customers love and reorder most."
+        blurb="The pieces our customers love, wear and reorder most."
         products={bestSellers.length > 0 ? bestSellers : products.slice(0, 8)}
+        tabs={["All", "Padded", "Push-Up", "Lace"]}
         viewAllHref="/collections/top-selling"
       />
 
-      {/* Interspersed Standalone Promo Banner */}
-      <PromoBanner
-        banner={SECTION_BANNERS.braSets}
-        badge="Special Feature"
-        title="Lace & Satin Bra Sets"
-        subtitle="Matched bra and brief sets engineered for seamless contouring, breathability, and luxurious comfort."
-        ctaText="Shop Bra Sets"
-        href="/collections/bra-sets"
-      />
+      {/* 6. Dual Editorial Promotional Banner Split */}
+      <PromoBannerSplit />
 
-      {/* 2. Bras — Clean Product Carousel */}
+      {/* 7. Bras — Clean Product Carousel with Sub-Category Tabs */}
       <ProductCarousel
         title="Bras"
-        blurb="Padded, non-padded, wired and sports — sizes 30A to 44DD."
+        blurb="Padded, non-padded, wired and sports — crafted for sizes 30A to 44DD."
         products={bras.length > 0 ? bras : products.slice(0, 8)}
+        tabs={["All", "Padded", "Push-Up", "Non-Padded", "Sports"]}
         viewAllHref="/collections/bras"
         tone="soft"
       />
 
-      {/* 3. Bra Sets — Clean Product Carousel */}
+      {/* 8. Bra Sets — Clean Product Carousel */}
       <ProductCarousel
         title="Bra Sets"
-        blurb="Matched bra and brief sets, everyday to bridal."
+        blurb="Coordinated bra and brief sets, from everyday essentials to bridal."
         products={braSets.length > 0 ? braSets : products.slice(0, 8)}
+        tabs={["All", "Lace", "Thin Pad", "Push Up"]}
         viewAllHref="/collections/bra-sets"
       />
 
-      {/* Mid-Page Lifestyle Banner Break */}
+      {/* 9. Mid-Page Lifestyle Editorial Break */}
       <LookbookBanner />
 
-      {/* 4. Nightwear or Shapewear — Clean Product Carousel */}
+      {/* 10. Nightwear Collection (if available) */}
       {nightwear.length > 0 && (
         <ProductCarousel
           title="Nightwear"
@@ -100,7 +105,7 @@ export default async function Home() {
         />
       )}
 
-      {/* 5. Shapewear — Clean Product Carousel */}
+      {/* 11. Shapewear Collection */}
       <ProductCarousel
         title="Shapewear"
         blurb="Smoothing body suits, shaping briefs and waist cinchers."
@@ -109,7 +114,17 @@ export default async function Home() {
         tone={nightwear.length > 0 ? "plain" : "soft"}
       />
 
-      {/* 6. Panties — Clean Product Carousel */}
+      {/* 12. Interspersed Standalone Promo Banner */}
+      <PromoBanner
+        banner={SECTION_BANNERS.shapewear}
+        badge="Instant Sculpt"
+        title="Flawless Silhouette Shapewear"
+        subtitle="Designed for invisible all-day control and breathable comfort under traditional or western wear."
+        ctaText="Explore Shapewear"
+        href="/collections/shapewear"
+      />
+
+      {/* 13. Panties Collection */}
       <ProductCarousel
         title="Panties"
         blurb="Cotton, seamless and lace briefs in every size."
@@ -117,16 +132,16 @@ export default async function Home() {
         viewAllHref="/collections/panties"
       />
 
-      {/* Interactive Size Guide Banner Break */}
+      {/* 14. Interactive Bra Size Calculator Banner */}
       <SizeGuideBanner />
 
-      {/* Customer Reviews & Testimonials Carousel */}
+      {/* 15. Customer Reviews Carousel */}
       <TestimonialsCarousel reviews={featuredReviews} />
 
-      {/* Store Trust & Policy Strip */}
+      {/* 16. Store Trust & Policy Strip */}
       <USPStrip />
 
-      {/* Social & Community */}
+      {/* 17. Social Community & Newsletter */}
       <InstagramFeed />
       <NewsletterSection />
     </main>
