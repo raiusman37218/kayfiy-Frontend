@@ -1,6 +1,7 @@
 import HeroSlider from "@/components/HeroSlider";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductCarousel from "@/components/ProductCarousel";
+import PromoBanner from "@/components/PromoBanner";
 import SizeGuideBanner from "@/components/SizeGuideBanner";
 import USPStrip from "@/components/USPStrip";
 import LookbookBanner from "@/components/LookbookBanner";
@@ -36,53 +37,96 @@ export default async function Home() {
       p.category?.toLowerCase() === "panties" ||
       /panty|panties|brief/i.test(p.name),
   );
+  const nightwear = products.filter(
+    (p) =>
+      p.category?.toLowerCase() === "nightwear" ||
+      /night|robe|pyjama|silk|satin/i.test(p.name),
+  );
 
   return (
-    <main>
+    <main className="space-y-2 sm:space-y-4">
+      {/* Top Showcase Slider */}
       <HeroSlider />
-      <CategoryTiles />
-      <USPStrip />
 
+      {/* Shop By Category Tiles */}
+      <CategoryTiles />
+
+      {/* 1. Best Sellers — Clean Product Carousel */}
       <ProductCarousel
         title="Best Sellers"
-        blurb="The pieces our customers reorder most."
-        banner={SECTION_BANNERS.bestSellers}
+        blurb="The pieces our customers love and reorder most."
         products={bestSellers.length > 0 ? bestSellers : products.slice(0, 8)}
+        viewAllHref="/collections/top-selling"
       />
+
+      {/* Interspersed Standalone Promo Banner */}
+      <PromoBanner
+        banner={SECTION_BANNERS.braSets}
+        badge="Special Feature"
+        title="Lace & Satin Bra Sets"
+        subtitle="Matched bra and brief sets engineered for seamless contouring, breathability, and luxurious comfort."
+        ctaText="Shop Bra Sets"
+        href="/collections/bra-sets"
+      />
+
+      {/* 2. Bras — Clean Product Carousel */}
       <ProductCarousel
         title="Bras"
         blurb="Padded, non-padded, wired and sports — sizes 30A to 44DD."
-        banner={SECTION_BANNERS.bras}
         products={bras.length > 0 ? bras : products.slice(0, 8)}
         viewAllHref="/collections/bras"
         tone="soft"
       />
+
+      {/* 3. Bra Sets — Clean Product Carousel */}
       <ProductCarousel
         title="Bra Sets"
         blurb="Matched bra and brief sets, everyday to bridal."
-        banner={SECTION_BANNERS.braSets}
         products={braSets.length > 0 ? braSets : products.slice(0, 8)}
         viewAllHref="/collections/bra-sets"
       />
+
+      {/* Mid-Page Lifestyle Banner Break */}
+      <LookbookBanner />
+
+      {/* 4. Nightwear or Shapewear — Clean Product Carousel */}
+      {nightwear.length > 0 && (
+        <ProductCarousel
+          title="Nightwear"
+          blurb="Sleep and lounge sets in breathable cotton, modal and silk."
+          products={nightwear}
+          viewAllHref="/collections/nightwear"
+          tone="soft"
+        />
+      )}
+
+      {/* 5. Shapewear — Clean Product Carousel */}
       <ProductCarousel
         title="Shapewear"
-        blurb="Smoothing body suits, shaping briefs and belts."
-        banner={SECTION_BANNERS.shapewear}
+        blurb="Smoothing body suits, shaping briefs and waist cinchers."
         products={shapewear.length > 0 ? shapewear : products.slice(0, 8)}
         viewAllHref="/collections/shapewear"
-        tone="soft"
+        tone={nightwear.length > 0 ? "plain" : "soft"}
       />
+
+      {/* 6. Panties — Clean Product Carousel */}
       <ProductCarousel
         title="Panties"
         blurb="Cotton, seamless and lace briefs in every size."
-        banner={SECTION_BANNERS.panties}
         products={panties.length > 0 ? panties : products.slice(0, 8)}
         viewAllHref="/collections/panties"
       />
 
-      <LookbookBanner />
+      {/* Interactive Size Guide Banner Break */}
       <SizeGuideBanner />
+
+      {/* Customer Reviews & Testimonials Carousel */}
       <TestimonialsCarousel reviews={featuredReviews} />
+
+      {/* Store Trust & Policy Strip */}
+      <USPStrip />
+
+      {/* Social & Community */}
       <InstagramFeed />
       <NewsletterSection />
     </main>
