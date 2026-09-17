@@ -25,7 +25,7 @@ export const staticPages: StaticPage[] = [
         list: [
           "WhatsApp: +92 305 3530008, 10am–7pm Monday to Saturday",
           "Email: hello@kayfiy.pk",
-          "Instagram and Facebook: @kayfiy.pk",
+          "Instagram: @_kayfiy",
         ],
       },
       {

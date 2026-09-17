@@ -30,12 +30,12 @@ export const DEFAULT_ANNOUNCEMENTS = [
 ];
 
 export const DEFAULT_INSTAGRAM_POSTS = [
-  { id: "1", image: "/bustaniya-instagram-hero.jpg", url: "https://www.instagram.com/bustaniya_/", caption: "Crafted for every beautiful moment. #Bustaniya" },
-  { id: "2", image: "/bustaniya-instagram-hero-v2.jpg", url: "https://www.instagram.com/bustaniya_/", caption: "Signature elegance in unstitched & prêt lawn. #Bustaniya" },
-  { id: "3", image: "/bustaniya-instagram-hero-v3.jpg", url: "https://www.instagram.com/bustaniya_/", caption: "Thoughtfully designed silhouettes for everyday grace." },
-  { id: "4", image: "/bustaniya-instagram-hero-v3b.jpg", url: "https://www.instagram.com/bustaniya_/", caption: "Rooted in grace, crafted in Pakistan." },
-  { id: "5", image: "/bustaniya-campaign-hero-v5.png", url: "https://www.instagram.com/bustaniya_/", caption: "New Season '26 now live on website." },
-  { id: "6", image: "/bustaniya-hero-summer-v2.png", url: "https://www.instagram.com/bustaniya_/", caption: "Pure Pakistani cotton kurtis & co-ord sets." },
+  { id: "1", image: "/images/bras-assorted.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Everyday comfort wear redefined. #KAYFIY" },
+  { id: "2", image: "/images/camisole-blush-satin.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Soft breathable fabrics made for you." },
+  { id: "3", image: "/images/bra-lace-black.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Honest sizing & wire-free comfort." },
+  { id: "4", image: "/images/pyjama-pink.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Pure ease all day long." },
+  { id: "5", image: "/images/brief-cream-lace.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Delicate details, premium feel." },
+  { id: "6", image: "/images/silk-fabrics.jpg", url: "https://www.instagram.com/_kayfiy/", caption: "Comfort wear collection live now." },
 ];
 
 export const DEFAULT_HOMEPAGE_SECTIONS = [
@@ -91,8 +91,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS = [
     enabled: true,
     label: "Instagram Feed",
     heading: "Follow us Instagram",
-    eyebrow: "@BUSTANIYA_",
-    subtitle: "Tag @bustaniya_ to be featured on our official page.",
+    eyebrow: "@_KAYFIY",
+    subtitle: "Tag @_kayfiy to be featured on our official page.",
   },
 ];
 

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { InstagramIcon } from "./Icons";
 
-const INSTAGRAM_URL = "https://www.instagram.com/kayfiy.pk";
+const INSTAGRAM_URL = "https://www.instagram.com/_kayfiy/";
 
 // Curated tiles. Swap these for live Instagram Graph API posts once an app
 // token is available -- the layout takes any six square images.
@@ -19,7 +19,7 @@ export default function InstagramFeed() {
     <section aria-label="Instagram" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-16">
       <div className="mb-6 text-center">
         <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-charcoal sm:text-3xl">
-          @kayfiy.pk
+          @_kayfiy
         </h2>
         <a
           href={INSTAGRAM_URL}

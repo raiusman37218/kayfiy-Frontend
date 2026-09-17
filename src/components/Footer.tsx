@@ -103,13 +103,15 @@ export default function Footer() {
               Everyday comfort wear for women — honest sizing, breathable fabrics, and soft support.
             </p>
             <div className="flex items-center gap-2 pt-0.5">
-              <Link
-                href="https://instagram.com"
+              <a
+                href="https://www.instagram.com/_kayfiy/"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="KAYFIY on Instagram"
                 className="rounded-full border border-line p-2 text-charcoal transition-all duration-200 hover:border-[#7A2A3D] hover:text-[#7A2A3D] hover:bg-blush hover:scale-110"
               >
                 <InstagramIcon className="h-3.5 w-3.5" />
-              </Link>
+              </a>
               <Link
                 href="https://facebook.com"
                 aria-label="KAYFIY on Facebook"
