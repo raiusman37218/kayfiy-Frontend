@@ -95,32 +95,27 @@ export default function HeroSlider() {
               sizes="100vw"
               className="object-cover"
             />
-            {/*
-              Scrim shaped around the copy instead of washing the whole frame:
-              it falls away by ~two-thirds across, so the garment on the right
-              stays clear. Mobile stacks the copy over more of the image, so it
-              gets a gentler vertical wash instead.
-            */}
-            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 via-55% to-charcoal/15 sm:hidden" />
-            <div className="absolute inset-0 hidden bg-gradient-to-r from-charcoal/75 via-charcoal/28 via-42% to-transparent to-68% sm:block" />
+            {/* Clear photography: No dark gradient scrim overlay across the slide */}
 
-            <div className="relative mx-auto flex h-full max-w-7xl flex-col items-start justify-center px-6 text-cream drop-shadow-[0_2px_10px_rgba(20,18,16,0.45)] sm:px-10">
-              <p className="text-[11px] tracking-[0.24em] uppercase animate-fade-in">
-                {slide.eyebrow}
-              </p>
-              <h2 className="mt-3 max-w-xl font-[family-name:var(--font-heading)] text-4xl leading-tight sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                {slide.title}
-              </h2>
-              <p className="mt-3 max-w-md text-sm sm:text-base opacity-90">
-                {slide.caption}
-              </p>
-              <Link
-                href={slide.href}
-                tabIndex={slideIndex === index ? undefined : -1}
-                className="mt-7 inline-block rounded-full bg-cream px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-charcoal uppercase transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:shadow-lg hover:scale-105"
-              >
-                {slide.cta}
-              </Link>
+            <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-start justify-center px-6 sm:px-10 pointer-events-none">
+              <div className="max-w-xl pointer-events-auto">
+                <p className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] animate-fade-in">
+                  {slide.eyebrow}
+                </p>
+                <h2 className="mt-3 font-[family-name:var(--font-heading)] text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)] leading-[1.15]">
+                  {slide.title}
+                </h2>
+                <p className="mt-3 max-w-md text-sm sm:text-base text-white font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                  {slide.caption}
+                </p>
+                <Link
+                  href={slide.href}
+                  tabIndex={slideIndex === index ? undefined : -1}
+                  className="mt-6 inline-block rounded-full bg-cream px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-charcoal uppercase shadow-lg transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:shadow-xl hover:scale-105"
+                >
+                  {slide.cta}
+                </Link>
+              </div>
             </div>
           </div>
         ))}
@@ -131,7 +126,7 @@ export default function HeroSlider() {
         type="button"
         onClick={() => goTo(index - 1)}
         aria-label="Previous slide"
-        className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white/40 hover:scale-110 cursor-pointer hidden sm:flex"
+        className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-charcoal shadow-md backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:scale-110 cursor-pointer hidden sm:flex"
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -141,7 +136,7 @@ export default function HeroSlider() {
         type="button"
         onClick={() => goTo(index + 1)}
         aria-label="Next slide"
-        className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white/40 hover:scale-110 cursor-pointer hidden sm:flex"
+        className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-charcoal shadow-md backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:scale-110 cursor-pointer hidden sm:flex"
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -149,7 +144,7 @@ export default function HeroSlider() {
       </button>
 
       {/* Bottom Slider Dots + Progress Bar */}
-      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2.5 items-center">
+      <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2.5 items-center bg-charcoal/30 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-sm">
         {heroSlides.map((slide, dotIndex) => (
           <button
             key={slide.id}
@@ -158,12 +153,12 @@ export default function HeroSlider() {
             aria-label={`Go to slide ${dotIndex + 1}`}
             aria-current={dotIndex === index}
             className={`relative h-2 rounded-full transition-all duration-500 cursor-pointer overflow-hidden ${
-              dotIndex === index ? "w-9 bg-cream/40" : "w-2 bg-cream/50 hover:bg-cream/70"
+              dotIndex === index ? "w-8 bg-white/40" : "w-2 bg-white/60 hover:bg-white"
             }`}
           >
             {dotIndex === index && (
               <span
-                className="absolute inset-y-0 left-0 rounded-full bg-cream transition-none"
+                className="absolute inset-y-0 left-0 rounded-full bg-white transition-none"
                 style={{ width: `${progress}%` }}
               />
             )}
