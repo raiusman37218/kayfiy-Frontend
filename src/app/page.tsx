@@ -124,7 +124,7 @@ export default async function Home() {
       <MarqueeBanner />
 
       {/* 3. Circular Story Categories (Dynamic from Supabase) */}
-      <CategoryStories />
+      <CategoryStories categories={dbCategories} />
 
       {/* 4. Best Sellers — Product Carousel */}
       <ProductCarousel

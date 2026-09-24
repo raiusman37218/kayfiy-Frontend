@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getCatalogCategories, normalizeCategoryRecord } from "@/lib/admin/categories";
 import { authorizeAdminRequest } from "@/lib/admin/adminAuth";

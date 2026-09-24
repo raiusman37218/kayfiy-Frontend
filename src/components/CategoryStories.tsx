@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { fetchDbCategories } from "@/lib/supabase";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { DbCategory } from "@/lib/supabase";
 import {
   BRA_IMAGES,
   SET_IMAGES,
@@ -9,7 +12,15 @@ import {
   SHAPEWEAR_IMAGES,
 } from "@/lib/images";
 
-const DEFAULT_STORIES = [
+export interface CategoryStory {
+  name: string;
+  slug: string;
+  href: string;
+  image: string;
+  badge?: string;
+}
+
+const DEFAULT_STORIES: CategoryStory[] = [
   {
     name: "Best Sellers",
     slug: "top-selling",
@@ -66,9 +77,12 @@ const DEFAULT_STORIES = [
 function fallbackImageForSlug(slug: string, index: number): string {
   const s = slug.toLowerCase();
   if (s.includes("set")) return SET_IMAGES[index % SET_IMAGES.length] || SET_IMAGES[0];
-  if (s.includes("night") || s.includes("pj") || s.includes("sleep")) return NIGHTWEAR_IMAGES[index % NIGHTWEAR_IMAGES.length] || NIGHTWEAR_IMAGES[0];
-  if (s.includes("panty") || s.includes("panties") || s.includes("brief")) return PANTY_IMAGES[index % PANTY_IMAGES.length] || PANTY_IMAGES[0];
-  if (s.includes("shape") || s.includes("cinch") || s.includes("suit")) return SHAPEWEAR_IMAGES[index % SHAPEWEAR_IMAGES.length] || SHAPEWEAR_IMAGES[0];
+  if (s.includes("night") || s.includes("pj") || s.includes("sleep"))
+    return NIGHTWEAR_IMAGES[index % NIGHTWEAR_IMAGES.length] || NIGHTWEAR_IMAGES[0];
+  if (s.includes("panty") || s.includes("panties") || s.includes("brief"))
+    return PANTY_IMAGES[index % PANTY_IMAGES.length] || PANTY_IMAGES[0];
+  if (s.includes("shape") || s.includes("cinch") || s.includes("suit"))
+    return SHAPEWEAR_IMAGES[index % SHAPEWEAR_IMAGES.length] || SHAPEWEAR_IMAGES[0];
   return BRA_IMAGES[index % BRA_IMAGES.length] || BRA_IMAGES[0];
 }
 
@@ -80,76 +94,258 @@ function badgeForSlug(slug: string): string | undefined {
   return undefined;
 }
 
-export default async function CategoryStories() {
-  const dbCategories = await fetchDbCategories();
+export interface CategoryStoriesProps {
+  categories?: DbCategory[];
+}
 
-  let stories = DEFAULT_STORIES;
+export default function CategoryStories({ categories }: CategoryStoriesProps) {
+  // Build stories array from dbCategories or fallback
+  const stories: CategoryStory[] = (() => {
+    if (categories && categories.length > 0) {
+      const mainCats = categories
+        .filter((cat) => !cat.parent_slug && cat.show_on_homepage !== false)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  if (dbCategories && dbCategories.length > 0) {
-    // Show top-level categories that have show_on_homepage !== false
-    const mainCats = dbCategories
-      .filter((cat) => !cat.parent_slug && cat.show_on_homepage !== false)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-
-    if (mainCats.length > 0) {
-      stories = mainCats.map((cat, idx) => ({
-        name: cat.name,
-        slug: cat.slug,
-        href: `/collections/${cat.slug}`,
-        image: cat.image && (cat.image.startsWith("http") || cat.image.startsWith("/"))
-          ? cat.image
-          : fallbackImageForSlug(cat.slug, idx),
-        badge: badgeForSlug(cat.slug),
-      }));
+      if (mainCats.length > 0) {
+        return mainCats.map((cat, idx) => ({
+          name: cat.name,
+          slug: cat.slug,
+          href: `/collections/${cat.slug}`,
+          image:
+            cat.image &&
+            !cat.image.includes("bustaniya-campaign-hero") &&
+            (cat.image.startsWith("http") || cat.image.startsWith("/"))
+              ? cat.image
+              : fallbackImageForSlug(cat.slug, idx),
+          badge: badgeForSlug(cat.slug),
+        }));
+      }
     }
-  }
+    return DEFAULT_STORIES;
+  })();
+
+  const count = stories.length;
+  // Duplicate 3 times for seamless infinite circular movement
+  const extendedStories = [...stories, ...stories, ...stories];
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [itemsPerView, setItemsPerView] = useState(5);
+  const [itemWidth, setItemWidth] = useState(0);
+  const [index, setIndex] = useState(count);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const paused = useRef(false);
+
+  // Responsive items-per-view calculation: Exactly 5 items in view on desktop (lg: >=1024px)
+  const updateDimensions = useCallback(() => {
+    if (!containerRef.current) return;
+    const width = containerRef.current.clientWidth;
+    let ipv = 5;
+    if (width < 500) {
+      ipv = 2;
+    } else if (width < 768) {
+      ipv = 3;
+    } else if (width < 1024) {
+      ipv = 4;
+    } else {
+      ipv = 5; // Exactly 5 on desktop view
+    }
+    setItemsPerView(ipv);
+    setItemWidth(width / ipv);
+  }, []);
+
+  useEffect(() => {
+    updateDimensions();
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(updateDimensions);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateDimensions]);
+
+  // Next slide
+  const handleNext = useCallback(() => {
+    setIsTransitioning(true);
+    setIndex((prev) => prev + 1);
+  }, []);
+
+  // Previous slide
+  const handlePrev = useCallback(() => {
+    setIsTransitioning(true);
+    setIndex((prev) => prev - 1);
+  }, []);
+
+  // Seamless infinite loop normalization
+  const handleTransitionEnd = () => {
+    if (index >= count * 2) {
+      setIsTransitioning(false);
+      setIndex(index - count);
+    } else if (index < count) {
+      setIsTransitioning(false);
+      setIndex(index + count);
+    }
+  };
+
+  // Re-enable smooth transition right after silent index reset
+  useEffect(() => {
+    if (!isTransitioning) {
+      const raf = requestAnimationFrame(() => {
+        setIsTransitioning(true);
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [isTransitioning]);
+
+  // Autoplay movement: smooth continuous cycle every 3.2 seconds
+  useEffect(() => {
+    if (count <= itemsPerView) return;
+
+    const timer = setInterval(() => {
+      if (!paused.current) {
+        handleNext();
+      }
+    }, 3200);
+
+    return () => clearInterval(timer);
+  }, [count, itemsPerView, handleNext]);
+
+  // Touch gesture swipe handling
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchEndX.current = null;
+    paused.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    paused.current = false;
+    if (touchStartX.current !== null && touchEndX.current !== null) {
+      const diff = touchStartX.current - touchEndX.current;
+      if (diff > 45) {
+        handleNext();
+      } else if (diff < -45) {
+        handlePrev();
+      }
+    }
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
 
   return (
     <section
       aria-label="Shop categories"
-      className="mx-auto max-w-7xl px-4 pt-4 pb-2 sm:px-6"
+      className="relative mx-auto max-w-7xl px-4 pt-6 pb-4 sm:px-6 select-none"
+      onMouseEnter={() => {
+        paused.current = true;
+      }}
+      onMouseLeave={() => {
+        paused.current = false;
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
-      <div className="no-scrollbar -mx-4 flex items-center gap-4 sm:gap-6 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 scroll-smooth">
-        {stories.map((story) => (
-          <Link
-            key={story.slug}
-            href={story.href}
-            className="group flex flex-col items-center shrink-0 text-center transition-transform duration-300 hover:scale-105"
+      <div className="relative group">
+        {/* Left Arrow Button */}
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Previous categories"
+          className="absolute -left-2 sm:-left-4 top-[40%] -translate-y-1/2 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+        >
+          <svg
+            className="h-5 w-5 sm:h-6 sm:w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.3}
           >
-            {/* Story Circle with Brand Gradient Ring */}
-            <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-xs transition-all duration-300 group-hover:shadow-md group-hover:from-[#b08d4f] group-hover:to-[#7A2A3D]">
-              <div className="relative h-17 w-17 sm:h-20 sm:w-20 overflow-hidden rounded-full border-2 border-cream bg-blush">
-                <Image
-                  src={story.image}
-                  alt={story.name}
-                  fill
-                  sizes="80px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              </div>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
 
-              {/* Optional tiny badge pill */}
-              {story.badge && (
-                <span
-                  className={`absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.2 text-[9px] font-bold tracking-wider uppercase text-white shadow-xs ${
-                    story.badge === "Hot"
-                      ? "bg-[#7A2A3D]"
-                      : story.badge === "Sale"
-                      ? "bg-[#b08d4f]"
-                      : "bg-charcoal"
-                  }`}
+        {/* Carousel Track Viewport */}
+        <div ref={containerRef} className="w-full overflow-hidden py-3">
+          <div
+            className="flex"
+            style={{
+              transform: `translate3d(-${index * itemWidth}px, 0, 0)`,
+              transition: isTransitioning
+                ? "transform 600ms cubic-bezier(0.25, 1, 0.5, 1)"
+                : "none",
+            }}
+            onTransitionEnd={handleTransitionEnd}
+          >
+            {extendedStories.map((story, i) => (
+              <div
+                key={`${story.slug}-${i}`}
+                className="shrink-0 flex justify-center"
+                style={{ width: `${itemWidth}px` }}
+              >
+                <Link
+                  href={story.href}
+                  className="group/item flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
                 >
-                  {story.badge}
-                </span>
-              )}
-            </div>
+                  {/* Large Story Circle with Luxury Gradient Ring */}
+                  <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-md transition-all duration-300 group-hover/item:shadow-xl group-hover/item:scale-105 group-hover/item:from-[#b08d4f] group-hover/item:to-[#7A2A3D]">
+                    <div className="relative h-28 w-28 xs:h-32 xs:w-32 sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44 xl:h-48 xl:w-48 overflow-hidden rounded-full border-[3px] sm:border-4 border-white bg-blush shadow-inner">
+                      <Image
+                        src={story.image}
+                        alt={story.name}
+                        fill
+                        sizes="(max-width: 640px) 140px, (max-width: 1024px) 170px, 200px"
+                        className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                      />
+                    </div>
 
-            {/* Label */}
-            <span className="mt-2 text-[11px] sm:text-xs font-semibold tracking-tight text-charcoal group-hover:text-[#7A2A3D] transition-colors max-w-[76px] sm:max-w-[84px] truncate">
-              {story.name}
-            </span>
-          </Link>
-        ))}
+                    {/* Optional badge pill */}
+                    {story.badge && (
+                      <span
+                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold tracking-wider uppercase text-white shadow-md ${
+                          story.badge === "Hot"
+                            ? "bg-[#7A2A3D]"
+                            : story.badge === "Sale"
+                            ? "bg-[#b08d4f]"
+                            : "bg-charcoal"
+                        }`}
+                      >
+                        {story.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Category Name Label */}
+                  <span className="mt-3 text-xs sm:text-sm md:text-base font-bold tracking-tight text-charcoal group-hover/item:text-[#7A2A3D] transition-colors max-w-[140px] sm:max-w-[170px] truncate">
+                    {story.name}
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Arrow Button */}
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Next categories"
+          className="absolute -right-2 sm:-right-4 top-[40%] -translate-y-1/2 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+        >
+          <svg
+            className="h-5 w-5 sm:h-6 sm:w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </section>
   );
