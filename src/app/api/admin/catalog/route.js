@@ -1,9 +1,24 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatCategorySelection, parseCategorySelection } from "@/data/store";
 import { authorizeAdminRequest } from "@/lib/admin/adminAuth";
 import { supabaseAdminRequest, supabaseAdminRpc } from "@/lib/admin/supabaseRest";
 import { invalidateCatalogCache } from "@/lib/admin/catalog";
 
+function revalidateCatalogPages(slugs = []) {
+  try {
+    revalidatePath("/", "layout");
+    revalidatePath("/");
+    revalidatePath("/collections/[slug]", "page");
+    revalidatePath("/products/[slug]", "page");
+    for (const slug of slugs.filter(Boolean)) {
+      revalidatePath(`/collections/${slug}`, "page");
+      revalidatePath(`/products/${slug}`, "page");
+    }
+  } catch (err) {
+    console.warn("revalidateCatalogPages warning:", err);
+  }
+}
 
 const DEFAULT_ACTIVE_STOCK = 10;
 
@@ -528,6 +543,7 @@ export async function PUT(request) {
       }
     }
     invalidateCatalogCache();
+    revalidateCatalogPages([body.product?.category, body.product?.subcategory]);
     return NextResponse.json({ success: true, result });
   } catch (error) {
     return errorResponse(error);
@@ -551,6 +567,7 @@ export async function PATCH(request) {
         result = await adjustInventoryDirect(body);
       }
       invalidateCatalogCache();
+      revalidateCatalogPages();
       return NextResponse.json({ success: true, result });
     }
     await authorizeAdminRequest(request, "products");
@@ -598,6 +615,7 @@ export async function PATCH(request) {
       });
     }
     invalidateCatalogCache();
+    revalidateCatalogPages([body.product?.category, body.product?.subcategory]);
     return NextResponse.json({ success: true, result });
   } catch (error) {
     return errorResponse(error);
@@ -621,6 +639,7 @@ export async function DELETE(request) {
       result = await deleteProductDirect(productId);
     }
     invalidateCatalogCache();
+    revalidateCatalogPages();
     return NextResponse.json({
       success: true,
       ...result,

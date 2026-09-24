@@ -22,7 +22,7 @@ export default function HeaderSearch() {
       try {
         const dbItems = await fetchDbProducts();
         if (dbItems && dbItems.length > 0) {
-          setProducts(dbItems.map(mapDbProduct));
+          setProducts(dbItems.map(mapDbProduct).filter((p) => p.status !== "Archived"));
         }
       } catch (err) {
         console.warn("Could not load products for header search:", err);
@@ -62,13 +62,14 @@ export default function HeaderSearch() {
     ? products.filter((p) => {
         const nameMatch = p.name.toLowerCase().includes(trimmedQuery);
         const catMatch = p.category?.toLowerCase().includes(trimmedQuery);
+        const subMatch = p.subcategory?.toLowerCase().includes(trimmedQuery);
         const colorMatch = p.colors?.some((c) =>
           c.toLowerCase().includes(trimmedQuery),
         );
         const sizeMatch = p.sizes?.some((s) =>
           s.toLowerCase().includes(trimmedQuery),
         );
-        return nameMatch || catMatch || colorMatch || sizeMatch;
+        return nameMatch || catMatch || subMatch || colorMatch || sizeMatch;
       })
     : [];
 

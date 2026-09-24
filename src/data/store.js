@@ -16,13 +16,7 @@ const categoryAliases = {
 export function normalizeCategory(value) {
   const raw = String(value || "").split(categoryMetaSeparator)[0].trim();
   if (!raw) return "Uncategorized";
-  const key = raw
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ");
-
-  return categoryAliases[key] || categories.find((category) => category.toLowerCase() === raw.toLowerCase()) || raw;
+  return raw;
 }
 
 export function slugifyCategory(value) {
@@ -35,9 +29,7 @@ export function slugifyCategory(value) {
 }
 
 export function categoryToSlug(value) {
-  const normalized = normalizeCategory(value);
-  if (normalized === "Co-ord Sets") return "coord-sets";
-  return slugifyCategory(normalized);
+  return slugifyCategory(normalizeCategory(value));
 }
 
 export function parseCategorySelection(value) {

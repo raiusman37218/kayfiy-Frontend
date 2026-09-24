@@ -18,6 +18,9 @@ export type Product = {
   images?: string[];
   description?: string;
   category?: string;
+  subcategory?: string;
+  collection?: string;
+  status?: string;
   sizes?: string[];
   colors?: string[];
   instock?: boolean;

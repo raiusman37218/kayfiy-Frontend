@@ -34,7 +34,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
       try {
         const dbItems = await fetchDbProducts();
         if (dbItems && dbItems.length > 0) {
-          setProducts(dbItems.map(mapDbProduct));
+          setProducts(dbItems.map(mapDbProduct).filter((p) => p.status !== "Archived"));
         }
       } catch (err) {
         console.warn("Could not load products for search:", err);
@@ -79,10 +79,11 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
     ? products.filter((p) => {
         const nameMatch = p.name.toLowerCase().includes(trimmedQuery);
         const catMatch = p.category?.toLowerCase().includes(trimmedQuery);
+        const subMatch = p.subcategory?.toLowerCase().includes(trimmedQuery);
         const descMatch = p.description?.toLowerCase().includes(trimmedQuery);
         const colorMatch = p.colors?.some((c) => c.toLowerCase().includes(trimmedQuery));
         const sizeMatch = p.sizes?.some((s) => s.toLowerCase().includes(trimmedQuery));
-        return nameMatch || catMatch || descMatch || colorMatch || sizeMatch;
+        return nameMatch || catMatch || subMatch || descMatch || colorMatch || sizeMatch;
       })
     : [];
 

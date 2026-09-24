@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import ProductCard from "./ProductCard";
 import { ChevronIcon } from "./Icons";
-import type { Product } from "@/lib/data";
+import { slug, type Product } from "@/lib/data";
 import type { BannerProp } from "@/lib/images";
 
 type Props = {
@@ -56,9 +56,16 @@ export default function ProductCarousel({
     tabs && activeTab !== "All"
       ? products.filter((p) => {
           const query = activeTab.toLowerCase();
+          const querySlug = slug(activeTab);
+          const pSub = (p.subcategory || "").toLowerCase();
+          const pCat = (p.category || "").toLowerCase();
           return (
-            p.name.toLowerCase().includes(query) ||
-            p.category?.toLowerCase().includes(query)
+            pSub === query ||
+            pSub === querySlug ||
+            slug(pSub) === querySlug ||
+            pCat === query ||
+            slug(pCat) === querySlug ||
+            p.name.toLowerCase().includes(query)
           );
         })
       : products;

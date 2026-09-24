@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import KayfiyLogo from "./KayfiyLogo";
 import NewsletterForm from "./NewsletterForm";
 import { footerCategories as defaultFooterCategories, usefulLinks, type NavLink } from "@/lib/data";
-import { fetchDbCategories } from "@/lib/supabase";
+import { fetchDbCategories, supabase } from "@/lib/supabase";
 import { FacebookIcon, InstagramIcon } from "./Icons";
 import {
   FastTruckIcon,
@@ -60,6 +60,22 @@ export default function Footer() {
       }
     }
     loadCategories();
+
+    // Subscribe to realtime category updates from Supabase
+    const channel = supabase
+      .channel("realtime-footer-categories")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "catalog_categories" },
+        () => {
+          loadCategories();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   if (pathname === "/checkout") return null;

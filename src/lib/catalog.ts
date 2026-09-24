@@ -18,6 +18,7 @@ import {
   type DbCategory,
 } from "./supabase";
 import { BRA_IMAGES } from "./images";
+import { parseCategorySelection } from "@/data/store";
 
 /** Fallback static products list, de-duplicated by slug. */
 export const allProducts: Product[] = (() => {
@@ -88,14 +89,41 @@ export function mapDbProduct(p: DbProduct): Product {
     ? Math.round(Number(p.price) * 1.35)
     : undefined;
 
-  const rawSizes = p.size
-    ? p.size.split(",").map((s) => s.trim()).filter(Boolean)
-    : ["Standard"];
-  const rawColors = p.color
-    ? p.color.split(",").map((c) => c.trim()).filter(Boolean)
-    : ["Default"];
+  let rawSizes: string[] = [];
+  if (p.size) {
+    try {
+      const parsed = JSON.parse(p.size);
+      rawSizes = Array.isArray(parsed) ? parsed : [String(parsed)];
+    } catch {
+      rawSizes = p.size.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+  }
+  if (!rawSizes.length) rawSizes = ["Standard"];
+
+  let rawColors: string[] = [];
+  if (p.color) {
+    try {
+      const parsed = JSON.parse(p.color);
+      rawColors = Array.isArray(parsed) ? parsed : [String(parsed)];
+    } catch {
+      rawColors = p.color.split(",").map((c) => c.trim()).filter(Boolean);
+    }
+  }
+  if (!rawColors.length) rawColors = ["Default"];
 
   const { primary, hover, all } = sanitizeProductImage(p.img);
+  const categorySelection = parseCategorySelection(p.category);
+
+  let fabric = "";
+  let savedStatus = "";
+  if (p.cost_breakdown) {
+    try {
+      const breakdown = typeof p.cost_breakdown === "object" ? p.cost_breakdown : JSON.parse(p.cost_breakdown);
+      fabric = breakdown?.metadata?.fabricDetails || "";
+      savedStatus = String(breakdown?.metadata?.status || "").trim();
+    } catch {}
+  }
+  const status = savedStatus || (p.instock === false ? "Archived" : "Active");
 
   return {
     id: p.id,
@@ -107,7 +135,10 @@ export function mapDbProduct(p: DbProduct): Product {
     hoverImage: hover,
     images: all,
     description: p.description,
-    category: p.category,
+    category: categorySelection.category || p.category || "",
+    subcategory: categorySelection.subcategory || "",
+    collection: categorySelection.collection || "",
+    status,
     sizes: rawSizes,
     colors: rawColors,
     instock: p.instock ?? true,
@@ -115,6 +146,7 @@ export function mapDbProduct(p: DbProduct): Product {
     new: p.new ?? false,
     articleNumber: p.article_number,
     stockQuantity: p.inventory?.[0]?.stock_quantity ?? 30,
+    fabric,
   };
 }
 
@@ -123,7 +155,9 @@ export async function getLiveProducts(): Promise<Product[]> {
   try {
     const dbRows = await fetchDbProducts();
     if (dbRows && dbRows.length > 0) {
-      return dbRows.map(mapDbProduct);
+      return dbRows
+        .map(mapDbProduct)
+        .filter((p) => p.status !== "Archived");
     }
   } catch (error) {
     console.warn("Failed to load products from DB, using fallback:", error);
@@ -467,16 +501,48 @@ export const collectionSlugs = staticCollectionsList.map((entry) => entry.slug);
 export const getCollection = (collectionSlug: string) =>
   collections.get(collectionSlug);
 
+export function buildSpecialCollections(products: Product[]): Collection[] {
+  const sale = products.filter((p) => p.compareAt || p.bestsellere);
+  const budget = products.filter((p) => p.price <= 1500);
+  const bestList = products.filter((p) => p.bestsellere || p.price > 1600);
+  const newList = products.filter((p) => p.new);
+
+  return [
+    define("all", "All Products", "Every KAYFIY style in one place.", products),
+    define(
+      "new-arrivals",
+      "New Arrivals",
+      "Just landed — the newest KAYFIY styles.",
+      newList.length > 0 ? newList : products.slice(0, 12),
+    ),
+    define(
+      "top-selling",
+      "Top Selling",
+      "What KAYFIY customers reorder most.",
+      bestList.length > 0 ? bestList : products.slice(0, 10),
+    ),
+    define("sale", "Sale", "Reduced while stock lasts.", sale.length > 0 ? sale : products.slice(0, 8)),
+    define(
+      "budget-deals",
+      "Budget Deals",
+      "Everyday essentials under Rs. 1,500.",
+      budget.length > 0 ? budget : products.slice(0, 8),
+    ),
+  ];
+}
+
 export async function getLiveCollection(
   collectionSlug: string,
 ): Promise<Collection | undefined> {
   const products = await getLiveProducts();
+  const cleanSlug = collectionSlug.trim().toLowerCase();
 
   // 1. Check Supabase active categories first (admin hierarchy authority)
   try {
     const dbCats = await fetchDbCategories();
-    const cat = dbCats.find(
-      (c) => c.slug === collectionSlug || slug(c.name) === collectionSlug,
+    const activeCats = dbCats.filter((c) => c.status === "Active" || !c.status);
+    const cat = activeCats.find(
+      (c) => c.slug.toLowerCase() === cleanSlug || slug(c.name) === cleanSlug,
     );
     if (cat) {
       let catProducts: Product[] = [];
@@ -485,44 +551,52 @@ export async function getLiveCollection(
 
       if (cat.parent_slug) {
         // It's a subcategory!
-        const parentCat = dbCats.find((c) => c.slug === cat.parent_slug);
+        const parentCat = activeCats.find(
+          (c) => c.slug.toLowerCase() === cat.parent_slug?.toLowerCase()
+        );
         if (parentCat) {
           parentInfo = { slug: parentCat.slug, title: parentCat.name };
         }
-        // Match products belonging to this subcategory
+
+        const subSlug = cat.slug.toLowerCase();
+        const subName = cat.name.toLowerCase();
+
+        // Match products belonging strictly to this subcategory
         catProducts = products.filter((p) => {
-          const pSub = ((p as any).subcategory || "").toLowerCase();
+          const pSub = (p.subcategory || "").toLowerCase();
           const pCat = (p.category || "").toLowerCase();
           return (
-            pSub === cat.slug.toLowerCase() ||
-            pSub === cat.name.toLowerCase() ||
-            pCat === cat.name.toLowerCase() ||
-            slug(pCat) === cat.slug ||
-            pCat.includes(cat.slug)
+            pSub === subSlug ||
+            slug(pSub) === subSlug ||
+            pSub === subName ||
+            pCat === subName ||
+            slug(pCat) === subSlug
           );
         });
       } else {
         // It's a top-level / main category!
-        const children = dbCats
-          .filter((c) => c.parent_slug === cat.slug)
+        const children = activeCats
+          .filter((c) => (c.parent_slug || "").toLowerCase() === cat.slug.toLowerCase())
           .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
         subcategories = children.map((c) => ({ slug: c.slug, title: c.name }));
 
         const childSlugs = new Set(children.map((c) => c.slug.toLowerCase()));
         const childNames = new Set(children.map((c) => c.name.toLowerCase()));
+        const catName = cat.name.toLowerCase();
+        const catSlug = cat.slug.toLowerCase();
 
-        // Match products in this main category OR any of its subcategories
+        // Match products in this main category OR any of its active subcategories
         catProducts = products.filter((p) => {
           const pCat = (p.category || "").toLowerCase();
-          const pSub = ((p as any).subcategory || "").toLowerCase();
-          return (
-            pCat === cat.name.toLowerCase() ||
-            slug(pCat) === cat.slug ||
-            childSlugs.has(pSub) ||
-            childNames.has(pSub) ||
-            childSlugs.has(slug(pCat)) ||
-            childNames.has(pCat)
-          );
+          const pSub = (p.subcategory || "").toLowerCase();
+
+          // Direct category match
+          if (pCat === catName || slug(pCat) === catSlug) return true;
+
+          // Product subcategory belongs to this main category
+          if (pSub && (childSlugs.has(pSub) || childNames.has(pSub) || childSlugs.has(slug(pSub)))) return true;
+
+          return false;
         });
       }
 
@@ -530,7 +604,7 @@ export async function getLiveCollection(
         slug: cat.slug,
         title: cat.name,
         blurb: cat.description || `Browse our ${cat.name} collection.`,
-        products: catProducts.length > 0 ? catProducts : products,
+        products: catProducts,
         parent: parentInfo,
         subcategories: subcategories.length > 0 ? subcategories : undefined,
       };
@@ -539,10 +613,10 @@ export async function getLiveCollection(
     console.warn("Error fetching dynamic category:", err);
   }
 
-  // 2. Fallback to special collections (all, new-arrivals, top-selling, etc.)
-  const liveList = buildCollections(products);
-  const matched = liveList.find((entry) => entry.slug === collectionSlug);
-  if (matched) return matched;
+  // 2. Special system collections (all, new-arrivals, top-selling, sale, budget-deals)
+  const specialCollections = buildSpecialCollections(products);
+  const matchedSpecial = specialCollections.find((entry) => entry.slug === cleanSlug);
+  if (matchedSpecial) return matchedSpecial;
 
   return undefined;
 }

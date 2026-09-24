@@ -7,6 +7,7 @@ import { collectionSlugs, getLiveCollection } from "@/lib/catalog";
 import { fetchDbCategories } from "@/lib/supabase";
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const staticSlugs = collectionSlugs;

@@ -27,6 +27,7 @@ export type DbProduct = {
   delivery_fee_mode?: string;
   delivery_fee_pkr?: number;
   cost_total_pkr?: number;
+  cost_breakdown?: any;
   inventory?: {
     stock_quantity: number;
     low_stock_threshold?: number;

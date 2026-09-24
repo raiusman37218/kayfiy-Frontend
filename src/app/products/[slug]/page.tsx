@@ -8,7 +8,7 @@ import ShareButtons from "@/components/ShareButtons";
 import Accordion from "@/components/Accordion";
 import RelatedProductsCarousel from "@/components/RelatedProductsCarousel";
 import ReviewsSection from "@/components/ReviewsSection";
-import { Breadcrumbs } from "@/components/PageShell";
+import { Breadcrumbs, type Crumb } from "@/components/PageShell";
 import { allProducts, findLiveProduct, getLiveProducts, relatedTo } from "@/lib/catalog";
 import { getReviewsForProduct } from "@/lib/reviews";
 import { discountPercent, formatPrice, slug as slugify } from "@/lib/data";
@@ -51,15 +51,21 @@ export default async function ProductPage({
     ? product.images
     : Array.from(new Set([product.image, product.hoverImage].filter(Boolean)));
 
+  const trail: Crumb[] = [];
+  if (product.category) {
+    trail.push({ label: product.category, href: `/collections/${slugify(product.category)}` });
+  } else {
+    trail.push({ label: "All Products", href: "/collections/all" });
+  }
+  if (product.subcategory) {
+    trail.push({ label: product.subcategory, href: `/collections/${slugify(product.subcategory)}` });
+  }
+  trail.push({ label: product.name });
+
   return (
     <main>
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
-        <Breadcrumbs
-          trail={[
-            { label: "All Products", href: "/collections/all" },
-            { label: product.name },
-          ]}
-        />
+        <Breadcrumbs trail={trail} />
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:py-12">

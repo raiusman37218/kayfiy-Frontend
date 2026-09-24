@@ -883,6 +883,7 @@ export default function AdminDashboard() {
   const [selectedSizes, setSelectedSizes] = useState(["S", "M", "L"]);
   const [selectedColors, setSelectedColors] = useState(["Pink"]);
   const [productCategory, setProductCategory] = useState("Uncategorized");
+  const [productSubcategory, setProductSubcategory] = useState("");
   const [sizeSearch, setSizeSearch] = useState("");
   const [colorSearch, setColorSearch] = useState("");
   const [productMedia, setProductMedia] = useState([]);
@@ -1125,7 +1126,9 @@ export default function AdminDashboard() {
 
   function openNewProductForm() {
     setEditingProduct(null);
-    setProductCategory("Uncategorized");
+    const initialCategory = mainCategoryOptions[0]?.name || "Bras";
+    setProductCategory(initialCategory);
+    setProductSubcategory("");
     setSelectedSizes(["S", "M", "L"]);
     setSelectedColors(["Pink"]);
     setProductMedia([]);
@@ -1138,7 +1141,8 @@ export default function AdminDashboard() {
 
   function openEditProductForm(product) {
     setEditingProduct(product);
-    setProductCategory(product.category || "Uncategorized");
+    setProductCategory(product.category || mainCategoryOptions[0]?.name || "Bras");
+    setProductSubcategory(product.subcategory || "");
     setSelectedSizes(Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ["S", "M", "L"]);
     setSelectedColors(Array.isArray(product.colors) && product.colors.length ? product.colors : ["Pink"]);
     setProductMedia((product.images || [product.image]).filter(Boolean).map((src, index) => ({
@@ -1809,10 +1813,10 @@ export default function AdminDashboard() {
             <section className="productEditorCard">
               <h3>Product organization</h3>
               <div className="formRow">
-                <label>Category<select name="category" value={productCategory} onChange={(event) => setProductCategory(event.target.value)}>{mainCategoryOptions.map((category) => <option value={category.name} key={category.slug}>{category.name}</option>)}</select></label>
+                <label>Category<select name="category" value={productCategory} onChange={(event) => { setProductCategory(event.target.value); setProductSubcategory(""); }}>{mainCategoryOptions.map((category) => <option value={category.name} key={category.slug}>{category.name}</option>)}</select></label>
                 <label>Product type<select name="productType" defaultValue={editingProduct?.productType || "Women's clothing"}><option>Women&apos;s clothing</option><option>Kurti</option><option>Trouser</option><option>Co-ord</option></select></label>
               </div>
-              {!!productSubcategoryOptions.length && <label>Subcategory<select name="subcategory" defaultValue={editingProduct?.subcategory || productSubcategoryOptions[0]?.slug}>{productSubcategoryOptions.map((category) => <option value={category.slug} key={category.slug}>{category.name}</option>)}</select></label>}
+              {!!productSubcategoryOptions.length && <label>Subcategory<select name="subcategory" value={productSubcategory} onChange={(event) => setProductSubcategory(event.target.value)}><option value="">-- None (Main category only) --</option>{productSubcategoryOptions.map((category) => <option value={category.slug} key={category.slug}>{category.name}</option>)}</select></label>}
               <div className="formRow"><label>Vendor<input name="vendor" defaultValue={editingProduct?.vendor || "Kayfiy"} /></label><label>Collection<input name="collection" defaultValue={editingProduct?.collection || ""} placeholder="Summer Collection, New Arrivals..." /></label></div>
               <label>Tags<input name="tags" defaultValue={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(", ") : ""} placeholder="summer, printed, cotton, new-arrival" /></label>
             </section>
@@ -2586,7 +2590,7 @@ function CategoriesPanel({ categories, products, onSave, onArchive, saving, need
       {imagePreviewError && <p className="categoryImageError">{imagePreviewError}</p>}
       {imagePreviewAdded && categoryImageUrl && <div className="categoryImagePreview"><img src={categoryImageUrl} alt="Category preview" onError={() => setImagePreviewError("Is URL par image load nahi hui. URL check karein.")} /><div><b>Image ready</b><span>Save category par ye cover image category card aur category page par show hogi.</span></div></div>}
       <label>Cover image alt text<input name="imageAlt" defaultValue={editing.imageAlt || editing.name || ""} placeholder="Describe this category image" /></label>
-      <div className="categoryVisibility"><b>Storefront visibility</b><label><input type="checkbox" name="showInHeader" defaultChecked={editing.showInHeader ?? true} /> Header menu</label><label><input type="checkbox" name="showOnHomepage" defaultChecked={editing.showOnHomepage ?? true} /> Homepage</label><label><input type="checkbox" name="showInFooter" defaultChecked={editing.showInFooter ?? false} /> Footer</label><label><input type="checkbox" name="showInSearch" defaultChecked={editing.showInSearch ?? true} /> Search & filters</label></div>
+      <div className="categoryVisibility"><b>Storefront visibility</b><label><input type="checkbox" name="showInHeader" defaultChecked={editing.showInHeader ?? true} /> Header menu</label><label><input type="checkbox" name="showOnHomepage" defaultChecked={editing.showOnHomepage ?? true} /> Homepage</label><label><input type="checkbox" name="showInFooter" defaultChecked={editing.showInFooter ?? true} /> Footer</label><label><input type="checkbox" name="showInSearch" defaultChecked={editing.showInSearch ?? true} /> Search & filters</label></div>
       <details className="categorySeo"><summary>SEO settings</summary><label>SEO title<input name="seoTitle" maxLength="60" defaultValue={editing.seoTitle || ""} placeholder="Category title for Google" /></label><label>Meta description<textarea name="seoDescription" rows="3" maxLength="160" defaultValue={editing.seoDescription || ""} placeholder="Short search-result description" /></label></details>
       <label>Status<select name="status" defaultValue={editing.status || "Active"}><option>Active</option><option>Draft</option><option>Archived</option></select></label>
       <button
@@ -2727,13 +2731,13 @@ function ProductsPanel({ products, search, setSearch, onAdd, onEdit, onDelete, o
         </div>
       </div>
       <div className="collectionStrip">{collections.map((collection) => <span key={collection}>{collection}</span>)}</div>
-      <div className={`adminTableWrap ${tableDensity === "compact" ? "compactTable" : ""}`}><table className="adminTable productAdminTable"><thead><tr><th>Product</th><th>Collection</th><th>Price</th><th>Unit cost</th><th>Variants</th><th>Inventory</th><th>Delivery</th><th>Status</th><th /></tr></thead><tbody>
+      <div className={`adminTableWrap ${tableDensity === "compact" ? "compactTable" : ""}`}><table className="adminTable productAdminTable"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Unit cost</th><th>Variants</th><th>Inventory</th><th>Delivery</th><th>Status</th><th /></tr></thead><tbody>
         {visibleProducts.map((product) => {
           const variants = productVariants(product);
           const status = productStatus(product);
           return <tr key={product.id}>
             <td><div className="tableProduct"><span style={{ backgroundImage: `url(${product.image})` }} /><div><b>{product.name}</b><small className="trackingNumber">{product.sku || product.articleNumber || `BST-${String(product.id).padStart(4,"0")}`}</small></div></div></td>
-            <td>{productCollection(product)}</td>
+            <td><div><b>{product.category || "Uncategorized"}</b>{product.subcategory && <small style={{ display: "block", color: "#64748b", fontSize: "11px" }}>{product.subcategory}</small>}</div></td>
             <td><b>Rs. {Number(product.price || 0).toLocaleString()}</b></td>
             <td>{Number(product.costTotalPkr || 0) ? `Rs. ${Number(product.costTotalPkr).toLocaleString()}` : <span className="expenseAmount">Missing cost</span>}</td>
             <td><button type="button" className="editProductButton" onClick={() => setVariantProduct(product)} disabled={loading} aria-busy={loading}>{variants.length} variant{variants.length === 1 ? "" : "s"}</button></td>
