@@ -220,13 +220,13 @@ export default function ProductCarousel({
 
           <ul
             ref={trackRef}
-            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 sm:gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:mx-0 sm:px-0"
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:mx-0 sm:px-0"
           >
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
                 <li
                   key={product.id}
-                  className="w-[46%] shrink-0 snap-start sm:w-[32%] md:w-[28%] lg:w-[22%] xl:w-[18.5%]"
+                  className="w-[calc(50%-5px)] shrink-0 snap-start sm:w-[32%] md:w-[28%] lg:w-[22%] xl:w-[18.5%]"
                 >
                   <ProductCard product={product} />
                 </li>
