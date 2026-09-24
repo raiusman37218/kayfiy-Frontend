@@ -20,18 +20,40 @@ export interface CategoryStory {
   badge?: string;
 }
 
+const EXCLUDED_SLUGS = new Set([
+  "new-arrivals",
+  "new-arrival",
+  "best-sellers",
+  "best-seller",
+  "top-selling",
+  "top-sellers",
+  "sale",
+  "sale-deals",
+  "budget-deals",
+  "budget-deal",
+  "all",
+]);
+
+const EXCLUDED_NAMES = new Set([
+  "new arrivals",
+  "new arrival",
+  "best sellers",
+  "best seller",
+  "top selling",
+  "top sellers",
+  "sale",
+  "sale deals",
+  "budget deals",
+  "budget deal",
+  "all",
+  "all products",
+]);
+
 const DEFAULT_STORIES: CategoryStory[] = [
   {
-    name: "Best Sellers",
-    slug: "top-selling",
-    href: "/collections/top-selling",
-    image: BRA_IMAGES[2] || "/images/bras-assorted.jpg",
-    badge: "Hot",
-  },
-  {
-    name: "Padded Bras",
-    slug: "bras-padded",
-    href: "/collections/bras-padded",
+    name: "Bras",
+    slug: "bras",
+    href: "/collections/bras",
     image: BRA_IMAGES[0] || "/images/bra-lace-black.jpg",
   },
   {
@@ -39,25 +61,6 @@ const DEFAULT_STORIES: CategoryStory[] = [
     slug: "bra-sets",
     href: "/collections/bra-sets",
     image: SET_IMAGES[0] || "/images/bras-assorted.jpg",
-    badge: "Trending",
-  },
-  {
-    name: "Wireless Comfort",
-    slug: "bras-non-padded",
-    href: "/collections/bras-non-padded",
-    image: BRA_IMAGES[1] || "/images/bra-white-knit.jpg",
-  },
-  {
-    name: "Nightwear",
-    slug: "nightwear",
-    href: "/collections/nightwear",
-    image: NIGHTWEAR_IMAGES[0] || "/images/pyjama-pink.jpg",
-  },
-  {
-    name: "Shapewear",
-    slug: "shapewear",
-    href: "/collections/shapewear",
-    image: SHAPEWEAR_IMAGES[0] || "/images/camisoles-stack.jpg",
   },
   {
     name: "Panties",
@@ -66,11 +69,40 @@ const DEFAULT_STORIES: CategoryStory[] = [
     image: PANTY_IMAGES[0] || "/images/brief-cream-lace.jpg",
   },
   {
-    name: "Sale Deals",
-    slug: "sale",
-    href: "/collections/sale",
-    image: SET_IMAGES[1] || "/images/bralette-maroon.jpg",
-    badge: "Sale",
+    name: "Nightwear",
+    slug: "nightwear",
+    href: "/collections/nightwear",
+    image: NIGHTWEAR_IMAGES[0] || "/images/pyjama-pink.jpg",
+  },
+  {
+    name: "Pj Sets",
+    slug: "pj-sets",
+    href: "/collections/pj-sets",
+    image: NIGHTWEAR_IMAGES[1] || "/images/pyjama-blue.jpg",
+  },
+  {
+    name: "Shapewear",
+    slug: "shapewear",
+    href: "/collections/shapewear",
+    image: SHAPEWEAR_IMAGES[0] || "/images/camisoles-stack.jpg",
+  },
+  {
+    name: "Sanitary Pads",
+    slug: "sanitary-pads",
+    href: "/collections/sanitary-pads",
+    image: PANTY_IMAGES[1] || "/images/brief-black-cotton.jpg",
+  },
+  {
+    name: "Maternity",
+    slug: "maternity",
+    href: "/collections/maternity",
+    image: BRA_IMAGES[2] || "/images/bras-assorted.jpg",
+  },
+  {
+    name: "Plus Size",
+    slug: "plus-size",
+    href: "/collections/plus-size",
+    image: BRA_IMAGES[1] || "/images/bra-white-knit.jpg",
   },
 ];
 
@@ -83,14 +115,12 @@ function fallbackImageForSlug(slug: string, index: number): string {
     return PANTY_IMAGES[index % PANTY_IMAGES.length] || PANTY_IMAGES[0];
   if (s.includes("shape") || s.includes("cinch") || s.includes("suit"))
     return SHAPEWEAR_IMAGES[index % SHAPEWEAR_IMAGES.length] || SHAPEWEAR_IMAGES[0];
+  if (s.includes("pad"))
+    return PANTY_IMAGES[1] || "/images/brief-black-cotton.jpg";
   return BRA_IMAGES[index % BRA_IMAGES.length] || BRA_IMAGES[0];
 }
 
 function badgeForSlug(slug: string): string | undefined {
-  const s = slug.toLowerCase();
-  if (s.includes("top") || s.includes("best") || s.includes("hot")) return "Hot";
-  if (s.includes("sale") || s.includes("deal")) return "Sale";
-  if (s.includes("new")) return "New";
   return undefined;
 }
 
@@ -103,7 +133,13 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
   const stories: CategoryStory[] = (() => {
     if (categories && categories.length > 0) {
       const mainCats = categories
-        .filter((cat) => !cat.parent_slug && cat.show_on_homepage !== false)
+        .filter(
+          (cat) =>
+            !cat.parent_slug &&
+            cat.show_on_homepage !== false &&
+            !EXCLUDED_SLUGS.has(cat.slug.toLowerCase().trim()) &&
+            !EXCLUDED_NAMES.has(cat.name.toLowerCase().trim())
+        )
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
       if (mainCats.length > 0) {
@@ -238,8 +274,8 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
 
   return (
     <section
-      aria-label="Shop categories"
-      className="relative mx-auto max-w-7xl px-4 pt-6 pb-4 sm:px-6 select-none"
+      aria-label="Shop by category"
+      className="relative mx-auto max-w-7xl px-4 pt-8 pb-4 sm:px-6 select-none"
       onMouseEnter={() => {
         paused.current = true;
       }}
@@ -250,6 +286,14 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Centered Section Header */}
+      <div className="mb-6 sm:mb-8 text-center">
+        <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal">
+          Shop by Category
+        </h2>
+        <div className="mx-auto mt-2.5 h-0.5 w-12 bg-gradient-to-r from-transparent via-[#7A2A3D] to-transparent" />
+      </div>
+
       <div className="relative group">
         {/* Left Arrow Button */}
         <button
