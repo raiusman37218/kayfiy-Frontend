@@ -92,22 +92,40 @@ export async function POST(request) {
     if (!validSignature(bytes, file.type)) return NextResponse.json({ error: "The selected file is not a valid image." }, { status: 400 });
 
     const cloudinary = cloudinaryConfig();
-    if (cloudinary) return NextResponse.json({ url: await uploadToCloudinary(file, bytes, cloudinary), provider: "cloudinary" });
-
-    const { url, key } = storageConfig();
-    await ensureHeroBucket(url, key);
-    const objectPath = `hero/${Date.now()}-${randomUUID()}${extension}`;
-    const uploadResponse = await fetch(`${url}/storage/v1/object/${HERO_BUCKET}/${objectPath}`, {
-      method: "POST",
-      headers: storageHeaders(key, { "Content-Type": file.type, "x-upsert": "false" }),
-      body: bytes,
-      cache: "no-store",
-    });
-    if (!uploadResponse.ok) {
-      const result = await uploadResponse.json().catch(() => null);
-      throw new Error(result?.message || result?.error || "Unable to upload hero image.");
+    if (cloudinary) {
+      try {
+        return NextResponse.json({ url: await uploadToCloudinary(file, bytes, cloudinary), provider: "cloudinary" });
+      } catch (err) {
+        console.warn("Cloudinary upload failed, trying storage / local fallback:", err?.message);
+      }
     }
-    return NextResponse.json({ url: `${url}/storage/v1/object/public/${HERO_BUCKET}/${objectPath}` });
+
+    try {
+      const { url, key } = storageConfig();
+      await ensureHeroBucket(url, key);
+      const objectPath = `hero/${Date.now()}-${randomUUID()}${extension}`;
+      const uploadResponse = await fetch(`${url}/storage/v1/object/${HERO_BUCKET}/${objectPath}`, {
+        method: "POST",
+        headers: storageHeaders(key, { "Content-Type": file.type, "x-upsert": "false" }),
+        body: bytes,
+        cache: "no-store",
+      });
+      if (uploadResponse.ok) {
+        return NextResponse.json({ url: `${url}/storage/v1/object/public/${HERO_BUCKET}/${objectPath}` });
+      }
+      console.warn("Supabase storage upload unsuccessful, saving locally...");
+    } catch (storageErr) {
+      console.warn("Supabase storage error, saving locally:", storageErr?.message);
+    }
+
+    // Reliable local fallback
+    const { mkdir, writeFile } = await import("fs/promises");
+    const path = await import("path");
+    const filename = `banner-${Date.now()}-${randomUUID().slice(0, 8)}${extension}`;
+    const bannersDir = path.join(process.cwd(), "public", "banners");
+    await mkdir(bannersDir, { recursive: true });
+    await writeFile(path.join(bannersDir, filename), bytes);
+    return NextResponse.json({ url: `/banners/${filename}` });
   } catch (error) {
     const status = error.status === 401 || error.status === 403 ? error.status : 500;
     return NextResponse.json({ error: status === 500 ? "Unable to upload hero image." : error.message }, { status });

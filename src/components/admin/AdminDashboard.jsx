@@ -5,7 +5,7 @@ import {
   Activity, AlertCircle, Bell, Boxes, Check, CheckCircle2, ChevronDown, ChevronUp, CircleDollarSign,
   Copy, ExternalLink, Eye, FileText, Info, Landmark, LayoutDashboard, Loader2, LogOut, Menu, MessageSquare,
   Minus, MoreHorizontal, Package, Phone, Plus, ReceiptText, RefreshCw, Search, Settings,
-  ShoppingBag, Store, Tags, TrendingUp, Truck, Users, WalletCards, X
+  ShoppingBag, Store, Tags, TrendingUp, Truck, Upload, Users, WalletCards, X
 } from "lucide-react";
 import { slugifyCategory } from "@/data/store";
 import { DEFAULT_HOMEPAGE_SECTIONS, DEFAULT_STORE_SETTINGS } from "@/data/storeSettings";
@@ -9120,6 +9120,41 @@ function SettingsPanel({ onOpen, signedInUser, initialTab = "" }) {
     setHeroUrlInputs((current) => ({ ...current, [field]: "" }));
   }
 
+  async function handleHeroFileUpload(field, file) {
+    if (!file) return;
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      setStoreSettingsLoading(true);
+      setStoreSettingsError("");
+      const res = await fetch("/api/admin/hero-upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Failed to upload banner image");
+      }
+      setStoreSettings((current) => {
+        const fallback = field === "heroDesktopImages"
+          ? (current.heroDesktopImage || "/banners/hero-monsoon.jpg")
+          : (current.heroMobileImage || "/banners/hero-monsoon.jpg");
+        const currentImages = normalizeHeroImages(current[field] || fallback, fallback);
+        return { ...current, [field]: [...currentImages, data.url] };
+      });
+      setSavedAt(`Uploaded at ${new Date().toLocaleTimeString()}`);
+    } catch (err) {
+      setStoreSettingsError(err.message || "Failed to upload banner");
+    } finally {
+      setStoreSettingsLoading(false);
+    }
+  }
+
+  function updateHeroSlideLink(index, linkUrl) {
+    setStoreSettings((current) => {
+      const currentLinks = [...(current.heroSlideLinks || [])];
+      currentLinks[index] = linkUrl;
+      return { ...current, heroSlideLinks: currentLinks };
+    });
+  }
+
   function updateHeroContent(device, changes) {
     const key = device === "mobile" ? "heroMobileContent" : "heroDesktopContent";
     setStoreSettings((current) => {
@@ -9415,8 +9450,8 @@ function SettingsPanel({ onOpen, signedInUser, initialTab = "" }) {
           <div className="formRow"><label>Instagram Handle<input value={storeSettings.instagramHandle || "@Kayfiy_"} onChange={(event) => setStoreSettings((current) => ({ ...current, instagramHandle: event.target.value }))} placeholder="@Kayfiy_" /></label></div>
 
           <section className="heroSettingsEditor">
-            <div className="heroSettingsHeading"><div><p>HOMEPAGE BANNERS</p><h2>Hero Carousel & Messaging</h2><span>Manage desktop and mobile campaign images, headings and primary call-to-actions.</span></div><label className="switchLabel"><input type="checkbox" checked={storeSettings.heroEnabled !== false} onChange={(event) => setStoreSettings((current) => ({ ...current, heroEnabled: event.target.checked }))} /> Enabled</label></div>
-            {[{ field: "heroDesktopImages", legacyField: "heroDesktopImage", label: "Desktop Hero Slides", hint: "Select multiple wide campaign images · recommended 16:8" }, { field: "heroMobileImages", legacyField: "heroMobileImage", label: "Mobile Hero Slides", hint: "Select multiple portrait campaign images · recommended 4:5" }].map((item) => {
+            <div className="heroSettingsHeading"><div><p>HOMEPAGE BANNERS</p><h2>Hero Showcase Banners</h2><span>Upload and manage desktop and mobile campaign images. Banners are rendered 100% clean with zero dark overlay and zero text.</span></div><label className="switchLabel"><input type="checkbox" checked={storeSettings.heroEnabled !== false} onChange={(event) => setStoreSettings((current) => ({ ...current, heroEnabled: event.target.checked }))} /> Enabled</label></div>
+            {[{ field: "heroDesktopImages", legacyField: "heroDesktopImage", label: "Desktop Hero Slides", hint: "Wide campaign banners · e.g. 1800x800 or 16:8" }, { field: "heroMobileImages", legacyField: "heroMobileImage", label: "Mobile Hero Slides", hint: "Portrait / mobile banners · e.g. 4:5 or 4:3 (optional)" }].map((item) => {
               const list = normalizeHeroImages(storeSettings[item.field] || storeSettings[item.legacyField], item.field === "heroDesktopImages" ? DEFAULT_STORE_SETTINGS.heroDesktopImage : DEFAULT_STORE_SETTINGS.heroMobileImage);
               return (
                 <div className={`heroSlideManager ${item.field === "heroDesktopImages" ? "heroDesktopManager" : "heroMobileManager"}`} key={item.field}>
@@ -9426,23 +9461,50 @@ function SettingsPanel({ onOpen, signedInUser, initialTab = "" }) {
                       <div className="heroSlideCard" key={`${url}-${idx}`}>
                         <div className="heroSlideMedia"><img src={url} alt={`${item.label} ${idx + 1}`} /><button type="button" disabled={list.length === 1} onClick={() => setStoreSettings((current) => ({ ...current, [item.field]: list.filter((_, i) => i !== idx) }))} title={list.length === 1 ? "Keep at least one slide" : "Remove slide"}><X size={14} /></button></div>
                         <span className="heroSlidePath">{url}</span>
+                        {item.field === "heroDesktopImages" && (
+                          <input
+                            className="heroSlideLinkInput"
+                            style={{ fontSize: "11px", padding: "5px 8px", marginTop: "6px", width: "100%", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }}
+                            placeholder="Destination Link: /collections/bras"
+                            value={(storeSettings.heroSlideLinks || [])[idx] || ""}
+                            onChange={(e) => updateHeroSlideLink(idx, e.target.value)}
+                          />
+                        )}
                       </div>
                     ))}
                   </div>
-                  <div className="heroUrlInputRow">
-                    <input value={heroUrlInputs[item.field] || ""} onChange={(event) => setHeroUrlInputs((current) => ({ ...current, [item.field]: event.target.value }))} placeholder="Paste image URL (https://...) or local path (/hero.png)" />
-                    <button type="button" onClick={() => addHeroImageUrl(item.field)}>+ Add slide URL</button>
+                  <div className="heroUrlInputRow" style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                    <input style={{ flex: "1 1 240px" }} value={heroUrlInputs[item.field] || ""} onChange={(event) => setHeroUrlInputs((current) => ({ ...current, [item.field]: event.target.value }))} placeholder="Paste image URL (https://...) or local path (/banners/hero-sale.jpg)" />
+                    <button type="button" onClick={() => addHeroImageUrl(item.field)}>+ Add URL</button>
+                    <label className="buttonSecondary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", cursor: "pointer", padding: "7px 12px", borderRadius: "6px", border: "1px solid #d1d5db", background: "#f3f4f6", fontSize: "12px", fontWeight: "600", color: "#374151" }}>
+                      <Upload size={14} /> Upload banner image
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleHeroFileUpload(item.field, e.target.files[0]);
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               );
             })}
-            <div className="heroCopyEditors">{[{ key: "desktop", label: "Desktop content", hint: "Shown on laptop and desktop banners.", positions: ["left", "center", "right"] }, { key: "mobile", label: "Mobile content", hint: "Shown only on phones — place it at the top, center or bottom.", positions: ["top", "center", "bottom"] }].map((device) => {
-              const contentKey = device.key === "mobile" ? "heroMobileContent" : "heroDesktopContent";
-              const legacy = { eyebrow: storeSettings.heroEyebrow ?? "", heading: storeSettings.heroHeading ?? "", supportingText: storeSettings.heroSupportingText ?? "", primaryButtonText: storeSettings.heroPrimaryButtonText ?? "", primaryButtonLink: storeSettings.heroPrimaryButtonLink ?? "", secondaryButtonText: storeSettings.heroSecondaryButtonText ?? "", secondaryButtonLink: storeSettings.heroSecondaryButtonLink ?? "", alignment: storeSettings.heroTextAlignment || "left", position: device.key === "mobile" ? "bottom" : (storeSettings.heroTextPosition || "left") };
-              const content = { ...legacy, ...(storeSettings[contentKey] || {}) };
-              return <section className={`heroCopyEditor heroCopyEditor--${device.key}`} key={device.key}><div className="heroCopyEditorHead"><div><b>{device.label}</b><span>{device.hint}</span></div></div><div className="formRow"><label>Eyebrow<input value={content.eyebrow || ""} onChange={(event) => updateHeroContent(device.key, { eyebrow: event.target.value })} placeholder="e.g. NEW SEASON (optional)" /></label><label>Heading<input value={content.heading || ""} onChange={(event) => updateHeroContent(device.key, { heading: event.target.value })} placeholder="e.g. Unstitched Luxury Lawn (optional)" /></label></div><label>Supporting text<textarea rows="2" value={content.supportingText || ""} onChange={(event) => updateHeroContent(device.key, { supportingText: event.target.value })} placeholder="e.g. Crafted for effortless grace... (optional)" /></label><div className="formRow"><label>Primary CTA text<input value={content.primaryButtonText || ""} onChange={(event) => updateHeroContent(device.key, { primaryButtonText: event.target.value })} placeholder="e.g. Shop now (optional)" /></label><label>Primary CTA link<input value={content.primaryButtonLink || ""} onChange={(event) => updateHeroContent(device.key, { primaryButtonLink: event.target.value })} placeholder="#products or /category/kurtis" /></label></div><div className="formRow"><label>Secondary CTA text<input value={content.secondaryButtonText || ""} onChange={(event) => updateHeroContent(device.key, { secondaryButtonText: event.target.value })} placeholder="Optional" /></label><label>Secondary CTA link<input value={content.secondaryButtonLink || ""} onChange={(event) => updateHeroContent(device.key, { secondaryButtonLink: event.target.value })} placeholder="Optional" /></label></div><div className="formRow"><label>Text alignment<select value={content.alignment || "left"} onChange={(event) => updateHeroContent(device.key, { alignment: event.target.value })}><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label><label>{device.key === "mobile" ? "Vertical position" : "Horizontal position"}<select value={content.position || device.positions[0]} onChange={(event) => updateHeroContent(device.key, { position: event.target.value })}>{device.positions.map((position) => <option value={position} key={position}>{position[0].toUpperCase() + position.slice(1)}</option>)}</select></label></div></section>;
-            })}</div>
-            <label className="heroOverlayControl">Overlay Intensity — {Number(storeSettings.heroOverlayIntensity || 0)}%<input type="range" min="0" max="80" step="1" value={Number(storeSettings.heroOverlayIntensity || 0)} onChange={(event) => setStoreSettings((current) => ({ ...current, heroOverlayIntensity: Number(event.target.value) }))} /></label>
+            <div style={{ background: "#fdf8f0", border: "1px solid #fae8c8", borderRadius: "8px", padding: "12px 16px", marginTop: "14px" }}>
+              <p style={{ margin: 0, fontSize: "13px", color: "#874d00", fontWeight: "600" }}>
+                ✨ Clean Hero Banner Display
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#9c6010" }}>
+                The Hero section operates in Clean Mode: <b>0% overlay</b> and <b>no text obstructions</b>. Any banner image you add will display in its full, crisp natural glory.
+              </p>
+            </div>
+            <div className="formRow" style={{ marginTop: "12px" }}>
+              <label>Default Banner Destination Link<input value={storeSettings.heroPrimaryButtonLink || "/collections/all"} onChange={(event) => setStoreSettings((current) => ({ ...current, heroPrimaryButtonLink: event.target.value }))} placeholder="/collections/all or /collections/new-arrivals" /></label>
+            </div>
           </section>
           <div className="formRow"><label>Store name<input defaultValue="Kayfiy" /></label><label>Legal business name<input defaultValue="Kayfiy" /></label></div>
           <div className="formRow"><label>Support email<input defaultValue="hello@Kayfiy.pk" /></label><label>Customer phone<input placeholder="+92 3xx xxxxxxx" /></label></div>

@@ -349,12 +349,13 @@ function normalizeStoreSettings(record = {}, includeFinance = false) {
   const announcements = normalizeAnnouncements(Array.isArray(record.announcements) ? record.announcements : (announcementData.items || [legacyAnnouncement]));
   const heroDesktopImages = normalizeHeroImages(record.hero_desktop_image, DEFAULT_STORE_SETTINGS.heroDesktopImage);
   const heroMobileImages = normalizeHeroImages(record.hero_mobile_image, DEFAULT_STORE_SETTINGS.heroMobileImage);
+  const heroSlideLinks = Array.isArray(announcementData.heroSlideLinks) ? announcementData.heroSlideLinks : (DEFAULT_STORE_SETTINGS.heroSlideLinks || []);
   const legacyDesktopHero = {
     eyebrow: record.hero_eyebrow !== undefined && record.hero_eyebrow !== null ? String(record.hero_eyebrow).trim() : "",
     heading: record.hero_heading !== undefined && record.hero_heading !== null ? String(record.hero_heading).trim() : "",
     supportingText: String(record.hero_supporting_text || "").trim(),
     primaryButtonText: record.hero_primary_button_text !== undefined && record.hero_primary_button_text !== null ? String(record.hero_primary_button_text).trim() : "",
-    primaryButtonLink: record.hero_primary_button_link !== undefined && record.hero_primary_button_link !== null ? String(record.hero_primary_button_link).trim() : "#products",
+    primaryButtonLink: record.hero_primary_button_link !== undefined && record.hero_primary_button_link !== null ? String(record.hero_primary_button_link).trim() : "/collections/all",
     secondaryButtonText: String(record.hero_secondary_button_text || "").trim(),
     secondaryButtonLink: String(record.hero_secondary_button_link || "").trim(),
     alignment: ["left", "center", "right"].includes(record.hero_text_alignment) ? record.hero_text_alignment : "left",
@@ -373,6 +374,7 @@ function normalizeStoreSettings(record = {}, includeFinance = false) {
     heroMobileImage: heroMobileImages[0],
     heroDesktopImages,
     heroMobileImages,
+    heroSlideLinks,
     heroEyebrow: heroDesktopContent.eyebrow,
     heroHeading: heroDesktopContent.heading,
     heroSupportingText: heroDesktopContent.supportingText,
@@ -384,7 +386,7 @@ function normalizeStoreSettings(record = {}, includeFinance = false) {
     heroTextPosition: heroDesktopContent.position,
     heroDesktopContent,
     heroMobileContent,
-    heroOverlayIntensity: Math.min(80, Math.max(0, Number(record.hero_overlay_intensity ?? DEFAULT_STORE_SETTINGS.heroOverlayIntensity))),
+    heroOverlayIntensity: 0,
     productCardStyle: normalizeProductCardStyle(announcementData.productCardStyle),
     categorySectionStyle,
     announcementEnabled: record.announcement_enabled !== false,
@@ -513,6 +515,8 @@ export async function updateStoreSettings(settings = {}) {
   const instagramHandle = normalizeInstagramHandle(settings.instagramHandle);
   const instagramPosts = normalizeInstagramPosts(settings.instagramPosts);
 
+  const heroSlideLinks = Array.isArray(settings.heroSlideLinks) ? settings.heroSlideLinks : [];
+
   const record = {
     id: 1,
     hero_enabled: settings.heroEnabled !== false,
@@ -527,12 +531,12 @@ export async function updateStoreSettings(settings = {}) {
     hero_secondary_button_link: heroDesktopContent.secondaryButtonLink,
     hero_text_alignment: heroDesktopContent.alignment,
     hero_text_position: heroDesktopContent.position,
-    hero_overlay_intensity: Math.min(80, Math.max(0, Number(settings.heroOverlayIntensity ?? 34))),
+    hero_overlay_intensity: 0,
     announcement_enabled: settings.announcementEnabled !== false,
     announcement_text: firstAnnouncement.text,
     announcement_link_label: firstAnnouncement.linkLabel,
     announcement_link_href: firstAnnouncement.linkHref,
-    announcements: { items: announcements, sectionColors, sectionTextColors, heroDesktopContent, heroMobileContent, paymentSettings, shippingZones, notificationSettings, domainSettings, checkoutSettings, sizeChartSettings: normalizeSizeChartSettings(settings.sizeChartSettings), deliverySettings, productCardStyle, categorySectionStyle, homepageSections: normalizeHomepageSections(settings.homepageSections, categorySectionStyle), instagramEnabled: settings.instagramEnabled !== false, instagramHandle, instagramPosts, financeTransactions, financeAllocation, financeFixedCosts, financeManualExpenses, financePackagingExpense, financeDeliveryExpense, marketingCampaigns, productionBatches, inventorySources, inventoryMaterials, supplierBills },
+    announcements: { items: announcements, heroSlideLinks, sectionColors, sectionTextColors, heroDesktopContent, heroMobileContent, paymentSettings, shippingZones, notificationSettings, domainSettings, checkoutSettings, sizeChartSettings: normalizeSizeChartSettings(settings.sizeChartSettings), deliverySettings, productCardStyle, categorySectionStyle, homepageSections: normalizeHomepageSections(settings.homepageSections, categorySectionStyle), instagramEnabled: settings.instagramEnabled !== false, instagramHandle, instagramPosts, financeTransactions, financeAllocation, financeFixedCosts, financeManualExpenses, financePackagingExpense, financeDeliveryExpense, marketingCampaigns, productionBatches, inventorySources, inventoryMaterials, supplierBills },
     updated_at: new Date().toISOString(),
   };
 

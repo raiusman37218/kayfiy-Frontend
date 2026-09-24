@@ -92,6 +92,10 @@ export async function PATCH(request) {
     await validateHeroImages(nextSettings);
     await validateInstagramPosts(nextSettings);
     const settings = await updateStoreSettings(nextSettings);
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/");
+    } catch {}
     return NextResponse.json({ success: true, settings });
   } catch (error) {
     if (error?.status === 401 || error?.status === 403) {
