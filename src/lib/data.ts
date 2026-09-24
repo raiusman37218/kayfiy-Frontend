@@ -28,6 +28,7 @@ export type Product = {
   new?: boolean;
   articleNumber?: string;
   stockQuantity?: number;
+  createdAt?: string;
   /** Optional — populated from Supabase when set; the filter sidebar only shows a Fabric filter when present. */
   fabric?: string;
 };

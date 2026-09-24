@@ -44,19 +44,16 @@ export type DbStoreSettings = {
   announcement_text: string;
   announcement_link_label?: string;
   announcement_link_href?: string;
-  announcements?: Array<{
-    id: string;
-    text: string;
-    enabled: boolean;
-    linkHref?: string;
-    linkLabel?: string;
-  }>;
+  announcements?: any;
   hero_enabled?: boolean;
+  hero_desktop_image?: any;
+  hero_mobile_image?: any;
   hero_eyebrow?: string;
   hero_heading?: string;
   hero_supporting_text?: string;
   hero_primary_button_text?: string;
   hero_primary_button_link?: string;
+  hero_overlay_intensity?: number;
 };
 
 export type DbCategory = {

@@ -350,6 +350,7 @@ function normalizeStoreSettings(record = {}, includeFinance = false) {
   const heroDesktopImages = normalizeHeroImages(record.hero_desktop_image, DEFAULT_STORE_SETTINGS.heroDesktopImage);
   const heroMobileImages = normalizeHeroImages(record.hero_mobile_image, DEFAULT_STORE_SETTINGS.heroMobileImage);
   const heroSlideLinks = Array.isArray(announcementData.heroSlideLinks) ? announcementData.heroSlideLinks : (DEFAULT_STORE_SETTINGS.heroSlideLinks || []);
+  const testimonialScreenshots = Array.isArray(announcementData.testimonialScreenshots) ? announcementData.testimonialScreenshots : (DEFAULT_STORE_SETTINGS.testimonialScreenshots || []);
   const legacyDesktopHero = {
     eyebrow: record.hero_eyebrow !== undefined && record.hero_eyebrow !== null ? String(record.hero_eyebrow).trim() : "",
     heading: record.hero_heading !== undefined && record.hero_heading !== null ? String(record.hero_heading).trim() : "",
@@ -375,6 +376,7 @@ function normalizeStoreSettings(record = {}, includeFinance = false) {
     heroDesktopImages,
     heroMobileImages,
     heroSlideLinks,
+    testimonialScreenshots,
     heroEyebrow: heroDesktopContent.eyebrow,
     heroHeading: heroDesktopContent.heading,
     heroSupportingText: heroDesktopContent.supportingText,
@@ -516,6 +518,7 @@ export async function updateStoreSettings(settings = {}) {
   const instagramPosts = normalizeInstagramPosts(settings.instagramPosts);
 
   const heroSlideLinks = Array.isArray(settings.heroSlideLinks) ? settings.heroSlideLinks : [];
+  const testimonialScreenshots = Array.isArray(settings.testimonialScreenshots) ? settings.testimonialScreenshots : [];
 
   const record = {
     id: 1,
@@ -536,7 +539,7 @@ export async function updateStoreSettings(settings = {}) {
     announcement_text: firstAnnouncement.text,
     announcement_link_label: firstAnnouncement.linkLabel,
     announcement_link_href: firstAnnouncement.linkHref,
-    announcements: { items: announcements, heroSlideLinks, sectionColors, sectionTextColors, heroDesktopContent, heroMobileContent, paymentSettings, shippingZones, notificationSettings, domainSettings, checkoutSettings, sizeChartSettings: normalizeSizeChartSettings(settings.sizeChartSettings), deliverySettings, productCardStyle, categorySectionStyle, homepageSections: normalizeHomepageSections(settings.homepageSections, categorySectionStyle), instagramEnabled: settings.instagramEnabled !== false, instagramHandle, instagramPosts, financeTransactions, financeAllocation, financeFixedCosts, financeManualExpenses, financePackagingExpense, financeDeliveryExpense, marketingCampaigns, productionBatches, inventorySources, inventoryMaterials, supplierBills },
+    announcements: { items: announcements, heroSlideLinks, testimonialScreenshots, sectionColors, sectionTextColors, heroDesktopContent, heroMobileContent, paymentSettings, shippingZones, notificationSettings, domainSettings, checkoutSettings, sizeChartSettings: normalizeSizeChartSettings(settings.sizeChartSettings), deliverySettings, productCardStyle, categorySectionStyle, homepageSections: normalizeHomepageSections(settings.homepageSections, categorySectionStyle), instagramEnabled: settings.instagramEnabled !== false, instagramHandle, instagramPosts, financeTransactions, financeAllocation, financeFixedCosts, financeManualExpenses, financePackagingExpense, financeDeliveryExpense, marketingCampaigns, productionBatches, inventorySources, inventoryMaterials, supplierBills },
     updated_at: new Date().toISOString(),
   };
 

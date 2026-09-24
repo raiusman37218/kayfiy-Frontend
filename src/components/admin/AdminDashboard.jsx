@@ -9055,6 +9055,7 @@ function SettingsPanel({ onOpen, signedInUser, initialTab = "" }) {
   const [storeSettingsError, setStoreSettingsError] = useState("");
   const [storeSettingsSetup, setStoreSettingsSetup] = useState("");
   const [heroUrlInputs, setHeroUrlInputs] = useState({});
+  const [testimonialInputUrl, setTestimonialInputUrl] = useState("");
   const [staff, setStaff] = useState([]);
   const [availablePermissions, setAvailablePermissions] = useState([]);
   const [currentAdminUser, setCurrentAdminUser] = useState(null);
@@ -9504,6 +9505,94 @@ function SettingsPanel({ onOpen, signedInUser, initialTab = "" }) {
             </div>
             <div className="formRow" style={{ marginTop: "12px" }}>
               <label>Default Banner Destination Link<input value={storeSettings.heroPrimaryButtonLink || "/collections/all"} onChange={(event) => setStoreSettings((current) => ({ ...current, heroPrimaryButtonLink: event.target.value }))} placeholder="/collections/all or /collections/new-arrivals" /></label>
+            </div>
+          </section>
+
+          <section className="heroSettingsEditor" style={{ marginTop: "20px" }}>
+            <div className="heroSettingsHeading">
+              <div>
+                <p>CUSTOMER REVIEWS & PROOF</p>
+                <h2>Customer Review Screenshots (Testimonials)</h2>
+                <span>Upload WhatsApp reviews, customer feedback screenshots, or photo reviews to display on the homepage.</span>
+              </div>
+              <small style={{ fontSize: "11px", fontWeight: "600", background: "#f3f4f6", padding: "3px 8px", borderRadius: "9999px" }}>
+                {(storeSettings.testimonialScreenshots || []).length} screenshot{(storeSettings.testimonialScreenshots || []).length === 1 ? "" : "s"}
+              </small>
+            </div>
+
+            <div className="heroSlideGrid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
+              {(storeSettings.testimonialScreenshots || []).map((url, idx) => (
+                <div className="heroSlideCard" key={`${url}-${idx}`}>
+                  <div className="heroSlideMedia" style={{ aspectRatio: "9/14", background: "#f8f9fa" }}>
+                    <img src={url} alt={`Review screenshot ${idx + 1}`} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+                    <button
+                      type="button"
+                      onClick={() => setStoreSettings((current) => ({
+                        ...current,
+                        testimonialScreenshots: (current.testimonialScreenshots || []).filter((_, i) => i !== idx)
+                      }))}
+                      title="Remove review screenshot"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <span className="heroSlidePath">{url}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="heroUrlInputRow" style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center", marginTop: "12px" }}>
+              <input
+                style={{ flex: "1 1 240px" }}
+                value={testimonialInputUrl || ""}
+                onChange={(e) => setTestimonialInputUrl(e.target.value)}
+                placeholder="Paste review screenshot URL (https://...) or local path"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const url = String(testimonialInputUrl || "").trim();
+                  if (!url) return;
+                  setStoreSettings((current) => ({
+                    ...current,
+                    testimonialScreenshots: [...(current.testimonialScreenshots || []), url]
+                  }));
+                  setTestimonialInputUrl("");
+                }}
+              >
+                + Add URL
+              </button>
+              <label className="buttonSecondary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", cursor: "pointer", padding: "7px 12px", borderRadius: "6px", border: "1px solid #d1d5db", background: "#f3f4f6", fontSize: "12px", fontWeight: "600", color: "#374151" }}>
+                <Upload size={14} /> Upload Review Screenshot
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  style={{ display: "none" }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    e.target.value = "";
+                    const form = new FormData();
+                    form.append("file", file);
+                    try {
+                      setStoreSettingsLoading(true);
+                      setStoreSettingsError("");
+                      const res = await fetch("/api/admin/hero-upload", { method: "POST", body: form });
+                      const data = await res.json();
+                      if (!res.ok || !data.url) throw new Error(data.error || "Failed to upload screenshot");
+                      setStoreSettings((current) => ({
+                        ...current,
+                        testimonialScreenshots: [...(current.testimonialScreenshots || []), data.url]
+                      }));
+                      setSavedAt(`Screenshot uploaded at ${new Date().toLocaleTimeString()}`);
+                    } catch (err) {
+                      setStoreSettingsError(err.message || "Failed to upload screenshot");
+                    } finally {
+                      setStoreSettingsLoading(false);
+                    }
+                  }}
+                />
+              </label>
             </div>
           </section>
           <div className="formRow"><label>Store name<input defaultValue="Kayfiy" /></label><label>Legal business name<input defaultValue="Kayfiy" /></label></div>

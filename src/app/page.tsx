@@ -86,109 +86,78 @@ export default async function Home() {
   const heroSlides = parseHeroSlides(storeSettings);
   const isHeroEnabled = storeSettings?.hero_enabled !== false;
 
+  // 1. New Arrivals: 12 products
+  const newArrivals = products
+    .filter((p) => p.new || p.createdAt)
+    .sort((a, b) => new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime());
+  const newArrivalsList = (newArrivals.length >= 12 ? newArrivals : products).slice(0, 12);
+
+  // 2. Best Sellers: 8 products (with view all linking to /collections/best-sellers for all best sellers)
   const bestSellers = products.filter((p) => p.bestsellere || p.price > 1600);
+  const bestSellersList = (bestSellers.length >= 8 ? bestSellers : products).slice(0, 8);
 
-  // Filter dynamic main categories from Supabase (excluding meta collections like 'all', 'top-selling')
-  const excludedSlugs = new Set(["all", "top-selling", "best-sellers"]);
-  const mainCategories = dbCategories
-    .filter((c) => !c.parent_slug && c.show_on_homepage !== false && !excludedSlugs.has(c.slug))
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-
-  // Helper to match products for a given category & its subcategories
-  function getCategoryProducts(cat: DbCategory, subCats: DbCategory[]): Product[] {
-    const catName = cat.name.toLowerCase();
-    const catSlug = cat.slug.toLowerCase();
-    const subSlugs = new Set(subCats.map((s) => s.slug.toLowerCase()));
-    const subNames = new Set(subCats.map((s) => s.name.toLowerCase()));
-
-    return products.filter((p) => {
-      const pCat = (p.category || "").toLowerCase();
-      const pSub = (p.subcategory || "").toLowerCase();
-
-      // Direct category or slug match
-      if (pCat === catName || slug(pCat) === catSlug) return true;
-
-      // Match child subcategories
-      if (pSub && (subSlugs.has(pSub) || subNames.has(pSub) || subSlugs.has(slug(pSub)))) return true;
-
-      return false;
-    });
-  }
+  // 3. Testimonial review screenshots uploaded from Admin
+  const testimonialScreenshots: string[] = Array.isArray(storeSettings?.announcements?.testimonialScreenshots)
+    ? storeSettings.announcements.testimonialScreenshots
+    : [];
 
   return (
-    <main className="space-y-1 sm:space-y-2">
+    <main className="space-y-4 sm:space-y-6 pb-6">
       {/* 1. Hero Showcase Slider (Clean Banners, No Text/Overlay) */}
       {isHeroEnabled && <HeroSlider slides={heroSlides} />}
 
       {/* 2. Store Perks & Live Announcement Marquee */}
       <MarqueeBanner />
 
-      {/* 3. Circular Story Categories (Dynamic from Supabase) */}
+      {/* 3. Shop by Categories (5 items in view, large moving carousel) */}
       <CategoryStories categories={dbCategories} />
 
-      {/* 4. Best Sellers — Product Carousel */}
+      {/* 4. New Arrivals (Exact 12 products) */}
+      <ProductCarousel
+        title="New Arrivals"
+        blurb="Freshly dropped pieces designed for pure comfort, breathability and ease."
+        products={newArrivalsList}
+        viewAllHref="/collections/new-arrivals"
+      />
+
+      {/* 5. In-Between Banner 1: Luxury Collection / Bra Sets */}
+      <PromoBanner
+        banner={SECTION_BANNERS.braSets}
+        badge="Luxury Collection"
+        title="Lace & Satin Bra Sets"
+        subtitle="Coordinated bra and brief sets tailored for flawless contouring, all-day breathability, and pure confidence."
+        ctaText="Shop Bra Sets"
+        href="/collections/bra-sets"
+      />
+
+      {/* 6. Best Sellers (8 products with View All showing all top-selling) */}
       <ProductCarousel
         title="Best Sellers"
         blurb="The pieces our customers love, wear and reorder most."
-        products={bestSellers.length > 0 ? bestSellers : products.slice(0, 8)}
-        viewAllHref="/collections/top-selling"
+        products={bestSellersList}
+        viewAllHref="/collections/best-sellers"
+        tone="soft"
       />
 
-      {/* 5. Dynamic Categories from Admin Panel */}
-      {mainCategories
-        .map((cat) => {
-          const subCats = dbCategories.filter(
-            (c) => c.parent_slug === cat.slug && c.show_on_homepage !== false,
-          );
-          const catProducts = getCategoryProducts(cat, subCats);
-          return { cat, subCats, catProducts };
-        })
-        .filter(({ catProducts }) => catProducts.length > 0)
-        .map(({ cat, subCats, catProducts }, index) => {
-          const tabs = subCats.length > 0 ? ["All", ...subCats.map((s) => s.name)] : undefined;
-          const tone = index % 2 === 1 ? "soft" : "plain";
-
-          return (
-            <div key={cat.id || cat.slug}>
-              {/* Interspersed Banner 1: After the first category */}
-              {index === 1 && (
-                <PromoBanner
-                  banner={SECTION_BANNERS.braSets}
-                  badge="Luxury Collection"
-                  title="Lace & Satin Bra Sets"
-                  subtitle="Coordinated bra and brief sets tailored for flawless contouring, all-day breathability, and pure confidence."
-                  ctaText="Shop Bra Sets"
-                  href="/collections/bra-sets"
-                />
-              )}
-
-              {/* Interspersed Banner 2: Mid-way through categories */}
-              {index === 3 && <LookbookBanner />}
-
-              {/* Category Product Carousel with Admin Subcategory Tabs */}
-              <ProductCarousel
-                title={cat.name}
-                blurb={cat.description || `Browse our latest ${cat.name.toLowerCase()} collection.`}
-                products={catProducts}
-                tabs={tabs}
-                viewAllHref={`/collections/${cat.slug}`}
-                tone={tone}
-              />
-            </div>
-          );
-        })}
-
-      {/* 6. Interactive Sizing Tool: Bra Size Calculator */}
+      {/* 7. Interactive Bra Size Calculator (Proper Placement & Fit Guide) */}
       <SizeGuideBanner />
 
-      {/* 7. Verified Customer Reviews Carousel */}
-      <TestimonialsCarousel reviews={featuredReviews} />
+      {/* 8. In-Between Banner 2: Lookbook / Seasonal Banner */}
+      <LookbookBanner />
 
-      {/* 8. Buyer Guarantees & Policy Strip */}
+      {/* 9. Testimonials (Admin-managed WhatsApp review screenshots + verified ratings) */}
+      <TestimonialsCarousel
+        screenshots={testimonialScreenshots}
+        reviews={featuredReviews}
+      />
+
+      {/* 10. Instagram Reels (Vertical 9:16 video reel cards) */}
+      <InstagramFeed />
+
+      {/* 11. Buyer Guarantees & Policy Strip */}
       <USPStrip />
 
-      {/* 9. Social Community & Newsletter */}
-      <InstagramFeed />
+      {/* 12. Social Community & Newsletter */}
       <NewsletterSection />
     </main>
   );

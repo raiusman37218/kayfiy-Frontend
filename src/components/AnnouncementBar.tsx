@@ -15,10 +15,10 @@ export default function AnnouncementBar() {
     async function loadSettings() {
       try {
         const settings = await fetchDbStoreSettings();
-        if (settings?.announcements && settings.announcements.length > 0) {
-          const active = settings.announcements
-            .filter((a) => a.enabled)
-            .map((a) => a.text);
+        if (Array.isArray(settings?.announcements) && settings.announcements.length > 0) {
+          const active = (settings.announcements as any[])
+            .filter((a: any) => a && a.enabled)
+            .map((a: any) => a.text);
           if (active.length > 0) {
             setMessages(active);
           }

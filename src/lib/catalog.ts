@@ -147,6 +147,7 @@ export function mapDbProduct(p: DbProduct): Product {
     articleNumber: p.article_number,
     stockQuantity: p.inventory?.[0]?.stock_quantity ?? 30,
     fabric,
+    createdAt: p.created_at,
   };
 }
 
@@ -496,7 +497,17 @@ export function buildCollections(products: Product[]): Collection[] {
 
 const staticCollectionsList = buildCollections(allProducts);
 export const collections = new Map(staticCollectionsList.map((entry) => [entry.slug, entry]));
-export const collectionSlugs = staticCollectionsList.map((entry) => entry.slug);
+export const collectionSlugs = Array.from(
+  new Set([
+    ...staticCollectionsList.map((entry) => entry.slug),
+    "all",
+    "new-arrivals",
+    "top-selling",
+    "best-sellers",
+    "sale",
+    "budget-deals",
+  ])
+);
 
 export const getCollection = (collectionSlug: string) =>
   collections.get(collectionSlug);
@@ -518,6 +529,12 @@ export function buildSpecialCollections(products: Product[]): Collection[] {
     define(
       "top-selling",
       "Top Selling",
+      "What KAYFIY customers reorder most.",
+      bestList.length > 0 ? bestList : products.slice(0, 10),
+    ),
+    define(
+      "best-sellers",
+      "Best Sellers",
       "What KAYFIY customers reorder most.",
       bestList.length > 0 ? bestList : products.slice(0, 10),
     ),

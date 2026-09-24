@@ -176,6 +176,7 @@ export const DEFAULT_STORE_SETTINGS = {
   announcementLinkLabel: "Shop now",
   announcementLinkHref: "#products",
   announcements: DEFAULT_ANNOUNCEMENTS,
+  testimonialScreenshots: [],
   paymentSettings: {
     codEnabled: true,
     manualTransferEnabled: true,
