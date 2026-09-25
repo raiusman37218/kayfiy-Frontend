@@ -176,8 +176,10 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
     if (!containerRef.current) return;
     const width = containerRef.current.clientWidth;
     let ipv = 5;
-    if (width < 500) {
-      ipv = 2;
+    if (width < 450) {
+      ipv = 2.2; // Mobile: 2 rectangular product-style cards + peek of 3rd
+    } else if (width < 640) {
+      ipv = 2.6;
     } else if (width < 768) {
       ipv = 3;
     } else if (width < 1024) {
@@ -275,7 +277,7 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
   return (
     <section
       aria-label="Shop by category"
-      className="relative mx-auto max-w-7xl px-4 pt-8 pb-4 sm:px-6 select-none"
+      className="relative mx-auto max-w-7xl px-3 pt-6 pb-4 sm:px-6 sm:pt-8 select-none"
       onMouseEnter={() => {
         paused.current = true;
       }}
@@ -287,7 +289,7 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
       onTouchEnd={handleTouchEnd}
     >
       {/* Centered Section Header */}
-      <div className="mb-6 sm:mb-8 text-center">
+      <div className="mb-5 sm:mb-8 text-center">
         <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal">
           Shop by Category
         </h2>
@@ -300,10 +302,10 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
           type="button"
           onClick={handlePrev}
           aria-label="Previous categories"
-          className="absolute -left-2 sm:-left-4 top-[40%] -translate-y-1/2 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+          className="absolute -left-1 sm:-left-4 top-[42%] -translate-y-1/2 z-30 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
         >
           <svg
-            className="h-5 w-5 sm:h-6 sm:w-6"
+            className="h-4 w-4 sm:h-6 sm:w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -314,7 +316,7 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
         </button>
 
         {/* Carousel Track Viewport */}
-        <div ref={containerRef} className="w-full overflow-hidden py-3">
+        <div ref={containerRef} className="w-full overflow-hidden py-2 sm:py-3">
           <div
             className="flex"
             style={{
@@ -328,45 +330,106 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
             {extendedStories.map((story, i) => (
               <div
                 key={`${story.slug}-${i}`}
-                className="shrink-0 flex justify-center"
+                className="shrink-0 flex justify-center px-1.5 sm:px-2.5"
                 style={{ width: `${itemWidth}px` }}
               >
                 <Link
                   href={story.href}
-                  className="group/item flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
+                  className="group/item flex flex-col w-full h-full items-center"
                 >
-                  {/* Large Story Circle with Luxury Gradient Ring */}
-                  <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-md transition-all duration-300 group-hover/item:shadow-xl group-hover/item:scale-105 group-hover/item:from-[#b08d4f] group-hover/item:to-[#7A2A3D]">
-                    <div className="relative h-28 w-28 xs:h-32 xs:w-32 sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44 xl:h-48 xl:w-48 overflow-hidden rounded-full border-[3px] sm:border-4 border-white bg-blush shadow-inner">
+                  {/* ─── MOBILE VIEW: Gorgeous Rectangular Product-Card-Style (< sm) ─── */}
+                  <div className="sm:hidden flex flex-col w-full h-full overflow-hidden rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-[#ECE5E5] transition-all duration-300 hover:shadow-md active:scale-[0.98]">
+                    {/* Rectangular Image Container */}
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F5F3]">
                       <Image
                         src={story.image}
                         alt={story.name}
                         fill
-                        sizes="(max-width: 640px) 140px, (max-width: 1024px) 170px, 200px"
-                        className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                        sizes="(max-width: 640px) 200px, 250px"
+                        className="object-cover transition-transform duration-500 group-hover/item:scale-105"
                       />
+
+                      {/* Subtle Bottom Shadow Vignette */}
+                      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 via-black/5 to-transparent pointer-events-none" />
+
+                      {/* Shezaib-style Corner Badge */}
+                      {story.badge ? (
+                        <div className="absolute top-2 right-2 z-10">
+                          <span
+                            className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-black tracking-wider text-white shadow-xs uppercase ${
+                              story.badge === "Hot"
+                                ? "bg-[#7A2A3D]"
+                                : story.badge === "Sale"
+                                ? "bg-[#E50000]"
+                                : "bg-charcoal"
+                            }`}
+                          >
+                            {story.badge}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="absolute top-2 right-2 z-10">
+                          <span className="inline-block rounded-full bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[8px] font-bold tracking-wider text-[#7A2A3D] uppercase shadow-2xs border border-white/60">
+                            Explore
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Bottom-right sparkle icon (Shezaib aesthetic touch) */}
+                      <div className="pointer-events-none absolute bottom-1.5 right-1.5 z-10 text-white/80 drop-shadow-sm opacity-70">
+                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2l2.2 7.8 7.8 2.2-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" />
+                        </svg>
+                      </div>
                     </div>
 
-                    {/* Optional badge pill */}
-                    {story.badge && (
-                      <span
-                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold tracking-wider uppercase text-white shadow-md ${
-                          story.badge === "Hot"
-                            ? "bg-[#7A2A3D]"
-                            : story.badge === "Sale"
-                            ? "bg-[#b08d4f]"
-                            : "bg-charcoal"
-                        }`}
-                      >
-                        {story.badge}
-                      </span>
-                    )}
+                    {/* Shezaib-style Clean Text Body */}
+                    <div className="p-2.5 text-center flex flex-col justify-between flex-1 bg-white">
+                      <h3 className="font-bold text-xs xs:text-sm text-charcoal leading-snug truncate w-full group-hover/item:text-[#7A2A3D] transition-colors">
+                        {story.name}
+                      </h3>
+                      <p className="mt-1 text-[10px] font-semibold text-[#7A2A3D] flex items-center justify-center gap-1">
+                        <span>Shop Now</span>
+                        <span className="text-[9px] transition-transform duration-200 group-hover/item:translate-x-0.5">→</span>
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Category Name Label */}
-                  <span className="mt-3 text-xs sm:text-sm md:text-base font-bold tracking-tight text-charcoal group-hover/item:text-[#7A2A3D] transition-colors max-w-[140px] sm:max-w-[170px] truncate">
-                    {story.name}
-                  </span>
+                  {/* ─── DESKTOP VIEW: Round Circular Story (sm: and up) ─── */}
+                  <div className="hidden sm:flex flex-col items-center text-center transition-transform duration-300 hover:scale-105">
+                    {/* Large Story Circle with Luxury Gradient Ring */}
+                    <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-md transition-all duration-300 group-hover/item:shadow-xl group-hover/item:scale-105 group-hover/item:from-[#b08d4f] group-hover/item:to-[#7A2A3D]">
+                      <div className="relative sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44 xl:h-48 xl:w-48 overflow-hidden rounded-full border-4 border-white bg-blush shadow-inner">
+                        <Image
+                          src={story.image}
+                          alt={story.name}
+                          fill
+                          sizes="(max-width: 1024px) 170px, 200px"
+                          className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                        />
+                      </div>
+
+                      {/* Optional badge pill */}
+                      {story.badge && (
+                        <span
+                          className={`absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase text-white shadow-md ${
+                            story.badge === "Hot"
+                              ? "bg-[#7A2A3D]"
+                              : story.badge === "Sale"
+                              ? "bg-[#b08d4f]"
+                              : "bg-charcoal"
+                          }`}
+                        >
+                          {story.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Category Name Label */}
+                    <span className="mt-3 text-sm md:text-base font-bold tracking-tight text-charcoal group-hover/item:text-[#7A2A3D] transition-colors max-w-[170px] truncate">
+                      {story.name}
+                    </span>
+                  </div>
                 </Link>
               </div>
             ))}
@@ -378,10 +441,10 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
           type="button"
           onClick={handleNext}
           aria-label="Next categories"
-          className="absolute -right-2 sm:-right-4 top-[40%] -translate-y-1/2 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+          className="absolute -right-1 sm:-right-4 top-[42%] -translate-y-1/2 z-30 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
         >
           <svg
-            className="h-5 w-5 sm:h-6 sm:w-6"
+            className="h-4 w-4 sm:h-6 sm:w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
