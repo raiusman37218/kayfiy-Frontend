@@ -4,7 +4,6 @@ import CategoryStories from "@/components/CategoryStories";
 import ProductCarousel from "@/components/ProductCarousel";
 import PromoBanner from "@/components/PromoBanner";
 import SizeGuideBanner from "@/components/SizeGuideBanner";
-import USPStrip from "@/components/USPStrip";
 import LookbookBanner from "@/components/LookbookBanner";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import InstagramFeed from "@/components/InstagramFeed";
@@ -18,24 +17,33 @@ import { slug, type Product } from "@/lib/data";
 export const revalidate = 60; // Revalidate every 60 seconds
 
 function parseHeroSlides(storeSettings: any): CleanHeroSlide[] {
-  const fallbackImages = [
-    "/banners/hero-monsoon.jpg",
-    "/banners/hero-sale.jpg",
-    "/banners/hero-fit.jpg",
-    "/banners/hero-budget.jpg",
+  const fallbackDesktopImages = [
+    "/banners/hero/banner-1-desktop.png",
+    "/banners/hero/banner-2-desktop.png",
+    "/banners/hero/banner-3-desktop.webp",
+    "/banners/hero/banner-4-desktop.webp",
+    "/banners/hero/banner-5-desktop.webp",
+  ];
+  const fallbackMobileImages = [
+    "/banners/hero/banner-1-mobile.png",
+    "/banners/hero/banner-2-mobile.png",
+    "/banners/hero/banner-3-mobile.webp",
+    "/banners/hero/banner-4-mobile.webp",
+    "/banners/hero/banner-5-mobile.webp",
   ];
   const fallbackLinks = [
-    "/collections/new-arrivals",
     "/collections/sale",
     "/collections/bras",
-    "/collections/budget-deals",
+    "/collections/all",
+    "/collections/bras",
+    "/collections/all",
   ];
 
   if (!storeSettings) {
-    return fallbackImages.map((img, i) => ({
+    return fallbackDesktopImages.map((img, i) => ({
       id: `hero-${i}`,
       image: img,
-      mobileImage: img,
+      mobileImage: fallbackMobileImages[i] || img,
       href: fallbackLinks[i] || "/collections/all",
     }));
   }
@@ -64,8 +72,8 @@ function parseHeroSlides(storeSettings: any): CleanHeroSlide[] {
   const validDesktop = desktopImages.filter((img: string) => !img.includes("bustaniya-campaign-hero"));
   const validMobile = mobileImages.filter((img: string) => !img.includes("bustaniya-campaign-hero"));
 
-  const finalDesktop = validDesktop.length > 0 ? validDesktop : fallbackImages;
-  const finalMobile = validMobile.length > 0 ? validMobile : finalDesktop;
+  const finalDesktop = validDesktop.length > 0 ? validDesktop : fallbackDesktopImages;
+  const finalMobile = validMobile.length > 0 ? validMobile : fallbackMobileImages;
 
   return finalDesktop.map((img: string, i: number) => ({
     id: `hero-${i}`,
@@ -154,10 +162,7 @@ export default async function Home() {
       {/* 10. Instagram Reels (Vertical 9:16 video reel cards) */}
       <InstagramFeed />
 
-      {/* 11. Buyer Guarantees & Policy Strip */}
-      <USPStrip />
-
-      {/* 12. Social Community & Newsletter */}
+      {/* 11. Social Community & Newsletter */}
       <NewsletterSection />
     </main>
   );

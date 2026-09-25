@@ -15,35 +15,42 @@ export interface CleanHeroSlide {
 const DEFAULT_SLIDES: CleanHeroSlide[] = [
   {
     id: "hero-1",
-    image: "/banners/hero-monsoon.jpg",
-    mobileImage: "/banners/hero-monsoon.jpg",
-    href: "/collections/all",
-    alt: "KAYFIY Comfort Wear",
+    image: "/banners/hero/banner-1-desktop.png",
+    mobileImage: "/banners/hero/banner-1-mobile.png",
+    href: "/collections/sale",
+    alt: "End of Season Sale - Upto 40% Off",
   },
   {
     id: "hero-2",
-    image: "/banners/hero-sale.jpg",
-    mobileImage: "/banners/hero-sale.jpg",
-    href: "/collections/sale",
-    alt: "Comfort Season Sale",
+    image: "/banners/hero/banner-2-desktop.png",
+    mobileImage: "/banners/hero/banner-2-mobile.png",
+    href: "/collections/bras",
+    alt: "Support Without The Poke - Perfect Coverage Bra",
   },
   {
     id: "hero-3",
-    image: "/banners/hero-fit.jpg",
-    mobileImage: "/banners/hero-fit.jpg",
-    href: "/collections/bras",
-    alt: "Support You Forget You Are Wearing",
+    image: "/banners/hero/banner-3-desktop.webp",
+    mobileImage: "/banners/hero/banner-3-mobile.webp",
+    href: "/collections/all",
+    alt: "In My Pink Era - Strapless Butt Lifting Bodysuit",
   },
   {
     id: "hero-4",
-    image: "/banners/hero-budget.jpg",
-    mobileImage: "/banners/hero-budget.jpg",
-    href: "/collections/budget-deals",
-    alt: "Essentials Under Rs. 1,500",
+    image: "/banners/hero/banner-4-desktop.webp",
+    mobileImage: "/banners/hero/banner-4-mobile.webp",
+    href: "/collections/bras",
+    alt: "Summer Layer That Actually Breathes - Minimizer Bra",
+  },
+  {
+    id: "hero-5",
+    image: "/banners/hero/banner-5-desktop.webp",
+    mobileImage: "/banners/hero/banner-5-mobile.webp",
+    href: "/collections/all",
+    alt: "Introducing JellySoft Collection - The Softest Support",
   },
 ];
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 3500;
 
 interface HeroSliderProps {
   slides?: CleanHeroSlide[];
@@ -56,14 +63,12 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
   const [index, setIndex] = useState(0);
   const viewportRef = useRef<HTMLElement>(null);
   const [slideWidth, setSlideWidth] = useState(0);
-  const [progress, setProgress] = useState(0);
   const paused = useRef(false);
   const lastTickRef = useRef<number>(Date.now());
 
   const goTo = useCallback(
     (next: number) => {
       setIndex((next + slides.length) % slides.length);
-      setProgress(0);
       lastTickRef.current = Date.now();
     },
     [slides.length]
@@ -80,36 +85,21 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay + progress bar (only when multi-slide)
+  // Autoplay (Inunder style 3.5s interval)
   useEffect(() => {
     if (!isMultiSlide) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let animFrameId: number;
-
-    function tick() {
+    const timer = setInterval(() => {
       if (!paused.current) {
-        const now = Date.now();
-        const elapsed = now - lastTickRef.current;
-        const pct = Math.min(100, (elapsed / AUTOPLAY_MS) * 100);
-        setProgress(pct);
-
-        if (elapsed >= AUTOPLAY_MS) {
-          setIndex((current) => (current + 1) % slides.length);
-          setProgress(0);
-          lastTickRef.current = now;
-        }
-      } else {
-        lastTickRef.current = Date.now() - (progress / 100) * AUTOPLAY_MS;
+        setIndex((current) => (current + 1) % slides.length);
       }
-      animFrameId = requestAnimationFrame(tick);
-    }
+    }, AUTOPLAY_MS);
 
-    animFrameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animFrameId);
-  }, [progress, isMultiSlide, slides.length]);
+    return () => clearInterval(timer);
+  }, [isMultiSlide, slides.length]);
 
-  // Touch gesture swipe support
+  // Touch gesture swipe support for mobile
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -127,9 +117,9 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
     paused.current = false;
     if (!isMultiSlide || touchStartX.current === null || touchEndX.current === null) return;
     const diff = touchStartX.current - touchEndX.current;
-    if (diff > 45) {
+    if (diff > 40) {
       goTo(index + 1);
-    } else if (diff < -45) {
+    } else if (diff < -40) {
       goTo(index - 1);
     }
     touchStartX.current = null;
@@ -150,8 +140,9 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Slides Container */}
       <div
-        className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="flex transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           transform: isMultiSlide ? `translate3d(-${index * slideWidth}px, 0, 0)` : "none",
         }}
@@ -165,7 +156,7 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
           );
 
           const bannerContent = (
-            <div className="relative w-full aspect-[4/3] xs:aspect-[16/10] sm:aspect-[2/1] lg:aspect-[2.25/1] max-h-[640px] overflow-hidden">
+            <div className="relative w-full h-[390px] xs:h-[420px] sm:h-[460px] md:h-[500px] lg:h-[540px] xl:h-[580px] overflow-hidden">
               {hasSeparateMobile ? (
                 <>
                   {/* Mobile Banner (<640px) */}
@@ -231,17 +222,17 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
         })}
       </div>
 
-      {/* Left/Right Arrow Controls (Desktop, shown on hover when > 1 slide) */}
+      {/* Left/Right Floating Circle Arrow Controls (Inunder style: 50px desktop, 40px mobile, white/80 bg, hover black) */}
       {isMultiSlide && (
         <>
           <button
             type="button"
             onClick={() => goTo(index - 1)}
             aria-label="Previous banner"
-            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/90 text-[#1A1A1A] shadow-lg backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:scale-105 cursor-pointer hidden sm:flex"
+            className="absolute left-2.5 sm:left-5 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
           >
             <svg
-              className="h-5 w-5 sm:h-6 sm:w-6"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -255,10 +246,10 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
             type="button"
             onClick={() => goTo(index + 1)}
             aria-label="Next banner"
-            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/90 text-[#1A1A1A] shadow-lg backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:scale-105 cursor-pointer hidden sm:flex"
+            className="absolute right-2.5 sm:right-5 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
           >
             <svg
-              className="h-5 w-5 sm:h-6 sm:w-6"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -270,9 +261,9 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
         </>
       )}
 
-      {/* Bottom Slider Dots + Progress Indicator (Only when > 1 slide) */}
+      {/* Bottom Floating Minimalist Dots (Inunder style: clean white circular dots, active scale 1.25) */}
       {isMultiSlide && (
-        <div className="absolute bottom-3 sm:bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 items-center bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 sm:gap-2.5 items-center pointer-events-auto">
           {slides.map((slide, dotIndex) => (
             <button
               key={slide.id || dotIndex}
@@ -280,17 +271,12 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
               onClick={() => goTo(dotIndex)}
               aria-label={`Go to banner ${dotIndex + 1}`}
               aria-current={dotIndex === index}
-              className={`relative h-2 rounded-full transition-all duration-500 cursor-pointer overflow-hidden ${
-                dotIndex === index ? "w-7 bg-white/40" : "w-2 bg-white/60 hover:bg-white"
+              className={`rounded-full transition-all duration-300 cursor-pointer ${
+                dotIndex === index
+                  ? "w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white opacity-100 scale-125 shadow-sm"
+                  : "w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white/55 hover:bg-white hover:opacity-100"
               }`}
-            >
-              {dotIndex === index && (
-                <span
-                  className="absolute inset-y-0 left-0 rounded-full bg-white transition-none"
-                  style={{ width: `${progress}%` }}
-                />
-              )}
-            </button>
+            />
           ))}
         </div>
       )}

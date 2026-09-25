@@ -8,12 +8,6 @@ import NewsletterForm from "./NewsletterForm";
 import { footerCategories as defaultFooterCategories, usefulLinks, type NavLink } from "@/lib/data";
 import { fetchDbCategories, supabase } from "@/lib/supabase";
 import { FacebookIcon, InstagramIcon } from "./Icons";
-import {
-  FastTruckIcon,
-  DiscreetPackageIcon,
-  ExchangeBoxIcon,
-  SecureCoinsIcon,
-} from "./ProductTrustBadges";
 
 function WhatsAppIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -85,29 +79,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-line bg-cream font-sans">
-      {/* 1. Compact Illustrated Trust Strip */}
-      <div className="border-b border-line/60 bg-gradient-to-r from-[#FAE8EC]/80 via-[#FCF0F2]/60 to-[#FAE8EC]/80 py-4 px-4">
-        <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[11px] sm:text-xs text-charcoal font-semibold">
-          <div className="flex items-center justify-center gap-2 group">
-            <FastTruckIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 transition-transform group-hover:scale-110" />
-            <span className="text-black">Free Delivery Over Rs. 3,500</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 group">
-            <DiscreetPackageIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 transition-transform group-hover:scale-110" />
-            <span className="text-black">100% Discreet Packaging</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 group">
-            <ExchangeBoxIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 transition-transform group-hover:scale-110" />
-            <span className="text-black">7-Day Size Exchange</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 group">
-            <SecureCoinsIcon className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 transition-transform group-hover:scale-110" />
-            <span className="text-black">Cash on Delivery</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Organized Compact Grid */}
+      {/* Main Organized Compact Grid */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-8">
           {/* Brand Info (Col 1-4) */}
