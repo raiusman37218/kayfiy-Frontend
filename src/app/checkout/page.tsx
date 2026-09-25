@@ -331,6 +331,133 @@ function Spinner() {
   );
 }
 
+/* ─── Shopify Order Summary Component ─── */
+function OrderSummaryContent({
+  lines,
+  discountCode,
+  setDiscountCode,
+  handleApplyDiscount,
+  appliedDiscount,
+  discountError,
+  subtotal,
+  discountAmount,
+  isFreeShipping,
+  shippingFee,
+  total,
+}: {
+  lines: any[];
+  discountCode: string;
+  setDiscountCode: (val: string) => void;
+  handleApplyDiscount: (e: React.FormEvent) => void;
+  appliedDiscount: { code: string; percent: number } | null;
+  discountError: string | null;
+  subtotal: number;
+  discountAmount: number;
+  isFreeShipping: boolean;
+  shippingFee: number;
+  total: number;
+}) {
+  return (
+    <div className="space-y-6">
+      {/* Product list */}
+      <ul className="divide-y divide-[#E0D7D7]/60">
+        {lines.map((line) => (
+          <li key={`${line.id || line.slug}-${line.size}`} className="flex items-center gap-3.5 py-3.5">
+            <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-white border border-[#E0D7D7] shadow-2xs">
+              <Image
+                src={
+                  line.image && (line.image.startsWith("http") || line.image.startsWith("/"))
+                    ? line.image
+                    : "/banners/hero-monsoon.jpg"
+                }
+                alt={line.name}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-charcoal text-[11px] font-bold text-white shadow-sm">
+                {line.qty}
+              </span>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-charcoal truncate leading-tight">
+                {line.name}
+              </p>
+              <p className="text-xs text-muted mt-0.5">
+                {line.size}
+              </p>
+            </div>
+
+            <span className="text-sm font-semibold text-charcoal">
+              Rs {(line.price * line.qty).toLocaleString("en-PK", { minimumFractionDigits: 2 })}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Discount code */}
+      <form onSubmit={handleApplyDiscount} className="flex gap-2 pt-1">
+        <input
+          type="text"
+          value={discountCode}
+          onChange={(e) => setDiscountCode(e.target.value)}
+          placeholder="Discount code"
+          className="flex-1 rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-muted-soft outline-none transition focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/15"
+        />
+        <button
+          type="submit"
+          className="rounded-xl bg-blush px-5 py-3 text-xs font-bold text-charcoal uppercase tracking-wider transition hover:bg-[#7A2A3D] hover:text-white cursor-pointer border border-[#E0D7D7] hover:border-[#7A2A3D]"
+        >
+          Apply
+        </button>
+      </form>
+      {appliedDiscount && (
+        <p className="text-xs text-[#3F6B4A] font-semibold flex items-center gap-1">
+          <span className="text-[#3F6B4A]">✓</span> Code <strong>{appliedDiscount.code}</strong> applied ({appliedDiscount.percent}% off)
+        </p>
+      )}
+      {discountError && (
+        <p className="text-xs text-red-600">{discountError}</p>
+      )}
+
+      {/* Price Breakdown */}
+      <dl className="space-y-3 border-t border-[#E0D7D7] pt-4 text-sm text-charcoal">
+        <div className="flex justify-between">
+          <dt className="text-muted">Subtotal</dt>
+          <dd className="font-medium">Rs {subtotal.toLocaleString("en-PK", { minimumFractionDigits: 2 })}</dd>
+        </div>
+
+        {appliedDiscount && (
+          <div className="flex justify-between text-[#33573C]">
+            <dt>Discount</dt>
+            <dd className="font-semibold">-Rs {discountAmount.toLocaleString("en-PK", { minimumFractionDigits: 2 })}</dd>
+          </div>
+        )}
+
+        <div className="flex justify-between">
+          <dt className="text-muted">Shipping</dt>
+          <dd className="font-medium">
+            {isFreeShipping ? (
+              <span className="text-[#3F6B4A] font-bold">Free</span>
+            ) : (
+              `Rs ${shippingFee.toLocaleString("en-PK", { minimumFractionDigits: 2 })}`
+            )}
+          </dd>
+        </div>
+
+        <div className="flex items-baseline justify-between border-t border-[#E0D7D7] pt-4 text-base">
+          <dt className="font-semibold text-charcoal">Total</dt>
+          <dd className="font-[family-name:var(--font-heading)] text-xl font-bold text-charcoal">
+            <span className="text-xs text-muted font-normal mr-1.5">PKR</span>
+            Rs {total.toLocaleString("en-PK", { minimumFractionDigits: 2 })}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const { lines, subtotal, ready, clear } = useCart();
   const [reference, setReference] = useState<string | null>(null);
@@ -340,6 +467,7 @@ export default function CheckoutPage() {
   const [freeThreshold, setFreeThreshold] = useState(3500);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
 
   // Preserve order info for thank-you page
   const orderSnapshot = useRef<{
@@ -535,6 +663,53 @@ export default function CheckoutPage() {
                 ← Return to bag
               </Link>
             </div>
+
+            {/* Mobile Shopify Collapsible Order Summary Bar (Top of screen) */}
+            {lines.length > 0 && (
+              <div className="lg:hidden -mx-4 sm:-mx-8 mb-6 border-y border-[#E0D7D7] bg-[#F9F9F8]">
+                <button
+                  type="button"
+                  onClick={() => setIsOrderSummaryOpen(!isOrderSummaryOpen)}
+                  className="flex w-full items-center justify-between px-4 py-3.5 sm:px-8 text-left transition hover:bg-[#F2F2F0] cursor-pointer"
+                  aria-expanded={isOrderSummaryOpen}
+                >
+                  <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#7A2A3D]">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>{isOrderSummaryOpen ? "Hide order summary" : "Show order summary"}</span>
+                    <svg
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${isOrderSummaryOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                  <span className="font-bold text-sm text-charcoal">
+                    Rs {total.toLocaleString("en-PK", { minimumFractionDigits: 2 })}
+                  </span>
+                </button>
+                {isOrderSummaryOpen && (
+                  <div className="border-t border-[#E0D7D7] px-4 py-5 sm:px-8 bg-[#FAFAF8] animate-fade-in">
+                    <OrderSummaryContent
+                      lines={lines}
+                      discountCode={discountCode}
+                      setDiscountCode={setDiscountCode}
+                      handleApplyDiscount={handleApplyDiscount}
+                      appliedDiscount={appliedDiscount}
+                      discountError={discountError}
+                      subtotal={subtotal}
+                      discountAmount={discountAmount}
+                      isFreeShipping={isFreeShipping}
+                      shippingFee={shippingFee}
+                      total={total}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             {ready && lines.length === 0 ? (
               <div className="py-16 text-center animate-slide-up">
@@ -940,106 +1115,22 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* RIGHT COLUMN — Order Summary Sidebar */}
-          <aside className="border-t border-[#E0D7D7] bg-[#FAFAF8] px-4 py-8 sm:px-8 lg:col-span-5 lg:border-t-0 lg:border-l lg:py-10">
-            <div className="lg:sticky lg:top-8 space-y-6">
-              
-              {/* Product list */}
-              <ul className="divide-y divide-[#E0D7D7]/60">
-                {lines.map((line) => (
-                  <li key={`${line.id || line.slug}-${line.size}`} className="flex items-center gap-3.5 py-3.5">
-                    <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-white border border-[#E0D7D7] shadow-2xs">
-                      <Image
-                        src={
-                          line.image && (line.image.startsWith("http") || line.image.startsWith("/"))
-                            ? line.image
-                            : "/banners/hero-monsoon.jpg"
-                        }
-                        alt={line.name}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-charcoal text-[11px] font-bold text-white shadow-sm">
-                        {line.qty}
-                      </span>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-charcoal truncate leading-tight">
-                        {line.name}
-                      </p>
-                      <p className="text-xs text-muted mt-0.5">
-                        {line.size}
-                      </p>
-                    </div>
-
-                    <span className="text-sm font-semibold text-charcoal">
-                      Rs {(line.price * line.qty).toLocaleString("en-PK", { minimumFractionDigits: 2 })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Discount code */}
-              <form onSubmit={handleApplyDiscount} className="flex gap-2 pt-1">
-                <input
-                  type="text"
-                  value={discountCode}
-                  onChange={(e) => setDiscountCode(e.target.value)}
-                  placeholder="Discount code"
-                  className="flex-1 rounded-xl border border-[#E0D7D7] bg-white px-4 py-3 text-sm text-charcoal placeholder:text-muted-soft outline-none transition focus:border-[#7A2A3D] focus:ring-2 focus:ring-[#7A2A3D]/15"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-blush px-5 py-3 text-xs font-bold text-charcoal uppercase tracking-wider transition hover:bg-[#7A2A3D] hover:text-white cursor-pointer border border-[#E0D7D7] hover:border-[#7A2A3D]"
-                >
-                  Apply
-                </button>
-              </form>
-              {appliedDiscount && (
-                <p className="text-xs text-[#3F6B4A] font-semibold flex items-center gap-1">
-                  <span className="text-[#3F6B4A]">✓</span> Code <strong>{appliedDiscount.code}</strong> applied ({appliedDiscount.percent}% off)
-                </p>
-              )}
-              {discountError && (
-                <p className="text-xs text-red-600">{discountError}</p>
-              )}
-
-              {/* Price Breakdown */}
-              <dl className="space-y-3 border-t border-[#E0D7D7] pt-4 text-sm text-charcoal">
-                <div className="flex justify-between">
-                  <dt className="text-muted">Subtotal</dt>
-                  <dd className="font-medium">Rs {subtotal.toLocaleString("en-PK", { minimumFractionDigits: 2 })}</dd>
-                </div>
-
-                {appliedDiscount && (
-                  <div className="flex justify-between text-[#33573C]">
-                    <dt>Discount</dt>
-                    <dd className="font-semibold">-Rs {discountAmount.toLocaleString("en-PK", { minimumFractionDigits: 2 })}</dd>
-                  </div>
-                )}
-
-                <div className="flex justify-between">
-                  <dt className="text-muted">Shipping</dt>
-                  <dd className="font-medium">
-                    {isFreeShipping ? (
-                      <span className="text-[#3F6B4A] font-bold">Free</span>
-                    ) : (
-                      `Rs ${shippingFee.toLocaleString("en-PK", { minimumFractionDigits: 2 })}`
-                    )}
-                  </dd>
-                </div>
-
-                <div className="flex items-baseline justify-between border-t border-[#E0D7D7] pt-4 text-base">
-                  <dt className="font-semibold text-charcoal">Total</dt>
-                  <dd className="font-[family-name:var(--font-heading)] text-xl font-bold text-charcoal">
-                    <span className="text-xs text-muted font-normal mr-1.5">PKR</span>
-                    Rs {total.toLocaleString("en-PK", { minimumFractionDigits: 2 })}
-                  </dd>
-                </div>
-              </dl>
-
+          {/* RIGHT COLUMN — Order Summary Sidebar (Desktop only) */}
+          <aside className="hidden lg:block border-l border-[#E0D7D7] bg-[#FAFAF8] px-4 py-8 sm:px-8 lg:col-span-5 lg:py-10">
+            <div className="sticky top-8">
+              <OrderSummaryContent
+                lines={lines}
+                discountCode={discountCode}
+                setDiscountCode={setDiscountCode}
+                handleApplyDiscount={handleApplyDiscount}
+                appliedDiscount={appliedDiscount}
+                discountError={discountError}
+                subtotal={subtotal}
+                discountAmount={discountAmount}
+                isFreeShipping={isFreeShipping}
+                shippingFee={shippingFee}
+                total={total}
+              />
             </div>
           </aside>
 
