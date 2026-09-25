@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,6 +15,11 @@ export default function StoreChrome({
 }) {
   const pathname = usePathname();
   const isAdmin = pathname === "/admin" || pathname?.startsWith("/admin/");
+
+  // Instantly reset scroll to top on page navigation without any scroll animation
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
 
   if (isAdmin) {
     return <>{children}</>;
