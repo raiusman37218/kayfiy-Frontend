@@ -130,9 +130,50 @@ export async function PATCH(request) {
     const body = await request.json();
     const categoryId = body.categoryId;
     if (!categoryId) throw new Error("Category is required.");
-    const record = payloadToRecord(body.category || {});
+
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(categoryId));
     const filter = isUuid ? `id=eq.${encodeURIComponent(categoryId)}` : `slug=eq.${encodeURIComponent(categoryId)}`;
+
+    // Quick action: Restore archived category
+    if (body.action === "restore") {
+      try {
+        const existingRows = await supabaseAdminRequest(`catalog_categories?${filter}&select=*`).catch(() => []);
+        const oldCategory = existingRows?.[0];
+
+        const updated = await supabaseAdminRequest(`catalog_categories?${filter}&select=*`, {
+          method: "PATCH",
+          prefer: "return=representation",
+          body: { status: "Active" },
+        });
+
+        // If it's a main category, also restore child subcategories
+        if (oldCategory?.slug) {
+          await supabaseAdminRequest(`catalog_categories?parent_slug=eq.${encodeURIComponent(oldCategory.slug)}`, {
+            method: "PATCH",
+            prefer: "return=minimal",
+            body: { status: "Active" },
+          }).catch(() => {});
+        }
+
+        // If it's a subcategory whose parent was archived, activate parent too
+        if (oldCategory?.parent_slug) {
+          await supabaseAdminRequest(`catalog_categories?slug=eq.${encodeURIComponent(oldCategory.parent_slug)}`, {
+            method: "PATCH",
+            prefer: "return=minimal",
+            body: { status: "Active" },
+          }).catch(() => {});
+        }
+
+        invalidateCatalogCache();
+        revalidateCategoryPages([oldCategory?.slug, oldCategory?.parent_slug]);
+        return NextResponse.json({ success: true, category: normalizeCategoryRecord(updated?.[0]), restored: true });
+      } catch (error) {
+        if (!tableMissing(error)) throw error;
+        return sendTableSetupFallback();
+      }
+    }
+
+    const record = payloadToRecord(body.category || {});
     try {
       // Find old category details before update
       const existingRows = await supabaseAdminRequest(`catalog_categories?${filter}&select=*`).catch(() => []);
@@ -214,7 +255,7 @@ export async function PATCH(request) {
 export async function DELETE(request) {
   try {
     await authorizeAdminRequest(request, "products");
-    const { categoryId } = await request.json();
+    const { categoryId, permanent } = await request.json();
     if (!categoryId) throw new Error("Category is required.");
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(categoryId));
     const filter = isUuid ? `id=eq.${encodeURIComponent(categoryId)}` : `slug=eq.${encodeURIComponent(categoryId)}`;
@@ -222,6 +263,27 @@ export async function DELETE(request) {
       const existingRows = await supabaseAdminRequest(`catalog_categories?${filter}&select=*`).catch(() => []);
       const oldCategory = existingRows?.[0];
 
+      if (permanent) {
+        // If it's a main category, permanently delete child subcategories first
+        if (oldCategory?.slug) {
+          await supabaseAdminRequest(`catalog_categories?parent_slug=eq.${encodeURIComponent(oldCategory.slug)}`, {
+            method: "DELETE",
+            prefer: "return=minimal",
+          }).catch(() => {});
+        }
+
+        // Permanently delete the category itself
+        await supabaseAdminRequest(`catalog_categories?${filter}`, {
+          method: "DELETE",
+          prefer: "return=minimal",
+        });
+
+        invalidateCatalogCache();
+        revalidateCategoryPages([oldCategory?.slug, oldCategory?.parent_slug]);
+        return NextResponse.json({ success: true, deleted: true, permanent: true });
+      }
+
+      // Default: Archive category
       await supabaseAdminRequest(`catalog_categories?${filter}`, {
         method: "PATCH",
         prefer: "return=minimal",

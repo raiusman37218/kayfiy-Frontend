@@ -4,8 +4,8 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, AlertCircle, Bell, Boxes, Check, CheckCircle2, ChevronDown, ChevronUp, CircleDollarSign,
   Copy, ExternalLink, Eye, FileText, Info, Landmark, LayoutDashboard, Loader2, LogOut, Menu, MessageSquare,
-  Minus, MoreHorizontal, Package, Phone, Plus, ReceiptText, RefreshCw, Search, Settings,
-  ShoppingBag, Store, Tags, TrendingUp, Truck, Upload, Users, WalletCards, X
+  Minus, MoreHorizontal, Package, Phone, Plus, ReceiptText, RefreshCw, RotateCcw, Search, Settings,
+  ShoppingBag, Store, Tags, Trash2, TrendingUp, Truck, Upload, Users, WalletCards, X
 } from "lucide-react";
 import { slugifyCategory } from "@/data/store";
 import { DEFAULT_HOMEPAGE_SECTIONS, DEFAULT_STORE_SETTINGS } from "@/data/storeSettings";
@@ -1658,6 +1658,58 @@ export default function AdminDashboard() {
     }
   }
 
+  async function restoreCategory(category) {
+    setCategorySaving(true);
+    setOrdersError("");
+    try {
+      const response = await fetch("/api/admin/categories", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ categoryId: category.id, action: "restore" }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to restore category.");
+      if (result.needsSetup) {
+        setCategorySetupNeeded(true);
+        setOrdersError(`Run ${result.setupSql || "scripts/supabase-catalog-categories.sql"} in Supabase.`);
+        return;
+      }
+      await loadAdminData();
+    } catch (error) {
+      setOrdersError(error.message);
+    } finally {
+      setCategorySaving(false);
+    }
+  }
+
+  async function permanentlyDeleteCategory(category) {
+    setCategorySaving(true);
+    setOrdersError("");
+    try {
+      const response = await fetch("/api/admin/categories", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ categoryId: category.id, permanent: true }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to permanently delete category.");
+      if (result.needsSetup) {
+        setCategorySetupNeeded(true);
+        setOrdersError(`Run ${result.setupSql || "scripts/supabase-catalog-categories.sql"} in Supabase.`);
+        return;
+      }
+      await loadAdminData();
+    } catch (error) {
+      setOrdersError(error.message);
+    } finally {
+      setCategorySaving(false);
+    }
+  }
+
   const visibleNavItems = navItems.filter((item) =>
     canUseAdminArea(currentAdminUser, navPermissionMap[item.name])
   );
@@ -1727,7 +1779,7 @@ export default function AdminDashboard() {
           {canAccessActive && active === "Dashboard" && <DashboardHome setActive={navigateAdminSection} orders={orders} products={products} metrics={metrics} connected={ordersConnected} loading={ordersLoading || catalogLoading} ordersError={ordersLoadError} currentAdminUser={currentAdminUser} onRefresh={() => loadOrders()} onAddProduct={() => { navigateAdminSection("Products"); openNewProductForm(); }} onOpenOrder={(order) => { setRequestedOrderId(order.order_number || order.id); navigateAdminSection("Orders"); }} />}
           {canAccessActive && active === "Events" && <EventsWorkspace onNavigateToSettings={() => navigateAdminSection("Settings", { focus: "Tracking" })} onNavigateToOrder={(orderId) => { setRequestedOrderId(orderId); navigateAdminSection("Orders"); }} />}
           {canAccessActive && active === "Products" && <ProductsPanel products={filteredProducts} search={search} setSearch={setSearch} onAdd={openNewProductForm} onEdit={openEditProductForm} onDelete={deleteProduct} onDeliveryChange={updateProductDelivery} loading={catalogLoading} initialView={requestedAdminFocus?.section === "Products" ? requestedAdminFocus.focus : ""} tableDensity={tableDensity} setTableDensity={handleTableDensityChange} />}
-          {canAccessActive && active === "Categories" && <CategoriesPanel categories={catalogCategories} products={products} onSave={saveCategory} onArchive={archiveCategory} saving={categorySaving} needsSetup={categorySetupNeeded} />}
+          {canAccessActive && active === "Categories" && <CategoriesPanel categories={catalogCategories} products={products} onSave={saveCategory} onArchive={archiveCategory} onRestore={restoreCategory} onPermanentDelete={permanentlyDeleteCategory} saving={categorySaving} needsSetup={categorySetupNeeded} />}
           {canAccessActive && active === "Orders" && <OrdersPanel rows={orders} products={products} pagination={ordersPagination} canExport={currentAdminUser?.role === "Owner" || currentAdminUser?.permissions?.includes("orders.export")} currentAdminUser={currentAdminUser} connected={ordersConnected} loading={ordersLoading} error={ordersError} onRetry={() => loadOrders()} onPageChange={(page) => loadOrders({ page })} initialSelectedId={requestedOrderId} onInitialSelectionHandled={() => setRequestedOrderId("")} tableDensity={tableDensity} setTableDensity={handleTableDensityChange} onNavigateToEvents={() => navigateAdminSection("Events")} />}
           {canAccessActive && active === "Inventory" && <InventoryPanel products={products} movements={inventoryMovements} orders={orders} connected={ordersConnected} currentAdminUser={currentAdminUser} onAdjust={adjustInventory} onCreateCustomInventory={createCustomInventory} onCreateProductionBatch={createProductionBatch} onOpenOrder={(order) => { setRequestedOrderId(order.id); navigateAdminSection("Orders"); }} initialView={requestedAdminFocus?.section === "Inventory" ? requestedAdminFocus.focus : ""} />}
           {canAccessActive && active === "Customers" && <CustomersPanel orders={orders} onOpen={setWorkspace} />}
@@ -2437,7 +2489,8 @@ function productStatus(product) {
   return product.unlisted ? "Unlisted" : "Active";
 }
 
-function CategoriesPanel({ categories, products, onSave, onArchive, saving, needsSetup }) {
+function CategoriesPanel({ categories, products, onSave, onArchive, onRestore, onPermanentDelete, saving, needsSetup }) {
+  const [activeTab, setActiveTab] = useState("active");
   const [editing, setEditing] = useState(null);
   const [categoryImageUrl, setCategoryImageUrl] = useState("");
   const [imagePreviewAdded, setImagePreviewAdded] = useState(false);
@@ -2499,6 +2552,24 @@ function CategoriesPanel({ categories, products, onSave, onArchive, saving, need
     if (window.confirm(`${category.name} ${label} remove/archive karni hai?${count ? ` ${count} product${count === 1 ? "" : "s"} is category mein mapped hain.` : ""}${childCount ? ` ${childCount} nested subcategories bhi hide ho sakti hain.` : ""} Products delete nahi honge, category storefront aur active list se hide ho jayegi.`)) onArchive(category);
   }
 
+  function confirmRestore(category) {
+    const isSub = Boolean(category.parentSlug);
+    const label = isSub ? "subcategory" : "main category";
+    if (window.confirm(`"${category.name}" ${label} ko dobara active storefront par restore karna hai? Active hone ke baad ye website aur storefront par show hone lagegi.`)) {
+      onRestore(category);
+    }
+  }
+
+  function confirmPermanentDelete(category) {
+    const count = productCount(category);
+    const isSub = Boolean(category.parentSlug);
+    const label = isSub ? "subcategory" : "main category";
+    const childCount = isSub ? 0 : categories.filter((item) => item.parentSlug === category.slug).length;
+    if (window.confirm(`⚠️ WARNING: "${category.name}" ${label} ko permanently delete karna hai?\n\nYe category database se hamesha ke liye remove ho jayegi aur wapis restore nahi ho sakegi.${childCount ? ` Iske sath ${childCount} nested subcategories bhi delete ho jayengi.` : ""}${count ? ` (${count} products is category mein mapped the)` : ""}\n\nKya aap pakka delete karna chahte hain?`)) {
+      onPermanentDelete(category);
+    }
+  }
+
   async function saveCategory(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -2542,43 +2613,245 @@ function CategoriesPanel({ categories, products, onSave, onArchive, saving, need
   return <><div className="adminTitle"><div><p>CATALOGUE</p><h1>Categories</h1><span>Main categories pehle dikhti hain. Kisi category ko select karke uske andar subcategories manage karein.</span></div><button onClick={openNewMainCategory}><Plus /> Add main category</button></div>
     {needsSetup && <div className="adminErrorBanner">Supabase category table setup is pending. Run <b>scripts/supabase-catalog-categories.sql</b>, then reconnect admin data.</div>}
     <div className="miniMetricGrid productMetrics">
-      <article><Tags /><span><b>{mainCategories.length}</b>Main categories</span></article>
-      <article><Package /><span><b>{visibleCategories.filter((category) => category.parentSlug).length}</b>Subcategories</span></article>
-      <article><Store /><span><b>{visibleCategories.length}</b>Visible on store</span></article>
-      <article><X /><span><b>{archivedCategories.length}</b>Archived/removed</span></article>
+      <article onClick={() => setActiveTab("active")} style={{ cursor: "pointer" }}><Tags /><span><b>{mainCategories.length}</b>Main categories</span></article>
+      <article onClick={() => setActiveTab("active")} style={{ cursor: "pointer" }}><Package /><span><b>{visibleCategories.filter((category) => category.parentSlug).length}</b>Subcategories</span></article>
+      <article onClick={() => setActiveTab("active")} style={{ cursor: "pointer" }}><Store /><span><b>{visibleCategories.length}</b>Visible on store</span></article>
+      <article onClick={() => setActiveTab("archived")} style={{ cursor: "pointer", background: activeTab === "archived" ? "#fbf2f4" : "", outline: activeTab === "archived" ? "2px solid #7A2A3D" : "none" }} title="Click to view and restore archived categories"><X /><span><b>{archivedCategories.length}</b>Archived/removed</span></article>
       <article><Boxes /><span><b>{products.length}</b>Products mapped</span></article>
     </div>
 
-    <section className="categoryManagerGrid">
-      <div className="adminCard managementCard">
-        <div className="inventoryListHead"><div><h2>Main categories</h2><span>{mainCategories.length} storefront sections</span></div><button onClick={openNewMainCategory} disabled={saving}><Plus /> New main</button></div>
-        <div className="categoryTreeList">
-          {mainCategories.map((category) => {
-            const children = visibleCategories.filter((item) => item.parentSlug === category.slug);
-            return <button type="button" className={selectedCategory?.slug === category.slug ? "active" : ""} key={category.id} onClick={() => setSelectedSlug(category.slug)}>
-              <span style={{ backgroundImage: `url(${category.image || "/Kayfiy-campaign-hero-v4.png"})` }} />
-              <b>{category.name}</b>
-              <small>{children.length} subcategories · {productCount(category)} products</small>
-            </button>;
-          })}
-          {!mainCategories.length && <div className="inventoryEmpty">No main categories yet.</div>}
+    {/* View Tabs: Active vs Archived */}
+    <div style={{ display: "flex", gap: "10px", margin: "18px 0 14px", alignItems: "center" }}>
+      <button
+        type="button"
+        onClick={() => setActiveTab("active")}
+        style={{
+          padding: "8px 18px",
+          borderRadius: "9999px",
+          fontWeight: 700,
+          fontSize: "13px",
+          cursor: "pointer",
+          border: activeTab === "active" ? "1.5px solid #7A2A3D" : "1px solid #d5c8ca",
+          background: activeTab === "active" ? "#7A2A3D" : "#ffffff",
+          color: activeTab === "active" ? "#ffffff" : "#444",
+          boxShadow: activeTab === "active" ? "0 2px 6px rgba(122,42,61,0.2)" : "none",
+          transition: "all 0.2s"
+        }}
+      >
+        Active Categories ({visibleCategories.length})
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setActiveTab("archived")}
+        style={{
+          padding: "8px 18px",
+          borderRadius: "9999px",
+          fontWeight: 700,
+          fontSize: "13px",
+          cursor: "pointer",
+          border: activeTab === "archived" ? "1.5px solid #7A2A3D" : "1px solid #d5c8ca",
+          background: activeTab === "archived" ? "#7A2A3D" : "#ffffff",
+          color: activeTab === "archived" ? "#ffffff" : "#444",
+          boxShadow: activeTab === "archived" ? "0 2px 6px rgba(122,42,61,0.2)" : "none",
+          transition: "all 0.2s",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px"
+        }}
+      >
+        <span>Archived / Trash</span>
+        <span
+          style={{
+            background: activeTab === "archived" ? "rgba(255,255,255,0.25)" : "#f0e4e6",
+            color: activeTab === "archived" ? "#ffffff" : "#7A2A3D",
+            borderRadius: "9999px",
+            padding: "2px 8px",
+            fontSize: "11px",
+            fontWeight: 800
+          }}
+        >
+          {archivedCategories.length}
+        </span>
+      </button>
+    </div>
+
+    {activeTab === "active" ? (
+      <section className="categoryManagerGrid">
+        <div className="adminCard managementCard">
+          <div className="inventoryListHead"><div><h2>Main categories</h2><span>{mainCategories.length} storefront sections</span></div><button onClick={openNewMainCategory} disabled={saving}><Plus /> New main</button></div>
+          <div className="categoryTreeList">
+            {mainCategories.map((category) => {
+              const children = visibleCategories.filter((item) => item.parentSlug === category.slug);
+              return <button type="button" className={selectedCategory?.slug === category.slug ? "active" : ""} key={category.id} onClick={() => setSelectedSlug(category.slug)}>
+                <span style={{ backgroundImage: `url(${category.image || "/Kayfiy-campaign-hero-v4.png"})` }} />
+                <b>{category.name}</b>
+                <small>{children.length} subcategories · {productCount(category)} products</small>
+              </button>;
+            })}
+            {!mainCategories.length && <div className="inventoryEmpty">No main categories yet.</div>}
+          </div>
+        </div>
+
+        <div className="adminCard managementCard">
+          <div className="inventoryListHead"><div><h2>{selectedCategory?.name || "Select category"}</h2><span>{childCategories.length} subcategories inside</span></div>{selectedCategory && <button onClick={() => openNewSubcategory(selectedCategory)} disabled={saving}><Plus /> Add inside</button>}</div>
+          {selectedCategory && <div className="categoryParentSummary">
+            <div className="tableProduct"><span style={{ backgroundImage: `url(${selectedCategory.image || "/Kayfiy-campaign-hero-v4.png"})` }} /><div><b>{selectedCategory.name}</b><small><a href={`/collections/${selectedCategory.slug}`} target="_blank">/collections/{selectedCategory.slug}</a></small></div></div>
+            <div className="productRowActions"><button className="editProductButton" onClick={() => moveCategory(selectedCategory, -1)} disabled={saving} aria-busy={saving}>↑</button><button className="editProductButton" onClick={() => moveCategory(selectedCategory, 1)} disabled={saving} aria-busy={saving}>↓</button><button className="editProductButton" onClick={() => setEditing(selectedCategory)} disabled={saving} aria-busy={saving}>Edit main</button><button className="removeProductButton" onClick={() => confirmArchive(selectedCategory)} disabled={saving} aria-busy={saving}><X /><span>Archive</span></button></div>
+          </div>}
+          <div className="adminTableWrap"><table className="adminTable"><thead><tr><th>Subcategory</th><th>URL</th><th>Products</th><th>Status</th><th /></tr></thead><tbody>
+            {childCategories.map((category) => (
+              <tr key={category.id}><td><div className="tableProduct"><span style={{ backgroundImage: `url(${category.image || "/Kayfiy-campaign-hero-v4.png"})` }} /><div><b>{category.name}</b><small>{category.description || "No description"}</small></div></div></td><td><a href={`/collections/${category.slug}`} target="_blank">/collections/{category.slug}</a></td><td>{productCount(category)}</td><td><span className={`statusBadge ${category.status === "Active" ? "activeStatus" : "processing"}`}>{category.status}</span></td><td><div className="productRowActions"><button className="editProductButton" onClick={() => setEditing(category)} disabled={saving} aria-busy={saving}>Edit</button><button className="removeProductButton" onClick={() => confirmArchive(category)} disabled={saving} aria-busy={saving}><X /><span>Remove</span></button></div></td></tr>
+            ))}
+            {!childCategories.length && <tr><td colSpan="5"><div className="inventoryEmpty">No subcategories inside {selectedCategory?.name || "this category"} yet.</div></td></tr>}
+          </tbody></table></div>
+        </div>
+      </section>
+    ) : (
+      /* ─── ARCHIVED CATEGORIES VIEW: Restore & Permanent Delete ─── */
+      <div className="adminCard managementCard" style={{ width: "100%" }}>
+        <div className="inventoryListHead">
+          <div>
+            <h2>Archived Categories ({archivedCategories.length})</h2>
+            <span>Ye categories storefront se hidden hain. Yahan se aap inhein wapis storefront par restore kar sakte hain ya database se permanently delete kar sakte hain.</span>
+          </div>
+          <button type="button" onClick={() => setActiveTab("active")} style={{ padding: "6px 14px", borderRadius: "8px", border: "1px solid #e0d7d7", background: "#fff", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}>
+            ← Back to active categories
+          </button>
+        </div>
+
+        <div className="adminTableWrap">
+          <table className="adminTable">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Type</th>
+                <th>URL Slug</th>
+                <th>Products</th>
+                <th>Status</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {archivedCategories.map((category) => {
+                const isSubcategory = Boolean(category.parentSlug);
+                const parentCat = categories.find((c) => c.slug === category.parentSlug);
+                const pCount = productCount(category);
+
+                return (
+                  <tr key={category.id}>
+                    <td>
+                      <div className="tableProduct">
+                        <span style={{ backgroundImage: `url(${category.image || "/Kayfiy-campaign-hero-v4.png"})` }} />
+                        <div>
+                          <b>{category.name}</b>
+                          <small>{category.description || "No description"}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: "12px", color: isSubcategory ? "#5c5052" : "#7A2A3D", fontWeight: 600 }}>
+                        {isSubcategory ? `Subcategory of ${parentCat?.name || category.parentSlug}` : "Main Category"}
+                      </span>
+                    </td>
+                    <td>
+                      <code style={{ fontSize: "11px", color: "#666", background: "#f5f5f5", padding: "2px 6px", borderRadius: "4px" }}>
+                        /collections/{category.slug}
+                      </code>
+                    </td>
+                    <td>
+                      <b>{pCount}</b> {pCount === 1 ? "product" : "products"}
+                    </td>
+                    <td>
+                      <span className="statusBadge" style={{ background: "#fbebee", color: "#b91c1c", fontWeight: 600, padding: "3px 8px", borderRadius: "6px", fontSize: "11px" }}>
+                        Archived
+                      </span>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <div className="productRowActions" style={{ justifyContent: "flex-end", gap: "8px" }}>
+                        <button
+                          type="button"
+                          className="editProductButton"
+                          onClick={() => confirmRestore(category)}
+                          disabled={saving}
+                          style={{
+                            background: "#ecfdf5",
+                            color: "#047857",
+                            borderColor: "#a7f3d0",
+                            fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            padding: "6px 12px"
+                          }}
+                          title="Restore to active storefront"
+                        >
+                          <RotateCcw size={13} />
+                          <span>Restore</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="removeProductButton"
+                          onClick={() => confirmPermanentDelete(category)}
+                          disabled={saving}
+                          style={{
+                            background: "#fef2f2",
+                            color: "#b91c1c",
+                            borderColor: "#fecaca",
+                            fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            padding: "6px 12px"
+                          }}
+                          title="Delete forever from database"
+                        >
+                          <Trash2 size={13} />
+                          <span>Delete permanently</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {!archivedCategories.length && (
+                <tr>
+                  <td colSpan="6">
+                    <div className="inventoryEmpty" style={{ padding: "48px 24px", textAlign: "center" }}>
+                      <div style={{ fontSize: "36px", marginBottom: "8px" }}>📦</div>
+                      <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#2b2724", marginBottom: "4px" }}>
+                        No archived categories
+                      </h3>
+                      <p style={{ fontSize: "13px", color: "#777", maxWidth: "420px", margin: "0 auto 16px" }}>
+                        Koi category archived nahi hai. Jab aap kisi category ko remove ya archive karenge, wo yahan show hogi taake aap usay dobara restore ya permanently delete kar sakein.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("active")}
+                        style={{
+                          padding: "8px 18px",
+                          borderRadius: "10px",
+                          background: "#7A2A3D",
+                          color: "#fff",
+                          fontWeight: 600,
+                          fontSize: "12px",
+                          cursor: "pointer",
+                          border: "none"
+                        }}
+                      >
+                        View Active Categories
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div className="adminCard managementCard">
-        <div className="inventoryListHead"><div><h2>{selectedCategory?.name || "Select category"}</h2><span>{childCategories.length} subcategories inside</span></div>{selectedCategory && <button onClick={() => openNewSubcategory(selectedCategory)} disabled={saving}><Plus /> Add inside</button>}</div>
-        {selectedCategory && <div className="categoryParentSummary">
-          <div className="tableProduct"><span style={{ backgroundImage: `url(${selectedCategory.image || "/Kayfiy-campaign-hero-v4.png"})` }} /><div><b>{selectedCategory.name}</b><small><a href={`/collections/${selectedCategory.slug}`} target="_blank">/collections/{selectedCategory.slug}</a></small></div></div>
-          <div className="productRowActions"><button className="editProductButton" onClick={() => moveCategory(selectedCategory, -1)} disabled={saving} aria-busy={saving}>↑</button><button className="editProductButton" onClick={() => moveCategory(selectedCategory, 1)} disabled={saving} aria-busy={saving}>↓</button><button className="editProductButton" onClick={() => setEditing(selectedCategory)} disabled={saving} aria-busy={saving}>Edit main</button><button className="removeProductButton" onClick={() => confirmArchive(selectedCategory)} disabled={saving} aria-busy={saving}><X /><span>Archive</span></button></div>
-        </div>}
-        <div className="adminTableWrap"><table className="adminTable"><thead><tr><th>Subcategory</th><th>URL</th><th>Products</th><th>Status</th><th /></tr></thead><tbody>
-          {childCategories.map((category) => (
-            <tr key={category.id}><td><div className="tableProduct"><span style={{ backgroundImage: `url(${category.image || "/Kayfiy-campaign-hero-v4.png"})` }} /><div><b>{category.name}</b><small>{category.description || "No description"}</small></div></div></td><td><a href={`/collections/${category.slug}`} target="_blank">/collections/{category.slug}</a></td><td>{productCount(category)}</td><td><span className={`statusBadge ${category.status === "Active" ? "activeStatus" : "processing"}`}>{category.status}</span></td><td><div className="productRowActions"><button className="editProductButton" onClick={() => setEditing(category)} disabled={saving} aria-busy={saving}>Edit</button><button className="removeProductButton" onClick={() => confirmArchive(category)} disabled={saving} aria-busy={saving}><X /><span>Remove</span></button></div></td></tr>
-          ))}
-          {!childCategories.length && <tr><td colSpan="5"><div className="inventoryEmpty">No subcategories inside {selectedCategory?.name || "this category"} yet.</div></td></tr>}
-        </tbody></table></div>
-      </div>
-    </section>
+    )}
 
     {editing && <><div className="adminOverlay" onClick={() => !saving && setEditing(null)} /><form className="inventoryDialog categoryDialog" onSubmit={saveCategory}>
       <DialogHead title={editing.id ? "Edit category" : "Add category"} onClose={() => !saving && setEditing(null)} />
