@@ -34,8 +34,8 @@ export default function TestimonialsCarousel({
 
   return (
     <section aria-label="Customer reviews" className="bg-[#FAF5F2]/80 border-y border-neutral-200/60">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-16">
-        <div className="mb-8 flex items-end justify-between">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:py-10 lg:py-16 sm:px-6">
+        <div className="mb-6 sm:mb-8 flex items-end justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
@@ -77,7 +77,7 @@ export default function TestimonialsCarousel({
         {hasScreenshots ? (
           <ul
             ref={trackRef}
-            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 sm:gap-6 overflow-x-auto scroll-smooth px-4 pb-4 sm:mx-0 sm:px-0"
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 sm:gap-6 overflow-x-auto scroll-smooth px-4 pb-4 sm:mx-0 sm:px-0 touch-pan-x"
           >
             {screenshots.map((src, index) => (
               <li
@@ -120,7 +120,7 @@ export default function TestimonialsCarousel({
           /* Text Reviews Carousel (Fallback before admin uploads screenshots) */
           <ul
             ref={trackRef}
-            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:mx-0 sm:px-0"
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:mx-0 sm:px-0 touch-pan-x"
           >
             {reviews.map((review) => (
               <li

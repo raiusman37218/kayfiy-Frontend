@@ -62,7 +62,6 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
 
   const [index, setIndex] = useState(0);
   const viewportRef = useRef<HTMLElement>(null);
-  const [slideWidth, setSlideWidth] = useState(0);
   const paused = useRef(false);
   const lastTickRef = useRef<number>(Date.now());
 
@@ -73,17 +72,6 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
     },
     [slides.length]
   );
-
-  // Measure viewport accurately to avoid subpixel gaps
-  useEffect(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const measure = () => setSlideWidth(el.clientWidth);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   // Autoplay (Inunder style 3.5s interval)
   useEffect(() => {
@@ -131,7 +119,7 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
       ref={viewportRef}
       aria-label="Promotion Banners"
       aria-roledescription="carousel"
-      className="group relative w-full overflow-hidden select-none bg-neutral-100"
+      className="group relative w-full overflow-hidden select-none bg-neutral-100 touch-pan-y [touch-action:pan-y_pinch-zoom]"
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
       onFocusCapture={() => (paused.current = true)}
@@ -140,11 +128,11 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slides Container */}
+      {/* Slides Container - 100% GPU accelerated CSS percentage transform */}
       <div
-        className="flex transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        className="flex transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
         style={{
-          transform: isMultiSlide ? `translate3d(-${index * slideWidth}px, 0, 0)` : "none",
+          transform: isMultiSlide ? `translate3d(-${index * 100}%, 0, 0)` : "none",
         }}
       >
         {slides.map((slide, slideIndex) => {
@@ -166,7 +154,7 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
                       alt={slide.alt || `Promotion banner ${slideIndex + 1}`}
                       fill
                       priority={slideIndex === 0}
-                      sizes="100vw"
+                      sizes="(max-width: 639px) 100vw, 1px"
                       className="object-cover object-center"
                     />
                   </div>
@@ -177,7 +165,7 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
                       alt={slide.alt || `Promotion banner ${slideIndex + 1}`}
                       fill
                       priority={slideIndex === 0}
-                      sizes="100vw"
+                      sizes="(min-width: 640px) 100vw, 1px"
                       className="object-cover object-center"
                     />
                   </div>
@@ -222,14 +210,14 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
         })}
       </div>
 
-      {/* Left/Right Floating Circle Arrow Controls (Inunder style: 50px desktop, 40px mobile, white/80 bg, hover black) */}
+      {/* Left/Right Floating Circle Arrow Controls (Hidden on mobile for seamless swipe, visible on sm+ screens) */}
       {isMultiSlide && (
         <>
           <button
             type="button"
             onClick={() => goTo(index - 1)}
             aria-label="Previous banner"
-            className="absolute left-2.5 sm:left-5 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
+            className="hidden sm:flex absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
           >
             <svg
               className="h-4 w-4 sm:h-5 sm:w-5"
@@ -246,7 +234,7 @@ export default function HeroSlider({ slides: propSlides }: HeroSliderProps) {
             type="button"
             onClick={() => goTo(index + 1)}
             aria-label="Next banner"
-            className="absolute right-2.5 sm:right-5 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
+            className="hidden sm:flex absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white hover:opacity-100 opacity-80 cursor-pointer"
           >
             <svg
               className="h-4 w-4 sm:h-5 sm:w-5"

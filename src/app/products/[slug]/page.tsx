@@ -148,7 +148,7 @@ export default async function ProductPage({
       </div>
 
       <section className="border-t border-line">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:py-12 sm:px-6">
           <RelatedProductsCarousel title="You May Also Like" products={related} />
           <ReviewsSection reviews={reviews} />
         </div>

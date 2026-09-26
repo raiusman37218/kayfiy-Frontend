@@ -6,7 +6,7 @@ export default function LookbookBanner() {
   return (
     <section
       aria-label="The everyday lookbook"
-      className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-20"
+      className="mx-auto max-w-7xl px-4 py-3 sm:py-10 lg:py-16 sm:px-6"
     >
       <div className="group relative overflow-hidden rounded-3xl bg-blush shadow-sm">
         <div className="grid grid-cols-1 items-stretch md:grid-cols-12">

@@ -53,12 +53,12 @@ export default function RelatedProductsCarousel({
 
       <ul
         ref={trackRef}
-        className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:mx-0 sm:px-0"
+        className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 sm:gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:mx-0 sm:px-0 touch-pan-x"
       >
         {products.map((product) => (
           <li
             key={product.id}
-            className="w-[62%] shrink-0 snap-start sm:w-[38%] md:w-[30%] lg:w-[23%]"
+            className="w-[calc(50%-6px)] shrink-0 snap-start sm:w-[32%] md:w-[28%] lg:w-[23%]"
           >
             <ProductCard product={product} />
           </li>

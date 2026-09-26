@@ -115,13 +115,8 @@ function fallbackImageForSlug(slug: string, index: number): string {
     return PANTY_IMAGES[index % PANTY_IMAGES.length] || PANTY_IMAGES[0];
   if (s.includes("shape") || s.includes("cinch") || s.includes("suit"))
     return SHAPEWEAR_IMAGES[index % SHAPEWEAR_IMAGES.length] || SHAPEWEAR_IMAGES[0];
-  if (s.includes("pad"))
-    return PANTY_IMAGES[1] || "/images/brief-black-cotton.jpg";
+  if (s.includes("pad")) return PANTY_IMAGES[1] || "/images/brief-black-cotton.jpg";
   return BRA_IMAGES[index % BRA_IMAGES.length] || BRA_IMAGES[0];
-}
-
-function badgeForSlug(slug: string): string | undefined {
-  return undefined;
 }
 
 export interface CategoryStoriesProps {
@@ -129,7 +124,6 @@ export interface CategoryStoriesProps {
 }
 
 export default function CategoryStories({ categories }: CategoryStoriesProps) {
-  // Build stories array from dbCategories or fallback
   const stories: CategoryStory[] = (() => {
     if (categories && categories.length > 0) {
       const mainCats = categories
@@ -153,159 +147,104 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
             (cat.image.startsWith("http") || cat.image.startsWith("/"))
               ? cat.image
               : fallbackImageForSlug(cat.slug, idx),
-          badge: badgeForSlug(cat.slug),
         }));
       }
     }
     return DEFAULT_STORIES;
   })();
 
-  const count = stories.length;
-  // Duplicate 3 times for seamless infinite circular movement
-  const extendedStories = [...stories, ...stories, ...stories];
+  const desktopTrackRef = useRef<HTMLDivElement>(null);
+  const mobileTrackRef = useRef<HTMLDivElement>(null);
+  const [desktopIndex, setDesktopIndex] = useState(0);
+  const itemsPerViewDesktop = 5;
+  const maxDesktopIndex = Math.max(0, stories.length - itemsPerViewDesktop);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [itemsPerView, setItemsPerView] = useState(5);
-  const [itemWidth, setItemWidth] = useState(0);
-  const [index, setIndex] = useState(count);
-  const [isTransitioning, setIsTransitioning] = useState(true);
-  const paused = useRef(false);
+  const handleNextDesktop = useCallback(() => {
+    setDesktopIndex((prev) => (prev >= maxDesktopIndex ? 0 : prev + 1));
+  }, [maxDesktopIndex]);
 
-  // Responsive items-per-view calculation: Exactly 5 items in view on desktop (lg: >=1024px)
-  const updateDimensions = useCallback(() => {
-    if (!containerRef.current) return;
-    const width = containerRef.current.clientWidth;
-    let ipv = 5;
-    if (width < 450) {
-      ipv = 2.2; // Mobile: 2 rectangular product-style cards + peek of 3rd
-    } else if (width < 640) {
-      ipv = 2.6;
-    } else if (width < 768) {
-      ipv = 3;
-    } else if (width < 1024) {
-      ipv = 4;
-    } else {
-      ipv = 5; // Exactly 5 on desktop view
-    }
-    setItemsPerView(ipv);
-    setItemWidth(width / ipv);
-  }, []);
+  const handlePrevDesktop = useCallback(() => {
+    setDesktopIndex((prev) => (prev <= 0 ? maxDesktopIndex : prev - 1));
+  }, [maxDesktopIndex]);
 
+  // Autoplay only on desktop screen sizes (window width >= 768px)
   useEffect(() => {
-    updateDimensions();
-    const el = containerRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(updateDimensions);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [updateDimensions]);
-
-  // Next slide
-  const handleNext = useCallback(() => {
-    setIsTransitioning(true);
-    setIndex((prev) => prev + 1);
-  }, []);
-
-  // Previous slide
-  const handlePrev = useCallback(() => {
-    setIsTransitioning(true);
-    setIndex((prev) => prev - 1);
-  }, []);
-
-  // Seamless infinite loop normalization
-  const handleTransitionEnd = () => {
-    if (index >= count * 2) {
-      setIsTransitioning(false);
-      setIndex(index - count);
-    } else if (index < count) {
-      setIsTransitioning(false);
-      setIndex(index + count);
-    }
-  };
-
-  // Re-enable smooth transition right after silent index reset
-  useEffect(() => {
-    if (!isTransitioning) {
-      const raf = requestAnimationFrame(() => {
-        setIsTransitioning(true);
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-  }, [isTransitioning]);
-
-  // Autoplay movement: smooth continuous cycle every 3.2 seconds
-  useEffect(() => {
-    if (count <= itemsPerView) return;
-
+    if (typeof window === "undefined" || window.innerWidth < 768) return;
     const timer = setInterval(() => {
-      if (!paused.current) {
-        handleNext();
-      }
-    }, 3200);
-
+      handleNextDesktop();
+    }, 4000);
     return () => clearInterval(timer);
-  }, [count, itemsPerView, handleNext]);
-
-  // Touch gesture swipe handling
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-    touchEndX.current = null;
-    paused.current = true;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    paused.current = false;
-    if (touchStartX.current !== null && touchEndX.current !== null) {
-      const diff = touchStartX.current - touchEndX.current;
-      if (diff > 45) {
-        handleNext();
-      } else if (diff < -45) {
-        handlePrev();
-      }
-    }
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
+  }, [handleNextDesktop]);
 
   return (
     <section
       aria-label="Shop by category"
-      className="relative mx-auto max-w-7xl px-3 pt-6 pb-4 sm:px-6 sm:pt-8 select-none"
-      onMouseEnter={() => {
-        paused.current = true;
-      }}
-      onMouseLeave={() => {
-        paused.current = false;
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className="relative mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-8 select-none"
     >
       {/* Centered Section Header */}
-      <div className="mb-5 sm:mb-8 text-center">
+      <div className="mb-4 sm:mb-8 text-center">
         <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal">
           Shop by Category
         </h2>
-        <div className="mx-auto mt-2.5 h-0.5 w-12 bg-gradient-to-r from-transparent via-[#7A2A3D] to-transparent" />
+        <div className="mx-auto mt-2 h-0.5 w-12 bg-gradient-to-r from-transparent via-[#7A2A3D] to-transparent" />
       </div>
 
-      <div className="relative group">
+      {/* ─── MOBILE VIEW: Native 60fps Hardware-Accelerated Touch Track (< sm) ─── */}
+      <div
+        ref={mobileTrackRef}
+        className="sm:hidden no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory touch-pan-x"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {stories.map((story) => (
+          <div
+            key={story.slug}
+            className="w-[145px] xs:w-[160px] shrink-0 snap-start"
+          >
+            <Link
+              href={story.href}
+              className="flex flex-col w-full h-full overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-[#ECE5E5] transition-transform active:scale-[0.98]"
+            >
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F5F3]">
+                <Image
+                  src={story.image}
+                  alt={story.name}
+                  fill
+                  sizes="160px"
+                  className="object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/25 via-black/5 to-transparent pointer-events-none" />
+                <div className="absolute top-2 right-2 z-10">
+                  <span className="inline-block rounded-full bg-white/90 px-2 py-0.5 text-[8px] font-bold tracking-wider text-[#7A2A3D] uppercase shadow-2xs border border-white/60">
+                    Explore
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-2.5 text-center flex flex-col justify-between flex-1 bg-white">
+                <h3 className="font-bold text-xs text-charcoal leading-snug truncate w-full">
+                  {story.name}
+                </h3>
+                <p className="mt-1 text-[10px] font-semibold text-[#7A2A3D] flex items-center justify-center gap-0.5">
+                  <span>Shop Now</span>
+                  <span className="text-[9px]">→</span>
+                </p>
+              </div>
+            </Link>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── DESKTOP VIEW: Circular Story Carousel with Chevrons (sm: and up) ─── */}
+      <div className="hidden sm:block relative group">
         {/* Left Arrow Button */}
         <button
           type="button"
-          onClick={handlePrev}
+          onClick={handlePrevDesktop}
           aria-label="Previous categories"
-          className="absolute -left-1 sm:-left-4 top-[42%] -translate-y-1/2 z-30 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+          className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
         >
           <svg
-            className="h-4 w-4 sm:h-6 sm:w-6"
+            className="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -315,121 +254,38 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
           </svg>
         </button>
 
-        {/* Carousel Track Viewport */}
-        <div ref={containerRef} className="w-full overflow-hidden py-2 sm:py-3">
+        {/* Carousel Viewport */}
+        <div ref={desktopTrackRef} className="w-full overflow-hidden py-3">
           <div
-            className="flex"
+            className="flex transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
             style={{
-              transform: `translate3d(-${index * itemWidth}px, 0, 0)`,
-              transition: isTransitioning
-                ? "transform 600ms cubic-bezier(0.25, 1, 0.5, 1)"
-                : "none",
+              transform: `translate3d(-${desktopIndex * (100 / itemsPerViewDesktop)}%, 0, 0)`,
             }}
-            onTransitionEnd={handleTransitionEnd}
           >
-            {extendedStories.map((story, i) => (
+            {stories.map((story) => (
               <div
-                key={`${story.slug}-${i}`}
-                className="shrink-0 flex justify-center px-1.5 sm:px-2.5"
-                style={{ width: `${itemWidth}px` }}
+                key={story.slug}
+                className="w-1/3 md:w-1/4 lg:w-1/5 shrink-0 px-2 sm:px-3"
               >
                 <Link
                   href={story.href}
-                  className="group/item flex flex-col w-full h-full items-center"
+                  className="group/item flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
                 >
-                  {/* ─── MOBILE VIEW: Gorgeous Rectangular Product-Card-Style (< sm) ─── */}
-                  <div className="sm:hidden flex flex-col w-full h-full overflow-hidden rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-[#ECE5E5] transition-all duration-300 hover:shadow-md active:scale-[0.98]">
-                    {/* Rectangular Image Container */}
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F5F3]">
+                  <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-md transition-all duration-300 group-hover/item:shadow-xl group-hover/item:scale-105">
+                    <div className="relative sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44 overflow-hidden rounded-full border-4 border-white bg-blush shadow-inner">
                       <Image
                         src={story.image}
                         alt={story.name}
                         fill
-                        sizes="(max-width: 640px) 200px, 250px"
-                        className="object-cover transition-transform duration-500 group-hover/item:scale-105"
+                        sizes="180px"
+                        className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                       />
-
-                      {/* Subtle Bottom Shadow Vignette */}
-                      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 via-black/5 to-transparent pointer-events-none" />
-
-                      {/* Shezaib-style Corner Badge */}
-                      {story.badge ? (
-                        <div className="absolute top-2 right-2 z-10">
-                          <span
-                            className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-black tracking-wider text-white shadow-xs uppercase ${
-                              story.badge === "Hot"
-                                ? "bg-[#7A2A3D]"
-                                : story.badge === "Sale"
-                                ? "bg-[#E50000]"
-                                : "bg-charcoal"
-                            }`}
-                          >
-                            {story.badge}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="absolute top-2 right-2 z-10">
-                          <span className="inline-block rounded-full bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[8px] font-bold tracking-wider text-[#7A2A3D] uppercase shadow-2xs border border-white/60">
-                            Explore
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Bottom-right sparkle icon (Shezaib aesthetic touch) */}
-                      <div className="pointer-events-none absolute bottom-1.5 right-1.5 z-10 text-white/80 drop-shadow-sm opacity-70">
-                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2l2.2 7.8 7.8 2.2-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Shezaib-style Clean Text Body */}
-                    <div className="p-2.5 text-center flex flex-col justify-between flex-1 bg-white">
-                      <h3 className="font-bold text-xs xs:text-sm text-charcoal leading-snug truncate w-full group-hover/item:text-[#7A2A3D] transition-colors">
-                        {story.name}
-                      </h3>
-                      <p className="mt-1 text-[10px] font-semibold text-[#7A2A3D] flex items-center justify-center gap-1">
-                        <span>Shop Now</span>
-                        <span className="text-[9px] transition-transform duration-200 group-hover/item:translate-x-0.5">→</span>
-                      </p>
                     </div>
                   </div>
 
-                  {/* ─── DESKTOP VIEW: Round Circular Story (sm: and up) ─── */}
-                  <div className="hidden sm:flex flex-col items-center text-center transition-transform duration-300 hover:scale-105">
-                    {/* Large Story Circle with Luxury Gradient Ring */}
-                    <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#7A2A3D] via-[#c07e8c] to-[#b08d4f] shadow-md transition-all duration-300 group-hover/item:shadow-xl group-hover/item:scale-105 group-hover/item:from-[#b08d4f] group-hover/item:to-[#7A2A3D]">
-                      <div className="relative sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44 xl:h-48 xl:w-48 overflow-hidden rounded-full border-4 border-white bg-blush shadow-inner">
-                        <Image
-                          src={story.image}
-                          alt={story.name}
-                          fill
-                          sizes="(max-width: 1024px) 170px, 200px"
-                          className="object-cover transition-transform duration-500 group-hover/item:scale-110"
-                        />
-                      </div>
-
-                      {/* Optional badge pill */}
-                      {story.badge && (
-                        <span
-                          className={`absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase text-white shadow-md ${
-                            story.badge === "Hot"
-                              ? "bg-[#7A2A3D]"
-                              : story.badge === "Sale"
-                              ? "bg-[#b08d4f]"
-                              : "bg-charcoal"
-                          }`}
-                        >
-                          {story.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Category Name Label */}
-                    <span className="mt-3 text-sm md:text-base font-bold tracking-tight text-charcoal group-hover/item:text-[#7A2A3D] transition-colors max-w-[170px] truncate">
-                      {story.name}
-                    </span>
-                  </div>
+                  <span className="mt-3 text-sm md:text-base font-bold tracking-tight text-charcoal group-hover/item:text-[#7A2A3D] transition-colors max-w-[170px] truncate">
+                    {story.name}
+                  </span>
                 </Link>
               </div>
             ))}
@@ -439,12 +295,12 @@ export default function CategoryStories({ categories }: CategoryStoriesProps) {
         {/* Right Arrow Button */}
         <button
           type="button"
-          onClick={handleNext}
+          onClick={handleNextDesktop}
           aria-label="Next categories"
-          className="absolute -right-1 sm:-right-4 top-[42%] -translate-y-1/2 z-30 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer opacity-90 group-hover:opacity-100"
+          className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
         >
           <svg
-            className="h-4 w-4 sm:h-6 sm:w-6"
+            className="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

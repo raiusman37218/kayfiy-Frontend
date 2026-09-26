@@ -55,7 +55,7 @@ export default async function CollectionPage({
         trail={trail}
       />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:py-8 sm:px-6">
         {/* Category Hierarchy Subcategory Filter Pills */}
         {collection.subcategories && collection.subcategories.length > 0 && (
           <div className="mb-8 flex flex-wrap items-center gap-2 border-b border-line/60 pb-5">

@@ -3,7 +3,7 @@ import NewsletterForm from "./NewsletterForm";
 export default function NewsletterSection() {
   return (
     <section aria-label="Newsletter" className="bg-maroon">
-      <div className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 lg:py-20">
+      <div className="mx-auto max-w-3xl px-4 py-8 text-center sm:px-6 sm:py-14 lg:py-20">
         <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-3.5 py-1 text-[10px] font-bold tracking-[0.18em] text-gold-soft uppercase">
           <span className="h-1.5 w-1.5 rounded-full bg-gold" />
           Stay in touch

@@ -86,7 +86,7 @@ export default function ProductCarousel({
     >
       <div
         className={`mx-auto max-w-7xl px-4 ${
-          banner ? "py-10 sm:py-14" : "py-8 sm:py-10 lg:py-12"
+          banner ? "py-6 sm:py-12" : "py-5 sm:py-8 lg:py-12"
         } sm:px-6`}
       >
         {/* Optional Graphic Banner */}
@@ -208,19 +208,19 @@ export default function ProductCarousel({
 
         {/* Products Track with Floating Left / Right Chevrons */}
         <div className="relative group">
-          {/* Left Arrow Button */}
+          {/* Left Arrow Button (Desktop only, mobile swipes natively) */}
           <button
             type="button"
             onClick={() => scrollBy(-1)}
             aria-label={`Scroll ${title} left`}
-            className="absolute -left-2 sm:-left-4 top-[40%] -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
+            className="hidden sm:flex absolute sm:-left-4 top-[40%] -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
           >
             <ChevronIcon className="h-4 w-4 sm:h-5 sm:w-5 rotate-90" />
           </button>
 
           <ul
             ref={trackRef}
-            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:mx-0 sm:px-0"
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:mx-0 sm:px-0 touch-pan-x"
           >
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
@@ -238,12 +238,12 @@ export default function ProductCarousel({
             )}
           </ul>
 
-          {/* Right Arrow Button */}
+          {/* Right Arrow Button (Desktop only, mobile swipes natively) */}
           <button
             type="button"
             onClick={() => scrollBy(1)}
             aria-label={`Scroll ${title} right`}
-            className="absolute -right-2 sm:-right-4 top-[40%] -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
+            className="hidden sm:flex absolute sm:-right-4 top-[40%] -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-charcoal shadow-xl border border-neutral-200 transition-all duration-300 hover:bg-[#7A2A3D] hover:text-white hover:border-[#7A2A3D] hover:scale-110 cursor-pointer active:scale-95"
           >
             <ChevronIcon className="h-4 w-4 sm:h-5 sm:w-5 -rotate-90" />
           </button>

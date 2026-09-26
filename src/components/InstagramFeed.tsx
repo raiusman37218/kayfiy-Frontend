@@ -46,7 +46,7 @@ export default function InstagramFeed() {
   };
 
   return (
-    <section aria-label="Instagram Reels" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-16">
+    <section aria-label="Instagram Reels" className="mx-auto max-w-7xl px-4 py-6 sm:py-10 lg:py-16 sm:px-6">
       <div className="mb-6 sm:mb-8 flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-amber-500/10 px-4 py-1.5 border border-pink-200">
           <InstagramIcon className="h-4 w-4 text-[#7A2A3D]" />
@@ -86,7 +86,7 @@ export default function InstagramFeed() {
         {/* Reels Track: Native touch-swipe on mobile + smooth scroll */}
         <div
           ref={trackRef}
-          className="no-scrollbar -mx-4 flex gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4 pb-3 sm:mx-0 sm:px-0"
+          className="no-scrollbar -mx-4 flex gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4 pb-3 sm:mx-0 sm:px-0 touch-pan-x"
         >
           {REELS.map((reel, index) => (
             <a
