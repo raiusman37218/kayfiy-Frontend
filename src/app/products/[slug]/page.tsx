@@ -63,12 +63,12 @@ export default async function ProductPage({
   trail.push({ label: product.name });
 
   return (
-    <main>
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+    <main className="pb-24 sm:pb-0">
+      <div className="mx-auto max-w-7xl px-4 pt-3 sm:pt-6 sm:px-6">
         <Breadcrumbs trail={trail} />
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:py-12">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-3 sm:px-6 sm:py-8 lg:grid-cols-2 lg:gap-14 lg:py-12">
         <ProductGallery
           images={productImages}
           name={product.name}

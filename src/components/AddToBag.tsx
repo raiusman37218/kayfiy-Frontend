@@ -38,7 +38,7 @@ export default function AddToBag({ product }: { product: Product }) {
   };
 
   return (
-    <div className="mt-7 font-sans">
+    <div className="mt-5 sm:mt-7 font-sans">
       <div className="flex items-baseline justify-between">
         <p className="text-xs font-bold tracking-wider text-black uppercase">
           Size
@@ -55,14 +55,14 @@ export default function AddToBag({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-2.5 sm:mt-3 flex flex-wrap gap-2">
         {sizes.map((option) => (
           <button
             key={option}
             type="button"
             onClick={() => setSize(option)}
             aria-pressed={size === option}
-            className={`min-w-14 rounded-full border px-4 py-2 text-sm font-medium transition cursor-pointer ${
+            className={`min-w-12 sm:min-w-14 rounded-full border px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition active:scale-95 cursor-pointer ${
               size === option
                 ? "border-[#7A2A3D] bg-[#7A2A3D] text-white shadow-xs"
                 : "border-line bg-white text-black hover:border-black hover:bg-blush"
@@ -73,18 +73,18 @@ export default function AddToBag({ product }: { product: Product }) {
         ))}
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-4">
-        <div className="flex items-center rounded-full border border-line bg-white">
+      <div className="mt-5 sm:mt-6 flex items-center gap-3 sm:gap-4">
+        <div className="flex h-12 items-center rounded-full border border-line bg-white">
           <button
             type="button"
             onClick={() => setQty((value) => Math.max(1, value - 1))}
             aria-label="Decrease quantity"
             disabled={!isAvailable}
-            className="px-4 py-2.5 font-bold text-black transition hover:text-[#7A2A3D] disabled:opacity-40 cursor-pointer"
+            className="px-3.5 sm:px-4 py-2 text-base font-bold text-black transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
           >
             −
           </button>
-          <span aria-live="polite" className="w-8 text-center text-sm font-bold text-black">
+          <span aria-live="polite" className="w-7 sm:w-8 text-center text-sm font-bold text-black">
             {qty}
           </span>
           <button
@@ -92,7 +92,7 @@ export default function AddToBag({ product }: { product: Product }) {
             onClick={() => setQty((value) => Math.min(10, value + 1))}
             aria-label="Increase quantity"
             disabled={!isAvailable}
-            className="px-4 py-2.5 font-bold text-black transition hover:text-[#7A2A3D] disabled:opacity-40 cursor-pointer"
+            className="px-3.5 sm:px-4 py-2 text-base font-bold text-black transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
           >
             +
           </button>
@@ -102,7 +102,7 @@ export default function AddToBag({ product }: { product: Product }) {
           type="button"
           onClick={handleAdd}
           disabled={!isAvailable}
-          className="flex-1 rounded-full bg-[#7A2A3D] px-8 py-3.5 text-xs font-bold tracking-[0.16em] text-white uppercase shadow-md transition hover:bg-[#5C1C2C] hover:shadow-lg disabled:cursor-not-allowed disabled:bg-line disabled:text-muted-soft sm:flex-none cursor-pointer"
+          className="flex-1 h-12 flex items-center justify-center rounded-full bg-[#7A2A3D] px-6 sm:px-8 text-xs sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.16em] text-white uppercase shadow-md transition hover:bg-[#5C1C2C] hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted-soft cursor-pointer"
         >
           {isAvailable ? "Add to Bag" : "Out of Stock"}
         </button>

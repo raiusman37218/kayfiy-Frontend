@@ -50,7 +50,7 @@ export default function StickyMobileBuyBar({ product }: { product: Product }) {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 block border-t border-line bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all duration-300 sm:hidden animate-slide-up">
+    <div className="fixed inset-x-0 bottom-0 z-40 block border-t border-line bg-white/95 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all duration-300 sm:hidden animate-slide-up">
       <div className="flex items-center justify-between gap-3">
         {/* Thumbnail & Title */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
