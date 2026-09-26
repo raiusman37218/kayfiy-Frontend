@@ -440,19 +440,34 @@ async function deleteProductDirect(productId) {
   if (!productId) throw new Error("Product is required.");
 
   try {
-    // 1. Delete inventory movements first
+    // 1. Unlink any order items referencing this product so order history is preserved
+    await supabaseAdminRequest(`order_items?product_id=eq.${encodeURIComponent(productId)}`, {
+      method: "PATCH",
+      prefer: "return=minimal",
+      body: {
+        product_id: null,
+      },
+    }).catch(() => {});
+
+    // 2. Clean virtual try-on cache
+    await supabaseAdminRequest(`tryon_cache?product_id=eq.${encodeURIComponent(productId)}`, {
+      method: "DELETE",
+      prefer: "return=minimal",
+    }).catch(() => {});
+
+    // 3. Delete inventory movements first
     await supabaseAdminRequest(`inventory_movements?product_id=eq.${encodeURIComponent(productId)}`, {
       method: "DELETE",
       prefer: "return=minimal",
     }).catch(() => {});
 
-    // 2. Delete inventory record
+    // 4. Delete inventory record
     await supabaseAdminRequest(`inventory?product_id=eq.${encodeURIComponent(productId)}`, {
       method: "DELETE",
       prefer: "return=minimal",
     }).catch(() => {});
 
-    // 3. Delete product from products table
+    // 5. Delete product from products table
     await supabaseAdminRequest(`products?id=eq.${encodeURIComponent(productId)}`, {
       method: "DELETE",
       prefer: "return=minimal",
@@ -460,22 +475,8 @@ async function deleteProductDirect(productId) {
 
     return { deleted: true, archived: false };
   } catch (error) {
-    // If referenced in orders, preserve revenue & history but archive product from active list
-    const existing = await supabaseAdminRequest(`products?id=eq.${encodeURIComponent(productId)}&select=cost_breakdown`).catch(() => []);
-    const existingBreakdown = parseJsonObject(existing?.[0]?.cost_breakdown);
-    const updatedMetadata = { ...parseJsonObject(existingBreakdown.metadata), status: "Archived" };
-    const updatedBreakdown = JSON.stringify({ ...existingBreakdown, metadata: updatedMetadata });
-
-    await supabaseAdminRequest(`products?id=eq.${encodeURIComponent(productId)}`, {
-      method: "PATCH",
-      prefer: "return=minimal",
-      body: {
-        instock: false,
-        cost_breakdown: updatedBreakdown,
-      },
-    }).catch(() => {});
-
-    return { deleted: false, archived: true };
+    console.error("Direct product deletion failed:", error);
+    throw new Error(error?.message || "Failed to permanently delete product.");
   }
 }
 
@@ -631,10 +632,14 @@ export async function DELETE(request) {
       const deleted = await supabaseAdminRpc("admin_delete_product_v2", {
         p_id: productId,
       });
-      result = {
-        deleted: Boolean(deleted),
-        archived: !deleted,
-      };
+      if (deleted) {
+        result = {
+          deleted: true,
+          archived: false,
+        };
+      } else {
+        result = await deleteProductDirect(productId);
+      }
     } catch (error) {
       result = await deleteProductDirect(productId);
     }

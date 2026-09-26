@@ -953,8 +953,8 @@ export default function AdminDashboard() {
     const productId = targetProduct?.id || product;
 
     requestConfirm({
-      title: "Remove Product",
-      message: `Are you sure you want to remove "${productName}"? If it has order history, it will be archived and hidden from the store.`,
+      title: "Delete Product",
+      message: `Are you sure you want to delete "${productName}"? This product and its inventory will be permanently deleted.`,
       confirmText: "Delete Product",
       isDanger: true,
       onConfirm: async () => {
@@ -970,9 +970,6 @@ export default function AdminDashboard() {
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || "Unable to remove product.");
           await loadAdminData();
-          if (result.archived) {
-            setOrdersError(`${productName} was archived because it may be linked to existing order history.`);
-          }
         } catch (error) {
           setOrdersError(error.message || "Product deletion failed.");
           await loadAdminData();
