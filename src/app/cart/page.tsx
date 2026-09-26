@@ -40,11 +40,6 @@ export default function CartPage() {
   const isFreeShipping = subtotal >= freeThreshold;
   const shipping = subtotal === 0 || isFreeShipping ? 0 : shippingFee;
   const total = subtotal + shipping;
-  const progressPercent = Math.min(
-    100,
-    Math.round((subtotal / freeThreshold) * 100),
-  );
-  const remainingForFree = Math.max(0, freeThreshold - subtotal);
 
   return (
     <main>
@@ -96,55 +91,6 @@ export default function CartPage() {
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
             <div>
-              {/* Free delivery progress */}
-              <div
-                className={`mb-5 rounded-2xl border p-4 sm:px-5 ${
-                  isFreeShipping
-                    ? "border-[#CFE0D2] bg-[#EEF4EE]"
-                    : "border-[#EDC9D0] bg-[#FCF0F2]"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  {isFreeShipping ? (
-                    <p className="flex items-center gap-2 text-xs font-semibold text-[#33573C] sm:text-sm">
-                      <svg
-                        className="h-4 w-4 shrink-0"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Free nationwide delivery unlocked
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-xs text-charcoal sm:text-sm">
-                        Add{" "}
-                        <strong className="font-semibold text-maroon">
-                          {formatPrice(remainingForFree)}
-                        </strong>{" "}
-                        more for free nationwide delivery
-                      </p>
-                      <span className="shrink-0 text-xs font-bold text-muted">
-                        {progressPercent}%
-                      </span>
-                    </>
-                  )}
-                </div>
-                <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/70">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      isFreeShipping ? "bg-[#3F6B4A]" : "bg-maroon"
-                    }`}
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              </div>
-
               {/* Line items */}
               <ul className="space-y-3">
                 {lines.map((line) => (

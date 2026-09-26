@@ -5,47 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "./useCart";
-import { formatPrice, slug } from "@/lib/data";
-import { fetchDbStoreSettings } from "@/lib/supabase";
-
-// High-converting popular add-on items for cart drawer upsell
-const UPSELL_ITEMS = [
-  {
-    slug: "seamless-cotton-everyday-panty",
-    name: "Seamless Cotton Everyday Brief",
-    size: "Free Size",
-    price: 499,
-    image: "/banners/hero-fit.jpg",
-  },
-  {
-    slug: "silicone-bra-strap-cushions",
-    name: "Soft Silicone Shoulder Strap Cushions",
-    size: "Universal",
-    price: 399,
-    image: "/banners/hero-budget.jpg",
-  },
-];
+import { formatPrice } from "@/lib/data";
 
 export default function CartDrawer() {
-  const { lines, count, subtotal, isOpen, closeCart, setQty, remove, add } = useCart();
-  const [freeThreshold, setFreeThreshold] = useState(3500);
+  const { lines, count, subtotal, isOpen, closeCart, setQty, remove } = useCart();
   const [noteOpen, setNoteOpen] = useState(false);
   const [orderNote, setOrderNote] = useState("");
   const pathname = usePathname();
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        const settings = await fetchDbStoreSettings();
-        if (settings && typeof settings.free_delivery_threshold_pkr === "number") {
-          setFreeThreshold(Number(settings.free_delivery_threshold_pkr));
-        }
-      } catch {
-        // fallback to 3500
-      }
-    }
-    loadSettings();
-  }, []);
 
   // Always close drawer when entering checkout page
   useEffect(() => {
@@ -67,15 +33,6 @@ export default function CartDrawer() {
   }, [isOpen, pathname]);
 
   if (!isOpen || pathname === "/checkout") return null;
-
-  const isFreeShipping = subtotal >= freeThreshold;
-  const progressPercent = Math.min(100, Math.round((subtotal / freeThreshold) * 100));
-  const remainingForFree = Math.max(0, freeThreshold - subtotal);
-
-  // Filter upsells that aren't already in the cart
-  const availableUpsells = UPSELL_ITEMS.filter(
-    (u) => !lines.some((l) => l.slug === u.slug)
-  );
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden font-sans">
@@ -113,46 +70,7 @@ export default function CartDrawer() {
             </button>
           </div>
 
-          {/* 2. Free Delivery Progress Bar (Shopify Standard) */}
-          <div
-            className={`border-b px-5 py-3 transition-colors duration-300 ${
-              isFreeShipping
-                ? "border-[#CFE0D2] bg-[#EEF4EE]"
-                : "border-line bg-[#FCF0F2]"
-            }`}
-          >
-            <div className="flex items-center justify-between gap-3 text-xs">
-              {isFreeShipping ? (
-                <p className="flex items-center gap-1.5 font-bold text-[#33573C]">
-                  <span className="text-sm">🎉</span>
-                  <span>You&apos;ve unlocked <strong>FREE Delivery</strong>!</span>
-                </p>
-              ) : (
-                <>
-                  <p className="text-charcoal text-xs">
-                    Add{" "}
-                    <strong className="font-bold text-[#7A2A3D]">
-                      {formatPrice(remainingForFree)}
-                    </strong>{" "}
-                    more for <strong>FREE Delivery</strong>
-                  </p>
-                  <span className="shrink-0 text-[11px] font-bold text-muted">
-                    {progressPercent}%
-                  </span>
-                </>
-              )}
-            </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ease-out ${
-                  isFreeShipping ? "bg-[#3F6B4A]" : "bg-[#7A2A3D]"
-                }`}
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* 3. Items List */}
+          {/* 2. Items List */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
             {lines.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center py-12 animate-fade-in">
@@ -250,37 +168,7 @@ export default function CartDrawer() {
               </ul>
             )}
 
-            {/* 4. Frequently Bought Together / Upsell (Shopify Feature) */}
-            {lines.length > 0 && availableUpsells.length > 0 && (
-              <div className="rounded-2xl border border-line bg-[#FAF7F5] p-3.5 space-y-2.5 mt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
-                    Frequently Bought Together
-                  </span>
-                  <span className="text-[10px] font-semibold text-[#7A2A3D]">Popular Add-on</span>
-                </div>
-                {availableUpsells.slice(0, 1).map((item) => (
-                  <div key={item.slug} className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-xl border border-line/60">
-                    <div className="relative h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-blush">
-                      <Image src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-charcoal truncate">{item.name}</p>
-                      <p className="text-[11px] font-bold text-[#7A2A3D]">{formatPrice(item.price)}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => add({ slug: item.slug, name: item.name, price: item.price, image: item.image, size: item.size }, 1, false)}
-                      className="shrink-0 rounded-lg bg-blush px-3 py-1.5 text-xs font-bold text-[#7A2A3D] hover:bg-[#7A2A3D] hover:text-white transition cursor-pointer active:scale-95"
-                    >
-                      + Add
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* 5. Collapsible Order Note (Shopify Standard) */}
+            {/* 3. Collapsible Order Note (Shopify Standard) */}
             {lines.length > 0 && (
               <div className="border-t border-line pt-3">
                 <button
@@ -309,17 +197,9 @@ export default function CartDrawer() {
             )}
           </div>
 
-          {/* 6. Sticky High-Converting Shopify Footer */}
+          {/* 4. Sticky High-Converting Shopify Footer */}
           {lines.length > 0 && (
             <div className="border-t border-line bg-[#FAF7F5] p-4 sm:p-5 shadow-lg">
-              {/* Discreet Guarantee */}
-              <div className="mb-3 flex items-center gap-2 rounded-xl bg-white border border-line/80 px-3 py-2 text-[11px] text-charcoal">
-                <svg className="h-4 w-4 shrink-0 text-[#7A2A3D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75M6.75 21h10.5a2.25 2.25 0 002.25-2.25v-6a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 12.75v6A2.25 2.25 0 006.75 21z" />
-                </svg>
-                <span><strong>100% Discreet Packaging:</strong> Plain box with zero labels outside.</span>
-              </div>
-
               {/* Subtotal */}
               <div className="flex items-center justify-between text-sm text-charcoal">
                 <span className="text-muted font-medium">Estimated Subtotal</span>
