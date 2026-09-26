@@ -100,8 +100,8 @@ export default function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3 sm:gap-3.5 w-full select-none">
-      {/* Main Slide Track Viewport (Constrained on mobile so entire photo fits in viewport) */}
-      <div className="group relative w-full aspect-[4/5] max-h-[50vh] sm:max-h-[540px] md:max-h-[600px] overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f8f6f4] shadow-xs">
+      {/* Main Slide Track Viewport (Sajiero 4:5 Portrait Ratio: 1080x1350) */}
+      <div className="group relative w-full aspect-[4/5] overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f6f5f3] shadow-xs">
         {/* Hardware-accelerated Swipeable Track with CSS Scroll Snap */}
         <div
           ref={trackRef}
@@ -116,7 +116,7 @@ export default function ProductGallery({
           {galleryImages.map((img, idx) => (
             <div
               key={img + idx}
-              className="relative h-full w-full shrink-0 snap-start snap-always flex items-center justify-center"
+              className="relative h-full w-full shrink-0 snap-start snap-always"
             >
               <Image
                 src={img}
@@ -126,7 +126,7 @@ export default function ProductGallery({
                 loading={idx <= 1 ? "eager" : "lazy"}
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 quality={95}
-                className="object-contain object-center select-none pointer-events-none p-1.5 sm:p-2.5 transition-transform duration-500 group-hover:scale-[1.02]"
+                className="object-cover object-center select-none pointer-events-none transition-transform duration-500 group-hover:scale-[1.02]"
                 draggable={false}
               />
             </div>
@@ -135,14 +135,14 @@ export default function ProductGallery({
 
         {/* Sale Badge (Top-Left) */}
         {onSale && (
-          <span className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 rounded-full bg-[#7A2A3D] px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-bold tracking-[0.14em] text-white uppercase shadow-xs z-10">
+          <span className="absolute top-3 left-3 sm:top-4 sm:left-4 rounded-full bg-[#7A2A3D] px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-bold tracking-[0.14em] text-white uppercase shadow-xs z-10">
             Sale
           </span>
         )}
 
         {/* Out of Stock Badge */}
         {!isAvailable && (
-          <span className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 rounded-full bg-charcoal/85 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] font-medium tracking-[0.14em] text-white uppercase z-10">
+          <span className="absolute top-3 left-3 sm:top-4 sm:left-4 rounded-full bg-charcoal/85 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] font-medium tracking-[0.14em] text-white uppercase z-10">
             Out of Stock
           </span>
         )}
@@ -155,7 +155,7 @@ export default function ProductGallery({
           }
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={isWishlisted}
-          className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-xs transition hover:scale-110 hover:bg-white cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-xs transition hover:scale-110 hover:bg-white cursor-pointer"
         >
           <HeartIcon
             filled={isWishlisted}
@@ -173,25 +173,25 @@ export default function ProductGallery({
               onClick={handlePrev}
               disabled={currentIndex === 0}
               aria-label="Previous image"
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-charcoal opacity-0 shadow-md backdrop-blur-xs transition group-hover:opacity-100 hover:bg-white disabled:opacity-0 cursor-pointer hidden md:flex"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-charcoal opacity-0 shadow-md backdrop-blur-xs transition group-hover:opacity-100 hover:bg-white disabled:opacity-0 cursor-pointer hidden md:flex"
             >
-              <ChevronIcon className="h-4 w-4 rotate-90" />
+              <ChevronIcon className="h-4.5 w-4.5 rotate-90" />
             </button>
             <button
               type="button"
               onClick={handleNext}
               disabled={currentIndex === total - 1}
               aria-label="Next image"
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-charcoal opacity-0 shadow-md backdrop-blur-xs transition group-hover:opacity-100 hover:bg-white disabled:opacity-0 cursor-pointer hidden md:flex"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-charcoal opacity-0 shadow-md backdrop-blur-xs transition group-hover:opacity-100 hover:bg-white disabled:opacity-0 cursor-pointer hidden md:flex"
             >
-              <ChevronIcon className="h-4 w-4 -rotate-90" />
+              <ChevronIcon className="h-4.5 w-4.5 -rotate-90" />
             </button>
           </>
         )}
 
-        {/* Mobile Dot Indicators (Bottom-Center) */}
+        {/* Mobile Dot Indicators (Bottom-Center, Sajiero Swiper Style) */}
         {total > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 backdrop-blur-md sm:hidden">
+          <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 backdrop-blur-md sm:hidden">
             {galleryImages.map((_, dotIdx) => (
               <button
                 key={dotIdx}
@@ -201,26 +201,26 @@ export default function ProductGallery({
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   dotIdx === currentIndex
                     ? "w-4 bg-white"
-                    : "w-1.5 bg-white/50 hover:bg-white/80"
+                    : "w-1.5 bg-white/60 hover:bg-white"
                 }`}
               />
             ))}
           </div>
         )}
 
-        {/* Counter Badge (Bottom-Right) */}
+        {/* Counter Badge (Desktop / Tablet Bottom-Right) */}
         {total > 1 && (
-          <div className="absolute bottom-3 right-3 sm:bottom-3.5 sm:right-3.5 z-10 rounded-full bg-black/65 px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-white tracking-wider backdrop-blur-xs">
+          <div className="absolute bottom-3.5 right-3.5 z-10 hidden sm:block rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white tracking-wider backdrop-blur-xs">
             {currentIndex + 1}/{total}
           </div>
         )}
       </div>
 
-      {/* Interactive Thumbnails Selector Strip */}
+      {/* Interactive Thumbnails Strip (Desktop / Tablet - Hidden on Mobile like Sajiero) */}
       {total > 1 && (
         <div
           ref={thumbTrackRef}
-          className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory"
+          className="hidden sm:flex items-center gap-2.5 overflow-x-auto pt-1 pb-1 scrollbar-none"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {galleryImages.map((img, idx) => {
@@ -231,7 +231,7 @@ export default function ProductGallery({
                 type="button"
                 onClick={() => scrollToImage(idx)}
                 aria-label={`View image ${idx + 1}`}
-                className={`relative aspect-[4/5] w-14 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl sm:rounded-2xl bg-[#f8f6f4] transition-all duration-200 cursor-pointer ${
+                className={`relative aspect-[4/5] w-18 lg:w-20 shrink-0 overflow-hidden rounded-xl bg-[#f6f5f3] transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "ring-2 ring-[#7A2A3D] ring-offset-2 scale-102 opacity-100 shadow-xs"
                     : "opacity-60 hover:opacity-100 border border-line"
@@ -242,7 +242,7 @@ export default function ProductGallery({
                   alt={`${name} thumbnail ${idx + 1}`}
                   fill
                   sizes="80px"
-                  className="object-contain p-0.5"
+                  className="object-cover"
                 />
               </button>
             );

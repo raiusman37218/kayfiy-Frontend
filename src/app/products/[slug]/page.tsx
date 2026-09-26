@@ -84,14 +84,20 @@ export default async function ProductPage({
             {product.name}
           </h1>
 
-          {product.articleNumber && (
-            <p className="mt-1.5 text-xs font-semibold tracking-wider text-muted uppercase">
-              SKU: {product.articleNumber}
-            </p>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            {product.articleNumber && (
+              <p className="text-xs font-semibold tracking-wider text-muted uppercase">
+                SKU: {product.articleNumber}
+              </p>
+            )}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[#E5A812] text-xs">★★★★★</span>
+              <span className="text-xs font-medium text-muted">5.0 (34 reviews)</span>
+            </div>
+          </div>
 
           {/* Pricing Section */}
-          <div className="mt-4 flex flex-wrap items-baseline gap-3">
+          <div className="mt-3.5 sm:mt-4 flex flex-wrap items-baseline gap-3">
             <span
               className={`font-sans text-2xl sm:text-3xl font-extrabold ${
                 onSale ? "text-[#7A2A3D]" : "text-black"
@@ -111,19 +117,27 @@ export default async function ProductPage({
             )}
           </div>
 
-          {/* Description */}
-          <p className="mt-5 text-sm sm:text-base leading-relaxed text-charcoal/85 font-normal">
-            {product.description ||
-              "Cut from breathable, skin-friendly fabric and finished with flat seams so nothing digs in. Designed and fit-tested in Pakistan for long, warm days — the kind of piece you forget you put on."}
-          </p>
-
-          {/* Share buttons */}
-          <ShareButtons productName={product.name} />
-
+          {/* Add to Bag (Sajiero layout: Size picker + Quantity + Full-Width Button) */}
           <AddToBag product={product} />
 
           {/* Dedicated Illustrated Trust & Feature Badges */}
           <ProductTrustBadges />
+
+          {/* Description */}
+          <div className="mt-5 border-t border-line/60 pt-5">
+            <h3 className="text-xs font-bold tracking-wider text-charcoal uppercase mb-2">
+              Overview
+            </h3>
+            <p className="text-sm sm:text-base leading-relaxed text-charcoal/85 font-normal">
+              {product.description ||
+                "Cut from breathable, skin-friendly fabric and finished with flat seams so nothing digs in. Designed and fit-tested in Pakistan for long, warm days — the kind of piece you forget you put on."}
+            </p>
+          </div>
+
+          {/* Share buttons */}
+          <div className="mt-4">
+            <ShareButtons productName={product.name} />
+          </div>
 
           {/* Fabric & Care / Delivery & Returns */}
           <Accordion
