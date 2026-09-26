@@ -100,8 +100,8 @@ export default function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3 sm:gap-3.5 w-full select-none">
-      {/* Main Slide Track Viewport */}
-      <div className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-blush shadow-xs">
+      {/* Main Slide Track Viewport (Constrained on mobile so entire photo fits in viewport) */}
+      <div className="group relative w-full aspect-[4/5] max-h-[50vh] sm:max-h-[540px] md:max-h-[600px] overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f8f6f4] shadow-xs">
         {/* Hardware-accelerated Swipeable Track with CSS Scroll Snap */}
         <div
           ref={trackRef}
@@ -116,7 +116,7 @@ export default function ProductGallery({
           {galleryImages.map((img, idx) => (
             <div
               key={img + idx}
-              className="relative h-full w-full shrink-0 snap-start snap-always"
+              className="relative h-full w-full shrink-0 snap-start snap-always flex items-center justify-center"
             >
               <Image
                 src={img}
@@ -124,8 +124,9 @@ export default function ProductGallery({
                 fill
                 priority={idx === 0}
                 loading={idx <= 1 ? "eager" : "lazy"}
-                sizes="(min-width: 1024px) 46vw, 100vw"
-                className="object-cover select-none pointer-events-none transition-transform duration-500 group-hover:scale-[1.02]"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                quality={95}
+                className="object-contain object-center select-none pointer-events-none p-1.5 sm:p-2.5 transition-transform duration-500 group-hover:scale-[1.02]"
                 draggable={false}
               />
             </div>
@@ -230,7 +231,7 @@ export default function ProductGallery({
                 type="button"
                 onClick={() => scrollToImage(idx)}
                 aria-label={`View image ${idx + 1}`}
-                className={`relative aspect-[4/5] w-14 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl sm:rounded-2xl bg-blush transition-all duration-200 cursor-pointer ${
+                className={`relative aspect-[4/5] w-14 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl sm:rounded-2xl bg-[#f8f6f4] transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "ring-2 ring-[#7A2A3D] ring-offset-2 scale-102 opacity-100 shadow-xs"
                     : "opacity-60 hover:opacity-100 border border-line"
@@ -241,7 +242,7 @@ export default function ProductGallery({
                   alt={`${name} thumbnail ${idx + 1}`}
                   fill
                   sizes="80px"
-                  className="object-cover"
+                  className="object-contain p-0.5"
                 />
               </button>
             );

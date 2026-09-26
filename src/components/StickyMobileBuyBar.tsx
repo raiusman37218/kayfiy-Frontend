@@ -51,43 +51,38 @@ export default function StickyMobileBuyBar({ product }: { product: Product }) {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 block border-t border-line bg-white/95 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all duration-300 sm:hidden animate-slide-up">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2.5">
         {/* Thumbnail & Title */}
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-blush border border-line">
+        <div className="flex items-center gap-2 min-w-0 shrink-0 max-w-[40%]">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-[#f8f6f4] border border-line">
             <Image
               src={product.image || "/banners/hero-monsoon.jpg"}
               alt={product.name}
               fill
               sizes="44px"
-              className="object-cover"
+              className="object-contain p-0.5"
             />
           </div>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <h4 className="truncate text-xs font-semibold text-charcoal">
               {product.name}
             </h4>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className={`text-xs font-extrabold ${onSale ? "text-[#7A2A3D]" : "text-black"}`}>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className={`text-xs font-bold ${onSale ? "text-[#7A2A3D]" : "text-black"}`}>
                 {formatPrice(product.price)}
               </span>
-              {onSale && (
-                <span className="text-[10px] text-muted line-through">
-                  {formatPrice(product.compareAt!)}
-                </span>
-              )}
             </div>
           </div>
         </div>
 
         {/* Size Selection (if multiple) & Add to Cart button */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 flex-1 justify-end min-w-0">
           {sizes.length > 1 && (
             <select
               value={size}
               onChange={(e) => setSize(e.target.value)}
               aria-label="Select size"
-              className="h-10 rounded-full border border-line bg-cream px-2.5 text-xs font-semibold text-charcoal focus:border-[#7A2A3D] focus:outline-none"
+              className="h-10 rounded-full border border-line bg-cream px-2 text-xs font-semibold text-charcoal focus:border-[#7A2A3D] focus:outline-none shrink-0"
             >
               {sizes.map((s) => (
                 <option key={s} value={s}>
@@ -101,7 +96,7 @@ export default function StickyMobileBuyBar({ product }: { product: Product }) {
             type="button"
             onClick={handleAdd}
             disabled={!isAvailable}
-            className={`h-10 rounded-full px-5 text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer shadow-sm ${
+            className={`flex-1 min-w-[120px] h-10 flex items-center justify-center rounded-full px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer shadow-sm ${
               added
                 ? "bg-emerald-600 text-white"
                 : isAvailable

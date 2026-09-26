@@ -73,18 +73,22 @@ export default function AddToBag({ product }: { product: Product }) {
         ))}
       </div>
 
-      <div className="mt-5 sm:mt-6 flex items-center gap-3 sm:gap-4">
-        <div className="flex h-12 items-center rounded-full border border-line bg-white">
+      {/* Quantity & Stepper Row */}
+      <div className="mt-5 sm:mt-6 flex items-center justify-between">
+        <span className="text-xs font-bold tracking-wider text-charcoal uppercase">
+          Quantity
+        </span>
+        <div className="flex h-10 sm:h-11 items-center rounded-full border border-line bg-white shadow-2xs">
           <button
             type="button"
             onClick={() => setQty((value) => Math.max(1, value - 1))}
             aria-label="Decrease quantity"
             disabled={!isAvailable}
-            className="px-3.5 sm:px-4 py-2 text-base font-bold text-black transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
+            className="px-3.5 py-1 text-base font-bold text-charcoal transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
           >
             −
           </button>
-          <span aria-live="polite" className="w-7 sm:w-8 text-center text-sm font-bold text-black">
+          <span aria-live="polite" className="w-8 text-center text-sm font-bold text-charcoal">
             {qty}
           </span>
           <button
@@ -92,19 +96,25 @@ export default function AddToBag({ product }: { product: Product }) {
             onClick={() => setQty((value) => Math.min(10, value + 1))}
             aria-label="Increase quantity"
             disabled={!isAvailable}
-            className="px-3.5 sm:px-4 py-2 text-base font-bold text-black transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
+            className="px-3.5 py-1 text-base font-bold text-charcoal transition hover:text-[#7A2A3D] active:scale-90 disabled:opacity-40 cursor-pointer"
           >
             +
           </button>
         </div>
+      </div>
 
+      {/* Main Full-Width Add to Bag Button (Centered, Symmetrical, Sajiero Style) */}
+      <div className="mt-3.5 sm:mt-4 w-full">
         <button
           type="button"
           onClick={handleAdd}
           disabled={!isAvailable}
-          className="flex-1 h-12 flex items-center justify-center rounded-full bg-[#7A2A3D] px-6 sm:px-8 text-xs sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.16em] text-white uppercase shadow-md transition hover:bg-[#5C1C2C] hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted-soft cursor-pointer"
+          className="w-full h-12 sm:h-13 flex items-center justify-center gap-2 rounded-full bg-[#7A2A3D] px-6 sm:px-8 text-xs sm:text-sm font-bold tracking-[0.14em] text-white uppercase shadow-md transition-all duration-300 hover:bg-[#5C1C2C] hover:shadow-lg active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted-soft cursor-pointer"
         >
-          {isAvailable ? "Add to Bag" : "Out of Stock"}
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>{isAvailable ? "Add to Bag" : "Out of Stock"}</span>
         </button>
       </div>
 
